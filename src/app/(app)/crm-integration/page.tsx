@@ -3,11 +3,12 @@
 
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { UserCircle, Gauge, Route, Lightbulb, TrendingUp, UsersCog, MessageSquarePlus, Target } from "lucide-react";
+import { UserCircle, Gauge, Route, Lightbulb, TrendingUp, UsersCog, MessageSquarePlus, Target, Mail, CalendarPlus, ShoppingBag, History, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
+import { Separator } from "@/components/ui/separator";
 
 export default function CrmIntegrationPage() {
   return (
@@ -23,39 +24,66 @@ export default function CrmIntegrationPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <UserCircle className="h-6 w-6 text-primary" />
-                Customer Profile View
+                Customer Profile: John Doe
               </CardTitle>
-              <CardDescription>Detailed overview of a selected customer.</CardDescription>
+              <CardDescription>Detailed overview of customer interactions, history, and preferences.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16">
+            <CardContent className="space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <Avatar className="h-20 w-20">
                   <AvatarImage src="https://placehold.co/100x100.png" alt="Customer Avatar" data-ai-hint="person avatar"/>
                   <AvatarFallback>JD</AvatarFallback>
                 </Avatar>
-                <div>
-                  <h3 className="text-xl font-semibold">John Doe</h3>
-                  <p className="text-sm text-muted-foreground">john.doe@example.com</p>
-                  <p className="text-xs text-muted-foreground">Loyalty Tier: Gold</p>
+                <div className="space-y-1">
+                  <h3 className="text-2xl font-semibold">John Doe</h3>
+                  <p className="text-sm text-muted-foreground">john.doe@example.com | +1-555-123-4567</p>
+                  <p className="text-xs text-muted-foreground">Loyalty Tier: Gold | Member Since: Jan 15, 2022</p>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div><strong>Last Interaction:</strong> 2 days ago (Email Open)</div>
-                <div><strong>Total Spend:</strong> $1,250</div>
-                <div><strong>Preferred Category:</strong> Electronics</div>
-                <div><strong>Last Purchase:</strong> Smart Watch Model X</div>
-              </div>
-              <div className="pt-2">
-                <h4 className="font-semibold mb-1">Recent Activity:</h4>
-                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                  <li>Visited 'New Arrivals' page - 1 day ago</li>
-                  <li>Added 'Wireless Headphones' to cart - 1 day ago</li>
-                  <li>Opened 'Weekly Deals' newsletter - 2 days ago</li>
+              
+              <Separator />
+
+              <div>
+                <h4 className="font-semibold mb-2 text-primary flex items-center gap-1"><ShoppingBag className="h-5 w-5"/> Transaction History</h4>
+                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 pl-2">
+                  <li>Order #1024 - Smart Watch Model X - $299.99 (July 10, 2024)</li>
+                  <li>Order #985 - Wireless Earbuds - $79.00 (June 05, 2024)</li>
+                  <li>Order #950 - Fitness Tracker - $120.50 (April 20, 2024)</li>
                 </ul>
+                 <p className="text-xs text-muted-foreground mt-1">Total Spend: $1,250.49</p>
+              </div>
+              
+              <Separator />
+
+              <div>
+                <h4 className="font-semibold mb-2 text-primary flex items-center gap-1"><History className="h-5 w-5"/> Interaction Timeline</h4>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-start gap-2">
+                    <FileText className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
+                    <div>
+                      <span className="font-medium">Visited 'New Arrivals' page</span>
+                      <p className="text-xs text-muted-foreground">July 15, 2024 - 10:30 AM</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                     <ShoppingBag className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
+                    <div>
+                      <span className="font-medium">Added 'Wireless Headphones' to cart</span>
+                      <p className="text-xs text-muted-foreground">July 15, 2024 - 10:35 AM</p>
+                    </div>
+                  </div>
+                   <div className="flex items-start gap-2">
+                    <Mail className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
+                    <div>
+                      <span className="font-medium">Opened 'Weekly Deals' newsletter</span>
+                      <p className="text-xs text-muted-foreground">July 14, 2024 - 09:00 AM</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
              <CardFooter>
-                <Button variant="outline">View Full Profile</Button>
+                <Button variant="outline">View Full CRM Record</Button>
             </CardFooter>
           </Card>
 
@@ -63,32 +91,56 @@ export default function CrmIntegrationPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-accent">
                 <Lightbulb className="h-6 w-6" />
-                AI Recommendations
+                AI-Powered Next Best Actions
               </CardTitle>
               <CardDescription className="text-accent/80">
-                Tailored suggestions to enhance customer engagement and sales.
+                Tailored suggestions to enhance engagement with John Doe.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="p-3 bg-background/50 rounded-md shadow-sm">
-                <h4 className="font-semibold flex items-center gap-1">
-                  <MessageSquarePlus className="h-4 w-4 text-primary"/>
-                  Next Best Action:
+            <CardContent className="space-y-4">
+              <div className="p-4 bg-background/70 rounded-md shadow-sm border">
+                <h4 className="font-semibold flex items-center gap-1.5 mb-1">
+                  <MessageSquarePlus className="h-5 w-5 text-primary"/>
+                  High Priority: Cart Abandonment
                 </h4>
-                <p className="text-sm text-muted-foreground">
-                  Send a follow-up email to John Doe regarding the 'Wireless Headphones' in his cart. Offer a 5% discount to encourage purchase.
+                <p className="text-sm text-muted-foreground mb-2">
+                  John Doe has 'Wireless Headphones' in his cart. Send a follow-up email offering a 5% discount to encourage purchase.
                 </p>
+                <Button size="sm">
+                  <Mail className="mr-2 h-4 w-4"/>
+                  Send Discount Email (Simulated)
+                </Button>
               </div>
-              <div className="p-3 bg-background/50 rounded-md shadow-sm">
-                <h4 className="font-semibold flex items-center gap-1">
-                  <Target className="h-4 w-4 text-primary"/>
-                  Content Suggestion:
+              <div className="p-4 bg-background/70 rounded-md shadow-sm border">
+                <h4 className="font-semibold flex items-center gap-1.5 mb-1">
+                  <Target className="h-5 w-5 text-primary"/>
+                  Content Engagement: Smart Watch
                 </h4>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground mb-2">
                   Share a blog post about 'Top 5 Accessories for Smart Watches' with John, based on his last purchase.
                 </p>
+                 <Button size="sm" variant="secondary">
+                  <FileText className="mr-2 h-4 w-4"/>
+                  Share Blog Post (Simulated)
+                </Button>
+              </div>
+               <div className="p-4 bg-background/70 rounded-md shadow-sm border">
+                <h4 className="font-semibold flex items-center gap-1.5 mb-1">
+                  <CalendarPlus className="h-5 w-5 text-primary"/>
+                  Proactive Follow-up: Loyalty
+                </h4>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Schedule a task to check in with John in 2 weeks about his Gold Tier benefits.
+                </p>
+                 <Button size="sm" variant="secondary">
+                  <CalendarPlus className="mr-2 h-4 w-4"/>
+                  Schedule Task (Simulated)
+                </Button>
               </div>
             </CardContent>
+             <CardFooter>
+                <p className="text-xs text-muted-foreground">AI recommendations are updated in real-time based on new data.</p>
+            </CardFooter>
           </Card>
         </div>
 
