@@ -4,26 +4,52 @@
 import { useState } from 'react';
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Wand2, PlusCircle, ListChecks, History, CalendarClock } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Plus, Activity, CheckCircle2, CalendarClock, Wallet, BarChart, Filter, Search, Wand2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+
+// Mock data for campaigns
+const mockCampaigns = [
+  { id: '1', name: 'Summer Sale 2024', status: 'Active', budgetSpent: 3500, totalBudget: 5000, results: { clicks: 1200, conversions: 85 }, channel: 'Social Media' },
+  { id: '2', name: 'Q3 Product Launch', status: 'Upcoming', budgetSpent: 0, totalBudget: 7500, results: {}, channel: 'Email, SEM' },
+  { id: '3', name: 'Spring Awareness Q1', status: 'Completed', budgetSpent: 2000, totalBudget: 2000, results: { impressions: 50000, engagement: '12%' }, channel: 'Display Ads' },
+  { id: '4', name: 'Influencer Outreach Wave 2', status: 'Active', budgetSpent: 1500, totalBudget: 4000, results: { reach: '250K', leads: 40 }, channel: 'Influencer' },
+  { id: '5', name: 'Local SEO Boost', status: 'Paused', budgetSpent: 500, totalBudget: 1000, results: { rankingUp: 5, calls: 15 }, channel: 'SEO' },
+];
+
+type CampaignStatus = 'Active' | 'Upcoming' | 'Completed' | 'Paused' | 'Draft';
+
+const getStatusIcon = (status: CampaignStatus) => {
+  switch (status) {
+    case 'Active': return <Activity className="h-4 w-4 text-green-500" />;
+    case 'Completed': return <CheckCircle2 className="h-4 w-4 text-blue-500" />;
+    case 'Upcoming': return <CalendarClock className="h-4 w-4 text-purple-500" />;
+    case 'Paused': return <Activity className="h-4 w-4 text-yellow-500" />; // Using Activity for Paused, can change
+    default: return <Activity className="h-4 w-4 text-gray-500" />;
+  }
+};
+
+const getStatusBadgeVariant = (status: CampaignStatus): "default" | "secondary" | "destructive" | "outline" => {
+    switch (status) {
+        case 'Active': return 'default'; // primary color (blue)
+        case 'Completed': return 'secondary'; // light blue/gray
+        case 'Upcoming': return 'outline'; // themed with border
+        case 'Paused': return 'destructive'; // using destructive for visibility, can be themed
+        default: return 'outline';
+    }
+}
+
 
 export default function CampaignsPage() {
-  const [campaignName, setCampaignName] = useState("");
-  const [targetAudience, setTargetAudience] = useState("");
-  const [adSpend, setAdSpend] = useState("");
+  const [campaigns, setCampaigns] = useState(mockCampaigns);
+  // Add filtering/search state if needed
+  // const [searchTerm, setSearchTerm] = useState("");
+  // const [statusFilter, setStatusFilter] = useState<CampaignStatus | "All">("All");
 
-  const handleCreateCampaign = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Logic to create campaign will go here
-    console.log({ campaignName, targetAudience, adSpend });
-    // Reset form for now
-    setCampaignName("");
-    setTargetAudience("");
-    setAdSpend("");
+  const handleCreateCampaign = () => {
+    // Logic to open a modal or navigate to a campaign creation page
+    console.log("Open AI-assisted campaign creation flow");
   };
 
   return (
@@ -31,139 +57,72 @@ export default function CampaignsPage() {
       <PageHeader
         title="Campaign Management"
         description="Oversee, create, and optimize your marketing campaigns."
+        actions={
+          <div className="flex items-center gap-2">
+            {/* Placeholder for filter/search if needed
+            <Input placeholder="Search campaigns..." className="w-64" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            <Button variant="outline"><Filter className="mr-2 h-4 w-4" /> Filter</Button>
+            */}
+          </div>
+        }
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Campaign Display Section */}
-        <div className="lg:col-span-2">
-          <Card className="shadow-lg">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+        {campaigns.map((campaign) => (
+          <Card key={campaign.id} className="shadow-lg flex flex-col">
             <CardHeader>
-              <CardTitle>Your Campaigns</CardTitle>
-              <CardDescription>View and manage all your marketing campaigns.</CardDescription>
+              <div className="flex justify-between items-start">
+                <CardTitle className="text-lg">{campaign.name}</CardTitle>
+                {getStatusIcon(campaign.status as CampaignStatus)}
+              </div>
+              <CardDescription>{campaign.channel}</CardDescription>
             </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="active">
-                <TabsList className="grid w-full grid-cols-3 mb-4">
-                  <TabsTrigger value="active" className="flex items-center gap-2">
-                    <ListChecks className="h-4 w-4" /> Active
-                  </TabsTrigger>
-                  <TabsTrigger value="upcoming" className="flex items-center gap-2">
-                    <CalendarClock className="h-4 w-4" /> Upcoming
-                  </TabsTrigger>
-                  <TabsTrigger value="past" className="flex items-center gap-2">
-                    <History className="h-4 w-4" /> Past
-                  </TabsTrigger>
-                </TabsList>
-                <TabsContent value="active">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Active Campaigns</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      <p className="text-sm text-muted-foreground">Placeholder for active campaigns list.</p>
-                      {/* Example campaign item */}
-                      <div className="border p-3 rounded-md shadow-sm">
-                        <h4 className="font-semibold">Summer Sale 2024</h4>
-                        <p className="text-xs text-muted-foreground">Status: Ongoing | Budget: $5000</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-                <TabsContent value="upcoming">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Upcoming Campaigns</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      <p className="text-sm text-muted-foreground">Placeholder for upcoming campaigns list.</p>
-                       <div className="border p-3 rounded-md shadow-sm">
-                        <h4 className="font-semibold">Holiday Product Launch</h4>
-                        <p className="text-xs text-muted-foreground">Starts: Nov 15, 2024 | Budget: $7500</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-                <TabsContent value="past">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Past Campaigns</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      <p className="text-sm text-muted-foreground">Placeholder for past campaigns list.</p>
-                       <div className="border p-3 rounded-md shadow-sm">
-                        <h4 className="font-semibold">Spring Awareness Q1</h4>
-                        <p className="text-xs text-muted-foreground">Ended: Mar 31, 2024 | Performance: Good</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
+            <CardContent className="flex-grow space-y-3">
+              <div>
+                <Badge variant={getStatusBadgeVariant(campaign.status as CampaignStatus)}>{campaign.status}</Badge>
+              </div>
+              <div>
+                <div className="flex justify-between items-center text-sm mb-1">
+                  <span className="text-muted-foreground flex items-center"><Wallet className="h-4 w-4 mr-1" /> Budget</span>
+                  <span>${campaign.budgetSpent.toLocaleString()} / ${campaign.totalBudget.toLocaleString()}</span>
+                </div>
+                <Progress value={(campaign.budgetSpent / campaign.totalBudget) * 100} className="h-2" />
+              </div>
+              <div className="text-sm">
+                <h4 className="font-medium mb-1 text-muted-foreground flex items-center"><BarChart className="h-4 w-4 mr-1" /> Key Results:</h4>
+                <ul className="list-disc list-inside pl-1 text-xs space-y-0.5">
+                  {Object.entries(campaign.results).map(([key, value]) => (
+                    <li key={key}><span className="capitalize">{key.replace(/([A-Z])/g, ' $1')}:</span> {value}</li>
+                  ))}
+                  {Object.keys(campaign.results).length === 0 && <li>No results yet.</li>}
+                </ul>
+              </div>
             </CardContent>
             <CardFooter>
-               <Button variant="outline" className="w-full md:w-auto">
-                <Wand2 className="mr-2 h-4 w-4" />
-                AI-Suggest Campaign Improvements
-              </Button>
+              <Button variant="outline" size="sm" className="w-full">View Details</Button>
             </CardFooter>
           </Card>
-        </div>
-
-        {/* Campaign Creation Section */}
-        <div className="lg:col-span-1">
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <PlusCircle className="h-5 w-5 text-primary" />
-                Create New Campaign
-              </CardTitle>
-              <CardDescription>Set up your next marketing initiative.</CardDescription>
-            </CardHeader>
-            <form onSubmit={handleCreateCampaign}>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="campaignName" className="text-base font-medium">Campaign Name</Label>
-                  <Input
-                    id="campaignName"
-                    value={campaignName}
-                    onChange={(e) => setCampaignName(e.target.value)}
-                    placeholder="e.g., 'Q4 Holiday Promotion'"
-                    className="mt-1"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="targetAudience" className="text-base font-medium">Target Audience</Label>
-                  <Textarea
-                    id="targetAudience"
-                    value={targetAudience}
-                    onChange={(e) => setTargetAudience(e.target.value)}
-                    placeholder="Describe your target audience (e.g., demographics, interests)"
-                    className="mt-1 min-h-[80px]"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="adSpend" className="text-base font-medium">Ad Spend ($)</Label>
-                  <Input
-                    id="adSpend"
-                    type="number"
-                    value={adSpend}
-                    onChange={(e) => setAdSpend(e.target.value)}
-                    placeholder="e.g., 1500"
-                    className="mt-1"
-                    required
-                  />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-                  Create Campaign
-                </Button>
-              </CardFooter>
-            </form>
-          </Card>
-        </div>
+        ))}
+         {campaigns.length === 0 && (
+          <div className="md:col-span-2 lg:col-span-3 xl:col-span-4 text-center py-10">
+            <Search className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-xl font-semibold">No Campaigns Found</h3>
+            <p className="text-muted-foreground">Start by creating a new campaign.</p>
+          </div>
+        )}
       </div>
+      
+      {/* Floating Action Button */}
+      <Button
+        onClick={handleCreateCampaign}
+        className="fixed bottom-8 right-8 h-14 w-14 rounded-full shadow-xl bg-accent hover:bg-accent/90 text-accent-foreground text-lg"
+        aria-label="Add New Campaign with AI"
+        size="icon"
+      >
+        <Wand2 className="h-6 w-6 mr-0.5" /> 
+        <Plus className="h-5 w-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-60 group-hover:opacity-100 transition-opacity" style={{ transform: 'translate(-50%, -50%) scale(0.7)', top: 'calc(50% + 0px)', left: 'calc(50% + 0px)' }}/>
+
+      </Button>
     </>
   );
 }
