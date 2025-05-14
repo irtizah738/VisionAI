@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import React from "react"; // Added React import
 import {
   LayoutDashboard,
   Megaphone,
@@ -17,15 +18,15 @@ import {
   SearchCode,
   SmilePlus,
   MessageSquareQuote,
-  BarChartBig, // New Icon
-  MailCheck, // New Icon
-  UsersRound, // New Icon
-  FolderKanban, // New Icon
-  Sparkles, // New Icon
-  UsersCog, // New Icon
-  SearchCheck, // New Icon
-  KanbanSquare, // New Icon
-  Store, // New Icon
+  BarChartBig,
+  MailCheck,
+  UsersRound,
+  FolderKanban,
+  Sparkles,
+  UserCog, // Corrected from UsersCog
+  SearchCheck,
+  KanbanSquare,
+  Store,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -37,8 +38,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+} from "@/components/ui/sidebar"; // Removed SidebarTrigger as it's not used here
 import { Button } from "@/components/ui/button";
 import { VisionAILogo } from "@/components/icons";
 import { Separator } from "@/components/ui/separator";
@@ -55,7 +55,7 @@ import {
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/campaigns", icon: Megaphone, label: "Campaigns" },
-  { href: "/seo", icon: Search, label: "SEO Overview" }, // Renamed for clarity
+  { href: "/seo", icon: Search, label: "SEO Overview" },
   { href: "/blog-generator", icon: FileText, label: "Blog Generator" },
   { href: "/chat-assistant", icon: MessageCircle, label: "Chat Assistant" },
   { type: "separator", label: "Core AI Capabilities" },
@@ -71,7 +71,7 @@ const navItems = [
   { href: "/social-media-management", icon: UsersRound, label: "Social Mgmt" },
   { href: "/content-management", icon: FolderKanban, label: "Content Mgmt" },
   { href: "/ai-content-generation", icon: Sparkles, label: "AI Content Gen" },
-  { href: "/crm-integration", icon: UsersCog, label: "CRM Integration" },
+  { href: "/crm-integration", icon: UserCog, label: "CRM Integration" }, // Corrected icon usage
   { href: "/seo-tools", icon: SearchCheck, label: "SEO Tools" },
   { href: "/project-management", icon: KanbanSquare, label: "Project Mgmt" },
   { href: "/ecommerce-analytics", icon: Store, label: "Ecom Analytics" },
