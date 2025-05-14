@@ -1,126 +1,168 @@
+
 "use client";
 
-import { Users, BarChart3, Activity, Twitter } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from 'react';
 import { PageHeader } from "@/components/layout/page-header";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
-} from "@/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
-import type { ChartConfig } from "@/components/ui/chart";
-
-const adPerformanceData = [
-  { campaign: "Summer Sale", spend: 2000, clicks: 15000, ctr: 7.5 },
-  { campaign: "New Product Launch", spend: 3500, clicks: 25000, ctr: 7.1 },
-  { campaign: "Holiday Promo", spend: 1500, clicks: 10000, ctr: 6.6 },
-  { campaign: "Brand Awareness", spend: 5000, clicks: 30000, ctr: 6.0 },
-];
-
-const chartConfig: ChartConfig = {
-  spend: {
-    label: "Spend ($)",
-    color: "hsl(var(--chart-1))",
-  },
-  clicks: {
-    label: "Clicks",
-    color: "hsl(var(--chart-2))",
-  },
-};
-
-const twitterMentions = [
-  { user: "@happycustomer", text: "Just love the new VisionAI product! #VisionAIrocks", time: "2m ago" },
-  { user: "@techreviewer", text: "Checking out @VisionAI's latest features, impressive stuff!", time: "5m ago" },
-  { user: "@marketingguru", text: "Heard great things about VisionAI, might give it a try for my next campaign.", time: "10m ago" },
-  { user: "@anotheruser", text: "VisionAI is a game changer for marketers!", time: "15m ago" },
-];
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Wand2, PlusCircle, ListChecks, History, CalendarClock } from "lucide-react";
 
 export default function CampaignsPage() {
+  const [campaignName, setCampaignName] = useState("");
+  const [targetAudience, setTargetAudience] = useState("");
+  const [adSpend, setAdSpend] = useState("");
+
+  const handleCreateCampaign = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Logic to create campaign will go here
+    console.log({ campaignName, targetAudience, adSpend });
+    // Reset form for now
+    setCampaignName("");
+    setTargetAudience("");
+    setAdSpend("");
+  };
+
   return (
     <>
       <PageHeader
         title="Campaign Management"
-        description="Monitor and analyze your social media campaigns."
+        description="Oversee, create, and optimize your marketing campaigns."
       />
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Follower Counts</CardTitle>
-            <Users className="h-5 w-5 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">1.2M</div>
-            <p className="text-xs text-muted-foreground">+5.2% this week</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ad Performance (Avg. CTR)</CardTitle>
-            <BarChart3 className="h-5 w-5 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">6.8%</div>
-            <p className="text-xs text-muted-foreground">+0.5% vs last campaign</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Traffic Analysis (Visits)</CardTitle>
-            <Activity className="h-5 w-5 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">250.K</div>
-            <p className="text-xs text-muted-foreground">+15% from social media</p>
-          </CardContent>
-        </Card>
-      </div>
 
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Ad Spend vs. Clicks</CardTitle>
-            <CardDescription>Comparison of spending and clicks for recent campaigns.</CardDescription>
-          </CardHeader>
-          <CardContent className="pl-2">
-             <ChartContainer config={chartConfig} className="h-[300px] w-full">
-              <BarChart data={adPerformanceData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                <CartesianGrid vertical={false} />
-                <XAxis dataKey="campaign" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => value.split(" ")[0]}/>
-                <YAxis yAxisId="left" orientation="left" stroke="var(--color-spend)" tickFormatter={(value) => `$${value/1000}k`}/>
-                <YAxis yAxisId="right" orientation="right" stroke="var(--color-clicks)" tickFormatter={(value) => `${value/1000}k`}/>
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <ChartLegend content={<ChartLegendContent />} />
-                <Bar yAxisId="left" dataKey="spend" fill="var(--color-spend)" radius={4} />
-                <Bar yAxisId="right" dataKey="clicks" fill="var(--color-clicks)" radius={4} />
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Twitter className="h-5 w-5 text-blue-500" />
-              Real-time Twitter Mentions
-            </CardTitle>
-            <CardDescription>Latest mentions of your brand on Twitter.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-4">
-              {twitterMentions.map((mention, index) => (
-                <li key={index} className="flex flex-col">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{mention.user}</span>
-                    <span className="text-xs text-muted-foreground">{mention.time}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{mention.text}</p>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Campaign Display Section */}
+        <div className="lg:col-span-2">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle>Your Campaigns</CardTitle>
+              <CardDescription>View and manage all your marketing campaigns.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="active">
+                <TabsList className="grid w-full grid-cols-3 mb-4">
+                  <TabsTrigger value="active" className="flex items-center gap-2">
+                    <ListChecks className="h-4 w-4" /> Active
+                  </TabsTrigger>
+                  <TabsTrigger value="upcoming" className="flex items-center gap-2">
+                    <CalendarClock className="h-4 w-4" /> Upcoming
+                  </TabsTrigger>
+                  <TabsTrigger value="past" className="flex items-center gap-2">
+                    <History className="h-4 w-4" /> Past
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="active">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Active Campaigns</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <p className="text-sm text-muted-foreground">Placeholder for active campaigns list.</p>
+                      {/* Example campaign item */}
+                      <div className="border p-3 rounded-md shadow-sm">
+                        <h4 className="font-semibold">Summer Sale 2024</h4>
+                        <p className="text-xs text-muted-foreground">Status: Ongoing | Budget: $5000</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="upcoming">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Upcoming Campaigns</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <p className="text-sm text-muted-foreground">Placeholder for upcoming campaigns list.</p>
+                       <div className="border p-3 rounded-md shadow-sm">
+                        <h4 className="font-semibold">Holiday Product Launch</h4>
+                        <p className="text-xs text-muted-foreground">Starts: Nov 15, 2024 | Budget: $7500</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="past">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Past Campaigns</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <p className="text-sm text-muted-foreground">Placeholder for past campaigns list.</p>
+                       <div className="border p-3 rounded-md shadow-sm">
+                        <h4 className="font-semibold">Spring Awareness Q1</h4>
+                        <p className="text-xs text-muted-foreground">Ended: Mar 31, 2024 | Performance: Good</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+            <CardFooter>
+               <Button variant="outline" className="w-full md:w-auto">
+                <Wand2 className="mr-2 h-4 w-4" />
+                AI-Suggest Campaign Improvements
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+
+        {/* Campaign Creation Section */}
+        <div className="lg:col-span-1">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <PlusCircle className="h-5 w-5 text-primary" />
+                Create New Campaign
+              </CardTitle>
+              <CardDescription>Set up your next marketing initiative.</CardDescription>
+            </CardHeader>
+            <form onSubmit={handleCreateCampaign}>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="campaignName" className="text-base font-medium">Campaign Name</Label>
+                  <Input
+                    id="campaignName"
+                    value={campaignName}
+                    onChange={(e) => setCampaignName(e.target.value)}
+                    placeholder="e.g., 'Q4 Holiday Promotion'"
+                    className="mt-1"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="targetAudience" className="text-base font-medium">Target Audience</Label>
+                  <Textarea
+                    id="targetAudience"
+                    value={targetAudience}
+                    onChange={(e) => setTargetAudience(e.target.value)}
+                    placeholder="Describe your target audience (e.g., demographics, interests)"
+                    className="mt-1 min-h-[80px]"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="adSpend" className="text-base font-medium">Ad Spend ($)</Label>
+                  <Input
+                    id="adSpend"
+                    type="number"
+                    value={adSpend}
+                    onChange={(e) => setAdSpend(e.target.value)}
+                    placeholder="e.g., 1500"
+                    className="mt-1"
+                    required
+                  />
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+                  Create Campaign
+                </Button>
+              </CardFooter>
+            </form>
+          </Card>
+        </div>
       </div>
     </>
   );
