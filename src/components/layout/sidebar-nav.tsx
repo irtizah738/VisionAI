@@ -11,6 +11,12 @@ import {
   MessageCircle,
   Settings,
   Users,
+  MapPin,
+  Share2,
+  Scaling,
+  SearchCode,
+  SmilePlus,
+  MessageSquareQuote,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -43,6 +49,12 @@ const navItems = [
   { href: "/seo", icon: Search, label: "SEO" },
   { href: "/blog-generator", icon: FileText, label: "Blog Generator" },
   { href: "/chat-assistant", icon: MessageCircle, label: "Chat Assistant" },
+  { href: "/local-marketing", icon: MapPin, label: "Local Marketing" },
+  { href: "/social-media-strategy", icon: Share2, label: "Social Strategy" },
+  { href: "/conversion-optimization", icon: Scaling, label: "CRO" },
+  { href: "/seo-enhancement", icon: SearchCode, label: "SEO Enhancement" },
+  { href: "/customer-experience", icon: SmilePlus, label: "Customer Experience" },
+  { href: "/social-media-guidance", icon: MessageSquareQuote, label: "Social Guidance" },
 ];
 
 export function SidebarNav() {
