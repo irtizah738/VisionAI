@@ -4,9 +4,9 @@
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Brain, TrendingUp, BarChart, LineChart as LineChartIconLucide, PieChartIcon, Lightbulb, ExternalLink } from "lucide-react"; // Renamed LineChart to LineChartIconLucide to avoid conflict
+import { Brain, TrendingUp, BarChart as BarChartIconLucide, LineChart as LineChartIconLucide, PieChartIcon, Lightbulb, ExternalLink } from "lucide-react"; // Aliased BarChart icon
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, Pie, Cell, Line, LineChart } from "recharts";
+import { Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, Pie, Cell, Line, LineChart, BarChart } from "recharts"; // Ensured BarChart is imported from recharts
 import type { ChartConfig } from "@/components/ui/chart";
 
 
@@ -187,7 +187,7 @@ export default function AdvancedAnalyticsPage() {
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarChart className="h-6 w-6 text-primary" /> {/* Assuming BarChart is the icon here */}
+              <BarChartIconLucide className="h-6 w-6 text-primary" /> {/* Updated to use aliased icon */}
               Custom Report Builder
             </CardTitle>
             <CardDescription>
