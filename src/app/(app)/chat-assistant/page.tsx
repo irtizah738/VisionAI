@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -78,7 +79,7 @@ export default function ChatAssistantPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-var(--header-height,4rem)-2*theme(spacing.8))]"> 
       <PageHeader
-        title="AI Chat Assistant"
+        title="Chat with VisionAI Assistant"
         description="Get real-time support and answers to your marketing questions."
       />
       <Card className="flex-1 flex flex-col shadow-lg">
