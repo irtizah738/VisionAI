@@ -4,6 +4,7 @@
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"; // Added import
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { FolderKanban, PlusCircle, Edit, Trash2, Settings2, Search } from "lucide-react";
@@ -129,5 +130,3 @@ export default function ContentManagementPage() {
     </>
   );
 }
-
-    
