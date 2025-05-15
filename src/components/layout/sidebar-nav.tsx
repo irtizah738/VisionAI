@@ -85,7 +85,7 @@ export function SidebarNav() {
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2">
           <VisionAILogo className="h-8 w-8 text-primary" />
-          <h1 className="text-xl font-semibold text-foreground">VisionAI</h1>
+          <h1 className="text-xl font-semibold text-sidebar-foreground">VisionAI</h1>
         </div>
       </SidebarHeader>
       <SidebarContent className="p-2">
