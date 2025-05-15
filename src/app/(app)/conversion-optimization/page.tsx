@@ -118,14 +118,16 @@ export default function ConversionOptimizationPage() {
               <div className="flex justify-center">
                 <Image
                   src="https://placehold.co/600x300.png"
-                  alt="Simulated User Click Map Placeholder"
+                  alt="Demo of a Simulated User Click Map for illustration purposes"
                   width={600}
                   height={300}
                   data-ai-hint="click heatmap"
                   className="rounded-md border shadow-md"
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-2 text-center">This is a visual representation of user clicks. Brighter areas indicate more clicks.</p>
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                This image is a simulated demo of a user click map. In a real scenario, brighter areas would indicate more user clicks, highlighting popular interaction zones.
+              </p>
             </div>
 
             <div>
