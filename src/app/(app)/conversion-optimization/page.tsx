@@ -106,20 +106,49 @@ export default function ConversionOptimizationPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Eye className="h-6 w-6 text-primary" />
-              User Behavior Insights
+              User Behavior Insights Demo
             </CardTitle>
             <CardDescription>
-              Understand how users interact with your site via heatmaps, session recordings, and more.
+              Understand how users interact with your site via heatmaps, session recordings, and more. (Simulated Data)
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-6 border border-dashed rounded-md flex flex-col items-center justify-center h-64 bg-muted/30">
-              <Image src="https://placehold.co/400x200.png" alt="Heatmap and Session Replay Placeholder" width={400} height={200} data-ai-hint="analytics heatmap" className="opacity-60 rounded-md" />
-              <p className="text-sm text-muted-foreground mt-4 text-center">
-                Visual analytics like heatmaps and session replay summaries will appear here.
-                <br />
-                (Connect your analytics platform to enable.)
-              </p>
+          <CardContent className="space-y-6">
+            <div className="bg-muted/30 p-4 rounded-lg shadow-inner">
+              <h4 className="text-lg font-semibold mb-3 text-center">Simulated User Click Map</h4>
+              <div className="flex justify-center">
+                <Image
+                  src="https://placehold.co/600x300.png"
+                  alt="Simulated User Click Map Placeholder"
+                  width={600}
+                  height={300}
+                  data-ai-hint="click heatmap"
+                  className="rounded-md border shadow-md"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 text-center">This is a visual representation of user clicks. Brighter areas indicate more clicks.</p>
+            </div>
+
+            <div>
+              <h4 className="text-md font-semibold mb-2">Key Insights (Simulated):</h4>
+              <ul className="list-disc list-inside space-y-1.5 text-sm text-muted-foreground">
+                <li><strong>High Drop-off:</strong> 65% of users abandon the checkout process at the 'Payment Details' step.</li>
+                <li><strong>Top Exit Page:</strong> 'Services Comparison' page shows an 80% exit rate before any CTA interaction.</li>
+                <li><strong>Hesitation Point:</strong> Users spend an average of 55 seconds on the 'Subscription Tier' selection page.</li>
+                <li><strong>Most Clicked Element:</strong> The 'Book a Demo' button on the navigation bar is the most frequently clicked interactive element.</li>
+                <li><strong>Ignored Content:</strong> The 'Terms and Conditions' link in the footer is rarely clicked, but users frequently ask support about related topics.</li>
+                 <li><strong>Rage Clicks:</strong> Multiple rapid clicks detected on the 'Submit' button of the contact form, suggesting potential unresponsiveness or errors.</li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-md font-semibold mb-2">Actionable Suggestions (Simulated):</h4>
+              <ul className="list-disc list-inside space-y-1.5 text-sm text-accent">
+                <li>Streamline the 'Payment Details' form; consider adding a progress indicator or alternative payment methods.</li>
+                <li>On 'Services Comparison', add a clear summary, a "Which service is right for me?" quiz, or a direct chat prompt.</li>
+                <li>For 'Subscription Tier' selection, highlight a 'Most Popular' option or provide clearer benefit summaries for each tier.</li>
+                <li>Ensure the 'Terms and Conditions' are easily accessible and summarize key points proactively.</li>
+                <li>Investigate the contact form for technical issues and provide immediate feedback upon submission.</li>
+              </ul>
             </div>
           </CardContent>
            <CardFooter>
@@ -173,3 +202,4 @@ export default function ConversionOptimizationPage() {
     </>
   );
 }
+
