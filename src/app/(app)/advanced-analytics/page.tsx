@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Brain, TrendingUp, BarChart, LineChart as LineChartIconLucide, PieChartIcon, Lightbulb, ExternalLink } from "lucide-react"; // Renamed LineChart to LineChartIconLucide to avoid conflict
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, Pie, Cell, Line } from "recharts";
+import { Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, Pie, Cell, Line, LineChart } from "recharts";
 import type { ChartConfig } from "@/components/ui/chart";
 
 
