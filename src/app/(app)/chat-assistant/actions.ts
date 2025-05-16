@@ -1,3 +1,4 @@
+
 // @ts-nocheck
 // TODO: Fix TS errors
 "use server";
@@ -13,7 +14,7 @@ export async function chatAssistantAction(input: ChatAssistantInput): Promise<Ch
         return { error: "Failed to get a response from the assistant. The AI model might have returned an unexpected response." };
     }
     return result;
-  } catch (e: any) {
+  } catch (e: any) { // Added type annotation for catch
     console.error("Error in chat assistant:", e);
     return { error: e.message || "An unexpected error occurred while communicating with the chat assistant." };
   }

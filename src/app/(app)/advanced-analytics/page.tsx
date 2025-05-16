@@ -4,206 +4,136 @@
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Brain, TrendingUp, BarChart as BarChartIconLucide, LineChart as LineChartIconLucide, PieChartIcon, Lightbulb, ExternalLink } from "lucide-react"; // Aliased BarChart icon
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, Pie, Cell, Line, LineChart, BarChart } from "recharts"; // Ensured BarChart is imported from recharts
-import type { ChartConfig } from "@/components/ui/chart";
+import { Input } from "@/components/ui/input"; // Added
+import { Label } from "@/components/ui/label"; // Added
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Added
+import { Checkbox } from "@/components/ui/checkbox"; // Added
+import { Users, Briefcase, MapPin, Filter, BarChart3, ChevronDown, Settings2, FileSearch } from "lucide-react";
 
-
-const behaviorChartData = [
-  { segment: "Segment A", engagement: 65, conversion: 40, predictedChurnRisk: 15 },
-  { segment: "Segment B", engagement: 78, conversion: 55, predictedChurnRisk: 5 },
-  { segment: "Segment C", engagement: 50, conversion: 30, predictedChurnRisk: 25 },
-  { segment: "Segment D", engagement: 85, conversion: 60, predictedChurnRisk: 10 },
-];
-
-const trendChartData = [
-  { month: "Jan", value: 400, topic: "AI in Marketing" },
-  { month: "Feb", value: 300, topic: "Sustainable Brands" },
-  { month: "Mar", value: 600, topic: "Video Content" },
-  { month: "Apr", value: 800, topic: "Personalization" },
-  { month: "May", value: 500, topic: "Influencer Marketing" },
-  { month: "Jun", value: 700, topic: "Data Privacy" },
-];
-
-const chartConfig: ChartConfig = {
-  engagement: {
-    label: "Engagement",
-    color: "hsl(var(--chart-1))",
-  },
-  conversion: {
-    label: "Conversion",
-    color: "hsl(var(--chart-2))",
-  },
-  predictedChurnRisk: {
-    label: "Predicted Churn Risk (%)",
-    color: "hsl(var(--chart-5))",
-  },
-  value: {
-    label: "Trend Score",
-    color: "hsl(var(--chart-3))",
-  }
-};
-
-
-export default function AdvancedAnalyticsPage() {
+export default function RealTimeAnalyticsPage() {
   return (
     <>
       <PageHeader
-        title="AI Insights & Advanced Analytics"
-        description="Comprehensive reporting with AI-driven insights and user-friendly dashboards."
+        title="Real-Time Analytics"
+        description="Dive deep into your campaign performance with granular filters and insights."
       />
-      <div className="space-y-8">
-        <Card className="shadow-lg">
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Filters Column - Mockup's mini-sidebar */}
+        <Card className="lg:w-1/4 shadow-sm">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Brain className="h-6 w-6 text-primary" />
-              Customer Behavior Predictions
-            </CardTitle>
-            <CardDescription>
-              AI-generated forecasts on customer actions, preferences, and potential churn.
-            </CardDescription>
+            <CardTitle className="text-lg">Filters</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Key Predictions:</h3>
-                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li><strong>Segment A:</strong> 30% higher likelihood to purchase 'Product X' next month.</li>
-                  <li><strong>Segment C:</strong> Shows a 25% churn risk. Proactive engagement recommended.</li>
-                  <li><strong>High Engagement Users:</strong> 60% more likely to respond to loyalty offers.</li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Action Recommendations:</h3>
-                <ul className="list-disc list-inside space-y-1 text-accent">
-                    <li>Launch targeted 'Product X' campaign for Segment A.</li>
-                    <li>Deploy retention strategy for Segment C (e.g., special offer, survey).</li>
-                    <li>Offer exclusive discounts to high engagement users.</li>
-                </ul>
-              </div>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="filterAge">Age</Label>
+              <Select>
+                <SelectTrigger id="filterAge">
+                  <SelectValue placeholder="Any Age" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="18-24">18-24</SelectItem>
+                  <SelectItem value="25-34">25-34</SelectItem>
+                  <SelectItem value="35-44">35-44</SelectItem>
+                  <SelectItem value="45+">45+</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            
-            <div className="mt-6 h-[350px]">
-              <ChartContainer config={chartConfig} className="w-full h-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={behaviorChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="segment" />
-                    <YAxis yAxisId="left" orientation="left" stroke="var(--color-engagement)" />
-                    <YAxis yAxisId="right" orientation="right" stroke="var(--color-predictedChurnRisk)" label={{ value: 'Churn Risk (%)', angle: -90, position: 'insideRight' }}/>
-                    <RechartsTooltip content={<ChartTooltipContent />} />
-                    <Legend />
-                    <Bar yAxisId="left" dataKey="engagement" fill="var(--color-engagement)" radius={[4, 4, 0, 0]} name="Engagement Score" />
-                    <Bar yAxisId="left" dataKey="conversion" fill="var(--color-conversion)" radius={[4, 4, 0, 0]} name="Conversion Rate"/>
-                    <Line yAxisId="right" type="monotone" dataKey="predictedChurnRisk" stroke="var(--color-predictedChurnRisk)" strokeWidth={2} name="Churn Risk (%)" dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </ChartContainer>
+            <div>
+              <Label htmlFor="filterLocation">Location</Label>
+              <Input id="filterLocation" placeholder="e.g., California, USA" />
             </div>
+            <div>
+              <Label htmlFor="filterInterests">Interests</Label>
+              <Select>
+                <SelectTrigger id="filterInterests">
+                  <SelectValue placeholder="Any Interest" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="tech">Technology</SelectItem>
+                  <SelectItem value="sports">Sports</SelectItem>
+                  <SelectItem value="travel">Travel</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+             <div>
+              <Label htmlFor="filterCampaign">Campaign</Label>
+              <Select>
+                <SelectTrigger id="filterCampaign">
+                  <SelectValue placeholder="All Campaigns" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="campaign1">Summer Sale 2024</SelectItem>
+                  <SelectItem value="campaign2">Q3 Product Launch</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button className="w-full mt-2">
+              <Filter className="mr-2 h-4 w-4" /> Apply Filters
+            </Button>
           </CardContent>
-          <CardFooter className="flex justify-end gap-2">
-            <Button variant="outline">
-              <ExternalLink className="mr-2 h-4 w-4" />
-              Explore Raw Data
-            </Button>
-            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-              <Lightbulb className="mr-2 h-4 w-4" />
-              Apply AI Recommendations (Simulated)
-            </Button>
-          </CardFooter>
         </Card>
 
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-6 w-6 text-primary" />
-              Market Trend Analysis
-            </CardTitle>
-            <CardDescription>
-              Identify emerging trends and shifts in the market landscape, powered by AI.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-             <div className="grid md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Emerging Trends:</h3>
-                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>Growing interest in 'Ethical AI in Marketing' (Search Volume +40% MoM).</li>
-                  <li>Increased demand for 'Interactive Content Formats' (Social Mentions +25% MoM).</li>
-                  <li>Shift towards 'Hyper-Personalization at Scale'.</li>
-                </ul>
+        {/* Main Analytics Content Area */}
+        <div className="flex-1 space-y-6">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Briefcase className="h-6 w-6 text-primary" />
+                Campaign Performance
+              </CardTitle>
+              <CardDescription>Overview of selected campaigns based on filters.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Input placeholder="Campaigns Name (search/filter)" className="mb-4"/>
+                <Textarea placeholder="Ad Content (search/filter)" className="mb-4 min-h-[80px]" />
+                <div className="p-6 border border-dashed rounded-md flex flex-col items-center justify-center min-h-[200px] bg-muted/30">
+                    <BarChart3 className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                    <p className="text-muted-foreground text-center">Campaign performance data and charts will appear here.</p>
+                </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-6 w-6 text-primary" />
+                Audience Targeting Insights
+              </CardTitle>
+              <CardDescription>Understand your audience segments.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox id="behaviors" />
+                <Label htmlFor="behaviors" className="text-sm font-normal">Behaviors (e.g., Online Shoppers)</Label>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Strategic Recommendations:</h3>
-                 <ul className="list-disc list-inside space-y-1 text-accent">
-                    <li>Develop blog posts/webinars on 'Ethical AI'.</li>
-                    <li>Invest in tools for creating interactive quizzes/polls.</li>
-                    <li>Explore AI solutions for advanced customer segmentation.</li>
-                </ul>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="targetAge" />
+                <Label htmlFor="targetAge" className="text-sm font-normal">Age Group (e.g., 25-35)</Label>
+                 <Input type="text" placeholder="e.g. 25-35" className="ml-2 h-8 w-24"/>
               </div>
-            </div>
-             <div className="mt-6 h-[350px]">
-              <ChartContainer config={chartConfig} className="w-full h-full">
-                <ResponsiveContainer width="100%" height="100%">
-                   <LineChart data={trendChartData} margin={{ top: 5, right: 30, bottom: 5, left: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <RechartsTooltip 
-                      content={({ active, payload, label }) => {
-                        if (active && payload && payload.length) {
-                          const data = payload[0].payload;
-                          return (
-                            <div className="p-2 bg-background shadow-lg rounded-md border">
-                              <p className="font-semibold">{label}</p>
-                              <p style={{ color: chartConfig.value.color }}>Trend Score: {data.value}</p>
-                              <p className="text-sm text-muted-foreground">Focus Topic: {data.topic}</p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                    <Legend />
-                    <Line type="monotone" dataKey="value" stroke="var(--color-value)" strokeWidth={2} activeDot={{ r: 8 }} name="Overall Market Trend Score" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </div>
-          </CardContent>
-           <CardFooter className="flex justify-end gap-2">
-            <Button variant="outline">
-              <ExternalLink className="mr-2 h-4 w-4" />
-              View Trend Sources
-            </Button>
-            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-              <Lightbulb className="mr-2 h-4 w-4" />
-              Generate Content Ideas (Simulated)
-            </Button>
-          </CardFooter>
-        </Card>
-        
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChartIconLucide className="h-6 w-6 text-primary" /> {/* Updated to use aliased icon */}
-              Custom Report Builder
-            </CardTitle>
-            <CardDescription>
-              Generate tailored reports based on specific metrics and dimensions.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              Utilize the report builder to create custom dashboards focusing on KPIs that matter most to your business. (Reporting tools and visualizations will be available here).
-            </p>
-            <div className="mt-4 p-8 border border-dashed rounded-md flex items-center justify-center h-48 bg-muted/50">
-                <p className="text-muted-foreground text-center">Chart/Report Builder Interface Placeholder</p>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="targetLocation" />
+                <Label htmlFor="targetLocation" className="text-sm font-normal">Location (e.g., Specific Cities)</Label>
+                <Input type="text" placeholder="e.g. New York" className="ml-2 h-8"/>
+              </div>
+               <div className="p-6 mt-2 border border-dashed rounded-md flex flex-col items-center justify-center min-h-[150px] bg-muted/30">
+                    <Users className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                    <p className="text-muted-foreground text-center">Audience segment performance charts will display here.</p>
+                </div>
+            </CardContent>
+             <CardFooter className="flex justify-between items-center">
+                <div className="text-sm text-muted-foreground">Budget: $5,000 (Simulated)</div>
+                <Button variant="outline" size="sm">View Bundles/Offers</Button>
+            </CardFooter>
+          </Card>
+        </div>
       </div>
     </>
   );
 }
+
+// Placeholder for Textarea since it might not be imported by default
+const Textarea = ({ className, ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
+  <textarea className={cn("flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50", className)} {...props} />
+);
+import { cn } from "@/lib/utils"; // Ensure cn is imported if not globally available

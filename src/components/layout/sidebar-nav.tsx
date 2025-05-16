@@ -3,30 +3,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react"; // Added React import
+import React from "react";
 import {
   LayoutDashboard,
-  Megaphone,
-  Search,
-  FileText,
-  MessageCircle,
-  Settings,
-  Users,
-  MapPin,
-  Share2,
-  Scaling,
-  SearchCode,
-  SmilePlus,
-  MessageSquareQuote,
-  BarChartBig,
-  MailCheck,
-  UsersRound,
-  FolderKanban,
-  Sparkles,
-  UserCog, // Corrected from UsersCog
-  SearchCheck,
-  KanbanSquare,
-  Store,
+  Megaphone, // For Campaigns List
+  Bot, // For AI Assistant
+  BarChartBig, // For Real-Time Analytics / Reports
+  Settings2, // For Campaign Builder (general tool icon)
+  Users, // For Customer Segmentation
+  Share2, // For Social Media Manager
+  FileText, // For Reports
+  Search, // Fallback for Analytics (if needed, or use BarChartBig)
+  Settings, // For user settings dropdown
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -38,7 +26,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-} from "@/components/ui/sidebar"; // Removed SidebarTrigger as it's not used here
+} from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { VisionAILogo } from "@/components/icons";
 import { Separator } from "@/components/ui/separator";
@@ -52,29 +40,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+// Updated navItems based on the mockup's implied structure
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/campaigns", icon: Megaphone, label: "Campaigns" },
-  { href: "/seo", icon: Search, label: "SEO Overview" },
-  { href: "/blog-generator", icon: FileText, label: "Blog Generator" },
-  { href: "/chat-assistant", icon: MessageCircle, label: "Chat Assistant" },
-  { type: "separator", label: "Core AI Capabilities" },
-  { href: "/local-marketing", icon: MapPin, label: "Local Marketing" },
-  { href: "/social-media-strategy", icon: Share2, label: "Social Strategy" },
-  { href: "/conversion-optimization", icon: Scaling, label: "CRO" },
-  { href: "/seo-enhancement", icon: SearchCode, label: "SEO Enhancement" },
-  { href: "/customer-experience", icon: SmilePlus, label: "Customer Experience" },
-  { href: "/social-media-guidance", icon: MessageSquareQuote, label: "Social Guidance" },
-  { type: "separator", label: "Platform Features" },
-  { href: "/advanced-analytics", icon: BarChartBig, label: "Adv. Analytics" },
-  { href: "/email-marketing", icon: MailCheck, label: "Email Marketing" },
-  { href: "/social-media-management", icon: UsersRound, label: "Social Mgmt" },
-  { href: "/content-management", icon: FolderKanban, label: "Content Mgmt" },
-  { href: "/ai-content-generation", icon: Sparkles, label: "AI Content Gen" },
-  { href: "/crm-integration", icon: UserCog, label: "CRM Integration" }, // Corrected icon usage
-  { href: "/seo-tools", icon: SearchCheck, label: "SEO Tools" },
-  { href: "/project-management", icon: KanbanSquare, label: "Project Mgmt" },
-  { href: "/ecommerce-analytics", icon: Store, label: "Ecom Analytics" },
+  { href: "/campaigns", icon: Megaphone, label: "Campaigns" }, // Page to list campaigns
+  { href: "/real-time-analytics", icon: BarChartBig, label: "Analytics" }, // Mockup: Real-Time Analytics
+  { href: "/reports", icon: FileText, label: "Reports" }, // As per Dashboard mockup sidebar
+  { type: "separator", label: "Tools" },
+  { href: "/ai-assistant", icon: Bot, label: "AI Assistant" },
+  { href: "/campaign-builder", icon: Settings2, label: "Campaign Builder" },
+  { href: "/customer-segmentation", icon: Users, label: "Segmentation" },
+  { href: "/social-media-manager", icon: Share2, label: "Social Manager" },
+  // Keeping some existing useful pages, can be pruned later if not needed
+  { type: "separator", label: "Other Features" },
+  { href: "/email-marketing", icon: Megaphone, label: "Email Marketing" },
+  { href: "/seo-tools", icon: Search, label: "SEO Tools" },
 ];
 
 export function SidebarNav() {
@@ -88,7 +68,7 @@ export function SidebarNav() {
           <h1 className="text-xl font-semibold text-sidebar-foreground">VisionAI</h1>
         </div>
       </SidebarHeader>
-      <SidebarContent className="p-2">
+      <SidebarContent className="p-2 no-scrollbar">
         <SidebarMenu>
           {navItems.map((item, index) => {
             if (item.type === "separator") {
