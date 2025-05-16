@@ -1,18 +1,21 @@
 
 "use client";
 
+import { useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { MailPlus, Users, TestTube2, Send, Eye, BarChart3, Zap, Edit3, ListChecks, LineChart as LineChartIcon } from "lucide-react";
+import { MailPlus, Users, TestTube2, Send, Eye, BarChart3, Zap, Edit3, ListChecks, LineChart as LineChartIcon, Loader2, AlertTriangle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from "recharts";
 import type { ChartConfig } from "@/components/ui/chart";
+import { generateSubjectLinesAction } from "./actions"; // Import the new action
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const emailPerformanceData = [
   { date: "Wk 1", openRate: 22, clickRate: 3.5 },
@@ -41,6 +44,52 @@ const mockCampaigns = [
 
 
 export default function EmailMarketingPage() {
+  const [subjectLineTopic, setSubjectLineTopic] = useState("");
+  const [generatedSubjectLines, setGeneratedSubjectLines] = useState<string[]>([]);
+  const [isSubjectLoading, setIsSubjectLoading] = useState(false);
+  const [subjectError, setSubjectError] = useState<string | null>(null);
+
+  // Placeholder states for AI Email Body Assistant
+  const [emailBodyPrompt, setEmailBodyPrompt] = useState("");
+  const [generatedEmailBody, setGeneratedEmailBody] = useState<string | null>(null);
+  const [isEmailBodyLoading, setIsEmailBodyLoading] = useState(false);
+  const [emailBodyError, setEmailBodyError] = useState<string | null>(null);
+
+
+  const handleGenerateSubjects = async () => {
+    if (!subjectLineTopic.trim()) {
+      setSubjectError("Please enter a topic for subject lines.");
+      return;
+    }
+    setIsSubjectLoading(true);
+    setSubjectError(null);
+    setGeneratedSubjectLines([]);
+
+    const result = await generateSubjectLinesAction({ topic: subjectLineTopic });
+
+    if ('error' in result) {
+      setSubjectError(result.error);
+    } else {
+      setGeneratedSubjectLines(result.subjectLines);
+    }
+    setIsSubjectLoading(false);
+  };
+  
+  const handleGenerateEmailBody = async () => {
+    // Placeholder for AI Email Body generation logic
+    if (!emailBodyPrompt.trim()) {
+      setEmailBodyError("Please describe the email's purpose.");
+      return;
+    }
+    setIsEmailBodyLoading(true);
+    setEmailBodyError(null);
+    setGeneratedEmailBody(null);
+    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
+    setGeneratedEmailBody(`AI-Generated Email Body based on: "${emailBodyPrompt}"\n\nDear [Name],\n\nWe're excited to share some groundbreaking updates that will revolutionize how you approach [topic related to prompt]. Our team has been hard at work developing new features...\n\nSincerely,\nThe VisionAI Team`);
+    setIsEmailBodyLoading(false);
+  };
+
+
   return (
     <>
       <PageHeader
@@ -153,28 +202,79 @@ export default function EmailMarketingPage() {
           <CardContent className="grid md:grid-cols-2 gap-x-8 gap-y-6">
             <div className="space-y-3">
               <Label htmlFor="aiSubject" className="text-base font-medium">AI Subject Line Generator</Label>
-              <Input id="aiSubject" placeholder="Enter email topic or keywords..." />
-              <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                <Zap className="mr-2 h-4 w-4" /> Generate Subject Lines (AI)
+              <Input 
+                id="aiSubject" 
+                placeholder="Enter email topic or keywords..." 
+                value={subjectLineTopic}
+                onChange={(e) => setSubjectLineTopic(e.target.value)}
+                disabled={isSubjectLoading}
+              />
+              <Button 
+                onClick={handleGenerateSubjects} 
+                disabled={isSubjectLoading || !subjectLineTopic.trim()}
+                className="bg-accent hover:bg-accent/90 text-accent-foreground"
+              >
+                {isSubjectLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Zap className="mr-2 h-4 w-4" />
+                )}
+                Generate Subject Lines
               </Button>
-              <div className="p-3 bg-muted/50 rounded-md text-sm text-muted-foreground min-h-[60px]">
-                <p className="font-medium">Suggestions:</p>
-                <ul className="list-disc list-inside pl-2">
-                  <li>Your Next Big Win is Here!</li>
-                  <li>Unlock Exclusive Insights Now...</li>
-                </ul>
-              </div>
+              {subjectError && (
+                 <Alert variant="destructive" className="mt-2">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{subjectError}</AlertDescription>
+                  </Alert>
+              )}
+              {generatedSubjectLines.length > 0 && (
+                <div className="p-3 bg-muted/50 rounded-md text-sm text-muted-foreground min-h-[60px] mt-2">
+                  <p className="font-medium">Suggestions:</p>
+                  <ul className="list-disc list-inside pl-2">
+                    {generatedSubjectLines.map((line, index) => (
+                      <li key={index}>{line}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
+            
             <div className="space-y-3">
               <Label htmlFor="aiBody" className="text-base font-medium">AI Email Body Assistant</Label>
-              <Textarea id="aiBody" placeholder="Describe the email's purpose, key points, and desired tone..." className="min-h-[100px]" />
-              <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                <Edit3 className="mr-2 h-4 w-4" /> Draft Email Body (AI)
+              <Textarea 
+                id="aiBody" 
+                placeholder="Describe the email's purpose, key points, and desired tone..." 
+                className="min-h-[100px]" 
+                value={emailBodyPrompt}
+                onChange={(e) => setEmailBodyPrompt(e.target.value)}
+                disabled={isEmailBodyLoading}
+              />
+              <Button 
+                onClick={handleGenerateEmailBody} 
+                disabled={isEmailBodyLoading || !emailBodyPrompt.trim()}
+                className="bg-accent hover:bg-accent/90 text-accent-foreground"
+              >
+                {isEmailBodyLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                 <Edit3 className="mr-2 h-4 w-4" />
+                )}
+                Draft Email Body (AI)
               </Button>
-                <div className="p-3 bg-muted/50 rounded-md text-sm text-muted-foreground min-h-[60px]">
-                <p className="font-medium">Generated Snippet (Example):</p>
-                <p>We're excited to share some groundbreaking updates that will revolutionize how you...</p>
-              </div>
+              {emailBodyError && (
+                 <Alert variant="destructive" className="mt-2">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{emailBodyError}</AlertDescription>
+                  </Alert>
+              )}
+               {generatedEmailBody && (
+                <div className="p-3 bg-muted/50 rounded-md text-sm text-muted-foreground min-h-[60px] mt-2 whitespace-pre-wrap">
+                  <p className="font-medium">Generated Snippet:</p>
+                  {generatedEmailBody}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
