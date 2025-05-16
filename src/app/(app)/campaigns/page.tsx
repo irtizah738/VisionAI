@@ -32,10 +32,10 @@ const getStatusIcon = (status: CampaignStatus) => {
 
 const getStatusBadgeVariant = (status: CampaignStatus): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
-        case 'Active': return 'default'; // primary color (blue)
-        case 'Completed': return 'secondary'; // light blue/gray
-        case 'Upcoming': return 'outline'; // themed with border
-        case 'Paused': return 'destructive'; // using destructive for visibility, can be themed
+        case 'Active': return 'default'; // primary color
+        case 'Completed': return 'secondary'; 
+        case 'Upcoming': return 'outline'; 
+        case 'Paused': return 'destructive'; 
         default: return 'outline';
     }
 }
@@ -98,8 +98,12 @@ export default function CampaignsPage() {
                 </ul>
               </div>
             </CardContent>
-            <CardFooter>
-              <Button variant="outline" size="sm" className="w-full">View Details</Button>
+            <CardFooter className="flex gap-2 pt-4">
+              <Button variant="outline" size="sm" className="flex-1">View Details</Button>
+              <Button variant="default" size="sm" className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground">
+                <Wand2 className="mr-2 h-4 w-4" />
+                AI Optimize
+              </Button>
             </CardFooter>
           </Card>
         ))}
@@ -126,3 +130,4 @@ export default function CampaignsPage() {
     </>
   );
 }
+
