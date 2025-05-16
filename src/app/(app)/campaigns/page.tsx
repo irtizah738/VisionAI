@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation'; // Added
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -43,13 +44,14 @@ const getStatusBadgeVariant = (status: CampaignStatus): "default" | "secondary" 
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState(mockCampaigns);
+  const router = useRouter(); // Added
+
   // Add filtering/search state if needed
   // const [searchTerm, setSearchTerm] = useState("");
   // const [statusFilter, setStatusFilter] = useState<CampaignStatus | "All">("All");
 
   const handleCreateCampaign = () => {
-    // Logic to open a modal or navigate to a campaign creation page
-    console.log("Open AI-assisted campaign creation flow");
+    router.push('/campaign-builder'); // Updated
   };
 
   return (
@@ -119,7 +121,7 @@ export default function CampaignsPage() {
       {/* Floating Action Button */}
       <Button
         onClick={handleCreateCampaign}
-        className="fixed bottom-8 right-8 h-14 w-14 rounded-full shadow-xl bg-accent hover:bg-accent/90 text-accent-foreground text-lg"
+        className="fixed bottom-8 right-8 h-14 w-14 rounded-full shadow-xl bg-accent hover:bg-accent/90 text-accent-foreground text-lg group" // Added group for potential icon styling
         aria-label="Add New Campaign with AI"
         size="icon"
       >
@@ -130,4 +132,3 @@ export default function CampaignsPage() {
     </>
   );
 }
-
