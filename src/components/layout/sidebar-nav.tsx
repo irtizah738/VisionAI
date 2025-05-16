@@ -4,32 +4,35 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
+import { useTheme } from "next-themes";
 import {
   LayoutDashboard,
   Megaphone,
   Bot,
   BarChartBig,
-  Settings2, // For Campaign Builder
-  Users, // For Customer Segmentation & Social Strategy (can be more specific)
-  Share2, // For Social Manager
-  FileText, // For Reports
-  Search, // General SEO
-  Settings, // For user settings dropdown
-  MapPin, // Local Marketing
-  Scaling, // Conversion Optimization
-  SearchCode, // SEO Enhancement / Advanced SEO
-  SmilePlus, // Customer Experience
-  MessageSquareQuote, // Social Media Guidance
-  MailCheck, // Email Marketing
-  FolderKanban, // Content Management
-  Sparkles, // AI Content Generation
-  UserCog, // CRM Integration
-  SearchCheck, // SEO Tools
-  KanbanSquare, // Project Management
-  Store, // E-commerce Analytics
-  PencilLine, // Blog Generator
-  Lightbulb, // For AI-driven suggestions or strategy
-  UsersRound, // For Social Hub / Audience Management
+  Settings2,
+  Users,
+  Share2,
+  FileText,
+  Search,
+  Settings as SettingsIcon, // Renamed to avoid conflict with Settings2
+  MapPin,
+  Scaling,
+  SearchCode,
+  SmilePlus,
+  MessageSquareQuote,
+  MailCheck,
+  FolderKanban,
+  Sparkles,
+  UserCog,
+  SearchCheck,
+  KanbanSquare,
+  Store,
+  PencilLine,
+  Lightbulb,
+  UsersRound,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -53,6 +56,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 
 const navItems = [
@@ -103,6 +110,7 @@ const navItems = [
 
 export function SidebarNav() {
   const pathname = usePathname();
+  const { setTheme } = useTheme();
 
   return (
     <Sidebar>
@@ -168,9 +176,30 @@ export function SidebarNav() {
                 <span>Profile</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
+                <SettingsIcon className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                  <Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                  <span>Theme</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => setTheme("light")}>
+                      Light
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTheme("dark")}>
+                      Dark
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTheme("system")}>
+                      System
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <span>Log out</span>
