@@ -2,13 +2,14 @@
 "use client";
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // Added
+import { useRouter } from 'next/navigation';
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Plus, Activity, CheckCircle2, CalendarClock, Wallet, BarChart, Filter, Search, Wand2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast"; // Added useToast import
 
 // Mock data for campaigns
 const mockCampaigns = [
@@ -44,11 +45,8 @@ const getStatusBadgeVariant = (status: CampaignStatus): "default" | "secondary" 
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState(mockCampaigns);
-  const router = useRouter(); // Added
-
-  // Add filtering/search state if needed
-  // const [searchTerm, setSearchTerm] = useState("");
-  // const [statusFilter, setStatusFilter] = useState<CampaignStatus | "All">("All");
+  const router = useRouter();
+  const { toast } = useToast(); // Initialized useToast
 
   const handleCreateCampaign = () => {
     router.push('/campaign-builder');
@@ -56,6 +54,14 @@ export default function CampaignsPage() {
 
   const handleViewDetails = (campaignId: string) => {
     router.push(`/campaigns/${campaignId}`);
+  };
+
+  const handleAiOptimize = (campaignName: string) => {
+    toast({
+      title: "AI Optimization",
+      description: `Optimizing campaign: ${campaignName}... (Simulated)`,
+    });
+    // In a real scenario, you would trigger an AI flow here.
   };
 
   return (
@@ -106,7 +112,12 @@ export default function CampaignsPage() {
             </CardContent>
             <CardFooter className="flex gap-2 pt-4">
               <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewDetails(campaign.id)}>View Details</Button>
-              <Button variant="default" size="sm" className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground">
+              <Button 
+                variant="default" 
+                size="sm" 
+                className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground"
+                onClick={() => handleAiOptimize(campaign.name)} // Added onClick handler
+              >
                 <Wand2 className="mr-2 h-4 w-4" />
                 AI Optimize
               </Button>
