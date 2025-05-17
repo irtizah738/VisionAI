@@ -8,7 +8,47 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Users, Briefcase, MapPin, Filter, BarChart3, ChevronDown, Settings2, FileSearch } from "lucide-react";
+import { Users, Briefcase, MapPin, Filter, BarChart3, ChevronDown, Settings2, FileSearch, BarChart as BarChartIconLucide, LineChart as LineChartIcon } from "lucide-react"; // Added BarChartIconLucide and LineChartIcon
+import { ResponsiveContainer, BarChart, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Bar, LineChart as RechartsLineChart, Line, Legend } from "recharts"; // Added RechartsLineChart, Line, Legend
+import { ChartContainer, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+import { cn } from "@/lib/utils";
+
+// Placeholder for Textarea since it might not be imported by default
+const Textarea = ({ className, ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
+  <textarea className={cn("flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50", className)} {...props} />
+);
+
+const behaviorChartData = [
+  { segment: 'Online Shoppers', engagement: 75, predictedChurnRisk: 10 },
+  { segment: 'Tech Early Adopters', engagement: 85, predictedChurnRisk: 5 },
+  { segment: 'Gamers', engagement: 60, predictedChurnRisk: 15 },
+  { segment: 'Fitness Enthusiasts', engagement: 70, predictedChurnRisk: 12 },
+];
+
+const trendChartData = [
+  { month: 'Jan', value: 400 },
+  { month: 'Feb', value: 300 },
+  { month: 'Mar', value: 600 },
+  { month: 'Apr', value: 500 },
+  { month: 'May', value: 700 },
+  { month: 'Jun', value: 650 },
+];
+
+const chartConfig: ChartConfig = {
+  engagement: {
+    label: "Engagement Score",
+    color: "hsl(var(--chart-1))",
+  },
+  predictedChurnRisk: {
+    label: "Predicted Churn Risk (%)",
+    color: "hsl(var(--chart-2))",
+  },
+  value: {
+    label: "Trend Value",
+    color: "hsl(var(--chart-1))",
+  }
+};
+
 
 export default function RealTimeAnalyticsPage() {
   return (
@@ -48,9 +88,31 @@ export default function RealTimeAnalyticsPage() {
                 <SelectTrigger id="filterInterests">
                   <SelectValue placeholder="Any Interest" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="tech">Technology</SelectItem>
+                <SelectContent className="max-h-60 overflow-y-auto">
+                  <SelectItem value="arts-entertainment">Arts & Entertainment</SelectItem>
+                  <SelectItem value="autos-vehicles">Autos & Vehicles</SelectItem>
+                  <SelectItem value="beauty-fitness">Beauty & Fitness</SelectItem>
+                  <SelectItem value="books-literature">Books & Literature</SelectItem>
+                  <SelectItem value="business-industrial">Business & Industrial</SelectItem>
+                  <SelectItem value="computers-electronics">Computers & Electronics</SelectItem>
+                  <SelectItem value="finance">Finance</SelectItem>
+                  <SelectItem value="food-drink">Food & Drink</SelectItem>
+                  <SelectItem value="games">Games</SelectItem>
+                  <SelectItem value="health">Health</SelectItem>
+                  <SelectItem value="hobbies-leisure">Hobbies & Leisure</SelectItem>
+                  <SelectItem value="home-garden">Home & Garden</SelectItem>
+                  <SelectItem value="internet-telecom">Internet & Telecom</SelectItem>
+                  <SelectItem value="jobs-education">Jobs & Education</SelectItem>
+                  <SelectItem value="law-government">Law & Government</SelectItem>
+                  <SelectItem value="news-media">News & Media</SelectItem>
+                  <SelectItem value="people-society">People & Society</SelectItem>
+                  <SelectItem value="pets-animals">Pets & Animals</SelectItem>
+                  <SelectItem value="real-estate">Real Estate</SelectItem>
+                  <SelectItem value="reference">Reference</SelectItem>
+                  <SelectItem value="science">Science</SelectItem>
+                  <SelectItem value="shopping">Shopping</SelectItem>
                   <SelectItem value="sports">Sports</SelectItem>
+                  <SelectItem value="technology">Technology</SelectItem>
                   <SelectItem value="travel">Travel</SelectItem>
                 </SelectContent>
               </Select>
@@ -84,11 +146,24 @@ export default function RealTimeAnalyticsPage() {
               <CardDescription>Overview of selected campaigns based on filters.</CardDescription>
             </CardHeader>
             <CardContent>
-                <Input placeholder="Campaigns Name (search/filter)" className="mb-4"/>
+                <Input placeholder="Campaign Name (search/filter)" className="mb-4"/>
                 <Textarea placeholder="Ad Content (search/filter)" className="mb-4 min-h-[80px]" />
                 <div className="p-6 border border-dashed rounded-md flex flex-col items-center justify-center min-h-[200px] bg-muted/30">
-                    <BarChart3 className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                    <BarChartIconLucide className="h-12 w-12 text-muted-foreground/50 mb-2" />
                     <p className="text-muted-foreground text-center">Campaign performance data and charts will appear here.</p>
+                     {/* Placeholder for campaign chart */}
+                    <ChartContainer config={chartConfig} className="w-full h-[200px] mt-4">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RechartsLineChart data={trendChartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="month" />
+                          <YAxis />
+                          <RechartsTooltip content={<ChartTooltipContent />} />
+                          <Legend />
+                          <Line type="monotone" dataKey="value" stroke="var(--color-value)" name="Performance Metric" />
+                        </RechartsLineChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
                 </div>
             </CardContent>
           </Card>
@@ -116,9 +191,24 @@ export default function RealTimeAnalyticsPage() {
                 <Label htmlFor="targetLocation" className="text-sm font-normal">Location (e.g., Specific Cities)</Label>
                 <Input type="text" placeholder="e.g. New York" className="ml-2 h-8"/>
               </div>
-               <div className="p-6 mt-2 border border-dashed rounded-md flex flex-col items-center justify-center min-h-[150px] bg-muted/30">
+               <div className="p-6 mt-2 border border-dashed rounded-md flex flex-col items-center justify-center min-h-[200px] bg-muted/30">
                     <Users className="h-12 w-12 text-muted-foreground/50 mb-2" />
                     <p className="text-muted-foreground text-center">Audience segment performance charts will display here.</p>
+                    {/* Placeholder for audience chart */}
+                    <ChartContainer config={chartConfig} className="w-full h-[250px] mt-4">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={behaviorChartData} margin={{ top: 20, right: 20, bottom: 5, left: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="segment" />
+                          <YAxis yAxisId="left" orientation="left" stroke="var(--color-engagement)" />
+                          <YAxis yAxisId="right" orientation="right" stroke="var(--color-predictedChurnRisk)" />
+                          <RechartsTooltip content={<ChartTooltipContent />} />
+                          <Legend />
+                          <Bar yAxisId="left" dataKey="engagement" fill="var(--color-engagement)" name="Engagement" />
+                          <Bar yAxisId="right" dataKey="predictedChurnRisk" fill="var(--color-predictedChurnRisk)" name="Churn Risk (%)" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
                 </div>
             </CardContent>
              <CardFooter className="flex justify-between items-center">
@@ -126,14 +216,26 @@ export default function RealTimeAnalyticsPage() {
                 <Button variant="outline" size="sm">View Bundles/Offers</Button>
             </CardFooter>
           </Card>
+          
+           {/* Custom Report Builder Card */}
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileSearch className="h-6 w-6 text-primary" />
+                Custom Report Builder
+              </CardTitle>
+              <CardDescription>Generate tailored reports based on your specific needs.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="p-6 border border-dashed rounded-md flex flex-col items-center justify-center min-h-[150px] bg-muted/30">
+                <FileSearch className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                <p className="text-muted-foreground text-center">Select metrics, date ranges, and filters to build custom reports.</p>
+                <Button variant="outline" className="mt-4">Create Custom Report</Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </>
   );
 }
-
-// Placeholder for Textarea since it might not be imported by default
-const Textarea = ({ className, ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
-  <textarea className={cn("flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50", className)} {...props} />
-);
-import { cn } from "@/lib/utils"; // Ensure cn is imported if not globally available
