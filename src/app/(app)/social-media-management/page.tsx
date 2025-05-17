@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, Edit3, Inbox, BarChart3, UsersRound, MessageSquarePlus, Link2, Lightbulb, Settings, Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation"; // Added
 
 // Mock social platform icons (replace with actual icons or images if available)
 const SocialPlatformIcon = ({ platform }: { platform: string }) => {
@@ -21,6 +22,8 @@ const SocialPlatformIcon = ({ platform }: { platform: string }) => {
 
 
 export default function SocialMediaManagementPage() {
+  const router = useRouter(); // Added
+
   return (
     <>
       <PageHeader
@@ -51,7 +54,7 @@ export default function SocialMediaManagementPage() {
                   <span className="font-medium">{platform}</span>
                 </div>
               ))}
-               <Button variant="outline" size="sm">
+               <Button variant="outline" size="sm" onClick={() => router.push('/social-media-management/connections')}>
                 <Settings className="mr-2 h-4 w-4" /> Manage Connections
               </Button>
             </CardContent>
@@ -73,13 +76,13 @@ export default function SocialMediaManagementPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex flex-col sm:flex-row gap-2">
-                    <Button className="w-full sm:w-auto flex-1 sm:flex-none">
+                    <Button className="w-full sm:w-auto flex-1 sm:flex-none" onClick={() => router.push('/social-media-manager/full-schedule')}>
                       <CalendarDays className="mr-2 h-4 w-4" /> View Content Calendar
                     </Button>
-                    <Button variant="secondary" className="w-full sm:w-auto  flex-1 sm:flex-none">
+                    <Button variant="secondary" className="w-full sm:w-auto  flex-1 sm:flex-none" onClick={() => router.push('/social-media-manager/schedule')}>
                       <MessageSquarePlus className="mr-2 h-4 w-4" /> Schedule New Post
                     </Button>
-                     <Button variant="outline" className="w-full sm:w-auto  flex-1 sm:flex-none">
+                     <Button variant="outline" className="w-full sm:w-auto  flex-1 sm:flex-none" onClick={() => router.push('/social-media-manager/manage-posts')}>
                       Manage Drafts (3)
                     </Button>
                   </div>
@@ -117,7 +120,7 @@ export default function SocialMediaManagementPage() {
                     <Inbox className="h-12 w-12 text-muted-foreground/50 mb-2" />
                     <p className="text-muted-foreground text-center">Your aggregated social media interactions will appear here.</p>
                   </div>
-                  <Button className="w-full mt-4">Go to Inbox</Button>
+                  <Button className="w-full mt-4" onClick={() => router.push('/social-media-management/inbox')}>Go to Inbox</Button>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -157,7 +160,7 @@ export default function SocialMediaManagementPage() {
                     <BarChart3 className="h-12 w-12 text-muted-foreground/50 mb-2" />
                     <p className="text-muted-foreground text-center">Detailed charts and reports on your social media performance will appear here.</p>
                   </div>
-                  <Button variant="outline" className="w-full mt-4">View Detailed Analytics</Button>
+                  <Button variant="outline" className="w-full mt-4" onClick={() => router.push('/social-media-management/analytics')}>View Detailed Analytics</Button>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -167,5 +170,4 @@ export default function SocialMediaManagementPage() {
     </>
   );
 }
-
     
