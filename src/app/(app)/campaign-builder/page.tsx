@@ -12,15 +12,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PlusCircle, Settings, Filter, Users, MapPin, DollarSign, CalendarDays, Eye, UploadCloud } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation"; // Added
 
 export default function CampaignBuilderPage() {
+  const router = useRouter(); // Added
+
   return (
     <>
       <PageHeader
         title="Campaign Builder"
         description="Create and configure your new marketing campaigns."
         actions={
-          <Button>
+          <Button onClick={() => console.log("Save Campaign clicked")}>
             <PlusCircle className="mr-2 h-4 w-4" /> Save Campaign
           </Button>
         }
@@ -38,19 +41,19 @@ export default function CampaignBuilderPage() {
             </div>
             <div>
                 <Label htmlFor="createAd">Create Ad</Label>
-                <Button variant="outline" className="w-full justify-start mt-1">
+                <Button variant="outline" className="w-full justify-start mt-1" onClick={() => router.push('/campaign-builder/ad-creative')}>
                     <PlusCircle className="mr-2 h-4 w-4"/> New Ad Creative
                 </Button>
             </div>
              <div>
                 <Label htmlFor="accountSettings">Account</Label>
-                <Button variant="outline" className="w-full justify-start mt-1">
+                <Button variant="outline" className="w-full justify-start mt-1" onClick={() => router.push('/settings')}>
                     <Settings className="mr-2 h-4 w-4"/> Account Settings
                 </Button>
             </div>
             <div>
                 <Label htmlFor="filters">Filters</Label>
-                <Button variant="outline" className="w-full justify-start mt-1">
+                <Button variant="outline" className="w-full justify-start mt-1" onClick={() => router.push('/campaign-builder/audience-filters')}>
                     <Filter className="mr-2 h-4 w-4"/> Audience Filters
                 </Button>
             </div>
@@ -103,7 +106,7 @@ export default function CampaignBuilderPage() {
                   data-ai-hint="ad creative placeholder"
                   className="rounded"
                 />
-                <Button variant="outline" size="sm" className="mt-3">
+                <Button variant="outline" size="sm" className="mt-3" onClick={() => console.log("Upload Creative clicked")}>
                   <UploadCloud className="mr-2 h-4 w-4" /> Upload Creative
                 </Button>
                 <Input id="imageDetails" placeholder="momatz: (image details from mockup - unclear)" className="mt-2 text-xs h-8"/>
@@ -129,7 +132,7 @@ export default function CampaignBuilderPage() {
               </div>
             </CardContent>
              <CardFooter>
-                <Button className="w-full sm:w-auto">
+                <Button className="w-full sm:w-auto" onClick={() => console.log("Preview Campaign Clicked")}>
                     <Eye className="mr-2 h-4 w-4"/> Preview Campaign
                 </Button>
             </CardFooter>
