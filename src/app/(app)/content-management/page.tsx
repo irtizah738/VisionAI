@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { FolderKanban, PlusCircle, Edit, Trash2, Settings2, Search } from "lucide-react";
-import { useRouter } from "next/navigation"; // Added
+import { useRouter } from "next/navigation";
 
 // Mock data for content items
 const mockContentItems = [
@@ -20,7 +20,7 @@ const mockContentItems = [
 ];
 
 export default function ContentManagementPage() {
-  const router = useRouter(); // Added
+  const router = useRouter();
 
   return (
     <>
@@ -32,7 +32,7 @@ export default function ContentManagementPage() {
             <Button onClick={() => router.push('/content-management/create')}>
               <PlusCircle className="mr-2 h-4 w-4" /> Create New Content
             </Button>
-            <Button variant="outline" onClick={() => console.log("Manage Content Types clicked")}>
+            <Button variant="outline" onClick={() => router.push('/content-management/types')}>
               <Settings2 className="mr-2 h-4 w-4" /> Manage Content Types
             </Button>
           </div>
@@ -81,7 +81,8 @@ export default function ContentManagementPage() {
                         className={
                           item.status === "Published" ? "bg-green-500 hover:bg-green-600" :
                           item.status === "Draft" ? "bg-yellow-500 hover:bg-yellow-600 text-black" :
-                          "border-blue-500 text-blue-500"
+                          item.status === "Review" ? "bg-blue-500 hover:bg-blue-600" : // Added specific style for "Review"
+                          "border-blue-500 text-blue-500" 
                         }
                       >
                         {item.status}
