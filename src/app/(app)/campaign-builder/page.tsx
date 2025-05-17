@@ -12,10 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PlusCircle, Settings, Filter, Users, MapPin, DollarSign, CalendarDays, Eye, UploadCloud } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation"; // Added
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast"; // Added
 
 export default function CampaignBuilderPage() {
-  const router = useRouter(); // Added
+  const router = useRouter();
+  const { toast } = useToast(); // Added
 
   return (
     <>
@@ -23,7 +25,7 @@ export default function CampaignBuilderPage() {
         title="Campaign Builder"
         description="Create and configure your new marketing campaigns."
         actions={
-          <Button onClick={() => console.log("Save Campaign clicked")}>
+          <Button onClick={() => toast({ title: "Campaign Saved", description: "Your new campaign settings have been saved (Simulated)." })}>
             <PlusCircle className="mr-2 h-4 w-4" /> Save Campaign
           </Button>
         }
@@ -106,7 +108,7 @@ export default function CampaignBuilderPage() {
                   data-ai-hint="ad creative placeholder"
                   className="rounded"
                 />
-                <Button variant="outline" size="sm" className="mt-3" onClick={() => console.log("Upload Creative clicked")}>
+                <Button variant="outline" size="sm" className="mt-3" onClick={() => toast({ title: "Upload Creative", description: "Upload creative functionality coming soon."})}>
                   <UploadCloud className="mr-2 h-4 w-4" /> Upload Creative
                 </Button>
                 <Input id="imageDetails" placeholder="momatz: (image details from mockup - unclear)" className="mt-2 text-xs h-8"/>
@@ -132,7 +134,7 @@ export default function CampaignBuilderPage() {
               </div>
             </CardContent>
              <CardFooter>
-                <Button className="w-full sm:w-auto" onClick={() => console.log("Preview Campaign Clicked")}>
+                <Button className="w-full sm:w-auto" onClick={() => toast({ title: "Preview Campaign", description: "Campaign preview functionality coming soon."})}>
                     <Eye className="mr-2 h-4 w-4"/> Preview Campaign
                 </Button>
             </CardFooter>

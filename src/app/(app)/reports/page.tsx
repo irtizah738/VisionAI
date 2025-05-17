@@ -5,15 +5,18 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Download, Settings2 } from "lucide-react";
+import { useRouter } from "next/navigation"; // Added
 
 export default function ReportsPage() {
+  const router = useRouter(); // Added
+
   return (
     <>
       <PageHeader
         title="Reports"
         description="Generate and view detailed reports on your marketing activities."
         actions={
-            <Button>
+            <Button onClick={() => console.log("Download All Reports Clicked")}>
                 <Download className="mr-2 h-4 w-4" /> Download All Reports
             </Button>
         }
@@ -35,7 +38,7 @@ export default function ReportsPage() {
             <p className="text-muted-foreground text-center max-w-md mt-2">
               This section will allow you to select report types, customize date ranges, choose specific metrics, and generate downloadable reports (e.g., PDF, CSV).
             </p>
-            <Button variant="outline" className="mt-6">
+            <Button variant="outline" className="mt-6" onClick={() => router.push('/reports/configure')}>
                 <Settings2 className="mr-2 h-4 w-4" /> Configure Report Parameters
             </Button>
           </div>

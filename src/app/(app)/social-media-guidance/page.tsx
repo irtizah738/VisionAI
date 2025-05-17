@@ -5,8 +5,11 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MessageSquareQuote, Video, Users, Zap, Lightbulb, MessageCircleQuestion, ThumbsUp, Repeat } from "lucide-react";
+import { useToast } from "@/hooks/use-toast"; // Added
 
 export default function SocialMediaGuidancePage() {
+  const { toast } = useToast(); // Added
+
   return (
     <>
       <PageHeader
@@ -74,7 +77,7 @@ export default function SocialMediaGuidancePage() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button className="w-full md:w-auto bg-accent hover:bg-accent/90 text-accent-foreground">
+          <Button className="w-full md:w-auto bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => toast({ title: "Personalized Plan", description: "Generating your personalized social plan (AI Simulated)..."})}>
             <Lightbulb className="mr-2 h-4 w-4" /> Get My Personalized Social Plan (AI Simulated)
           </Button>
         </CardFooter>

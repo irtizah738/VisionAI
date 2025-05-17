@@ -9,10 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
-import { useRouter } from "next/navigation"; // Added
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast"; // Added
 
 export default function CrmIntegrationPage() {
-  const router = useRouter(); // Added
+  const router = useRouter();
+  const { toast } = useToast(); // Added
 
   return (
     <>
@@ -86,7 +88,7 @@ export default function CrmIntegrationPage() {
               </div>
             </CardContent>
              <CardFooter>
-                <Button variant="outline" onClick={() => console.log("View Full CRM Record Clicked")}>View Full CRM Record</Button>
+                <Button variant="outline" onClick={() => toast({ title: "CRM Record", description: "Navigating to full CRM record (External system placeholder)." })}>View Full CRM Record</Button>
             </CardFooter>
           </Card>
 
@@ -109,7 +111,7 @@ export default function CrmIntegrationPage() {
                 <p className="text-sm text-muted-foreground mb-2">
                   John Doe has 'Wireless Headphones' in his cart. Send a follow-up email offering a 5% discount to encourage purchase.
                 </p>
-                <Button size="sm">
+                <Button size="sm" onClick={() => toast({ title: "Action Triggered", description: "Sending discount email (Simulated)..."})}>
                   <Mail className="mr-2 h-4 w-4"/>
                   Send Discount Email (Simulated)
                 </Button>
@@ -122,7 +124,7 @@ export default function CrmIntegrationPage() {
                 <p className="text-sm text-muted-foreground mb-2">
                   Share a blog post about 'Top 5 Accessories for Smart Watches' with John, based on his last purchase.
                 </p>
-                 <Button size="sm" variant="secondary">
+                 <Button size="sm" variant="secondary" onClick={() => toast({ title: "Action Triggered", description: "Sharing blog post (Simulated)..."})}>
                   <FileText className="mr-2 h-4 w-4"/>
                   Share Blog Post (Simulated)
                 </Button>
@@ -135,7 +137,7 @@ export default function CrmIntegrationPage() {
                 <p className="text-sm text-muted-foreground mb-2">
                   Schedule a task to check in with John in 2 weeks about his Gold Tier benefits.
                 </p>
-                 <Button size="sm" variant="secondary">
+                 <Button size="sm" variant="secondary" onClick={() => toast({ title: "Action Triggered", description: "Scheduling task (Simulated)..."})}>
                   <CalendarPlus className="mr-2 h-4 w-4"/>
                   Schedule Task (Simulated)
                 </Button>

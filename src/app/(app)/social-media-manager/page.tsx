@@ -12,12 +12,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, Edit3, PlusSquare, Image as ImageIcon, Youtube, TwitterIcon, MessageSquare, Settings2 } from "lucide-react"; 
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation"; // Added
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast"; // Added
 
 const XPlatformIcon = () => <TwitterIcon className="h-5 w-5" />; 
 
 export default function SocialMediaManagerPage() {
-  const router = useRouter(); // Added
+  const router = useRouter();
+  const { toast } = useToast(); // Added
 
   return (
     <>
@@ -31,10 +33,10 @@ export default function SocialMediaManagerPage() {
             <CardTitle className="text-lg">Tools & Platforms</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full justify-start" onClick={() => console.log("Schedule Post clicked")}>
+            <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/social-media-manager/schedule')}>
               <CalendarDays className="mr-2 h-4 w-4" /> Schedule Post
             </Button>
-            <Button variant="outline" className="w-full justify-start" onClick={() => console.log("Manage Posts clicked")}>
+            <Button variant="outline" className="w-full justify-start" onClick={() => router.push('/social-media-manager/manage-posts')}>
               <Edit3 className="mr-2 h-4 w-4" /> Manage Posts
             </Button>
             <Button variant="default" className="w-full justify-start" onClick={() => router.push('/social-media-manager/create-post')}>
@@ -44,23 +46,23 @@ export default function SocialMediaManagerPage() {
             <div className="pt-3">
                 <Label className="text-sm font-medium">Create for:</Label>
                 <div className="space-y-2 mt-1">
-                     <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary">
+                     <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary" onClick={() => toast({ title: "Media Tool", description: "Opening general media creation tool..."})}>
                         <ImageIcon className="mr-2 h-4 w-4" /> I Media (General Media)
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary">
+                    <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary" onClick={() => toast({ title: "X (Twitter) Tool", description: "Opening X (Twitter) post creation tool..."})}>
                         <XPlatformIcon /> <span className="ml-2">X (Twitter)</span>
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary">
+                    <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary" onClick={() => toast({ title: "YouTube Tool", description: "Opening YouTube content creation tool..."})}>
                         <Youtube className="mr-2 h-4 w-4" /> YouTube
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary">
+                    <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary" onClick={() => toast({ title: "Rumble Tool", description: "Opening Rumble content creation tool..."})}>
                         <MessageSquare className="mr-2 h-4 w-4" /> Rumble (Example)
                     </Button>
                 </div>
             </div>
           </CardContent>
            <CardFooter>
-                <Button variant="outline" className="w-full" onClick={() => console.log("Platform Settings clicked")}>
+                <Button variant="outline" className="w-full" onClick={() => router.push('/social-media-manager/platform-settings')}>
                     <Settings2 className="mr-2 h-4 w-4"/> Platform Settings
                 </Button>
            </CardFooter>
@@ -102,14 +104,14 @@ export default function SocialMediaManagerPage() {
                     alt="Social media post previews" 
                     width={500} 
                     height={250}
-                    data-ai-hint="social media posts calendar" 
+                    data-ai-hint="social media posts calendar"
                     className="rounded-md mx-auto opacity-70"
                   />
                    <p className="text-sm text-muted-foreground mt-2">This is a visual representation of the scheduled posts. Interactive elements for Monu, Cl, MeTuleo, Runtlie, Mexe, Port, Pust (from mockup) would be part of each day's detailed view or creation modal.</p>
                 </div>
             </CardContent>
             <CardFooter>
-              <Button onClick={() => console.log("View Full Schedule Clicked")}>View Full Schedule</Button>
+              <Button onClick={() => router.push('/social-media-manager/full-schedule')}>View Full Schedule</Button>
             </CardFooter>
           </Card>
         </div>

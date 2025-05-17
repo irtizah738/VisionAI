@@ -12,8 +12,11 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Building, ListChecks, TrendingUp, Edit3, MessageSquareShare, BarChart3, Compass, Users, Lightbulb, Search, CloudUpload, Globe } from "lucide-react";
 import Image from "next/image";
+import { useToast } from "@/hooks/use-toast"; // Added
 
 export default function LocalMarketingPage() {
+  const { toast } = useToast(); // Added
+
   return (
     <>
       <PageHeader
@@ -64,10 +67,10 @@ export default function LocalMarketingPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col sm:flex-row gap-2">
-            <Button className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto" onClick={() => toast({ title: "AI Analysis", description: "Analyzing profile and generating suggestions (Simulated)..." })}>
               <Lightbulb className="mr-2 h-4 w-4" /> Analyze & Suggest (AI)
             </Button>
-            <Button variant="outline" className="w-full sm:w-auto">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => toast({ title: "Profile Saved", description: "Business profile saved and syncing (Simulated)." })}>
               <CloudUpload className="mr-2 h-4 w-4" /> Save & Sync
             </Button>
           </CardFooter>
@@ -115,10 +118,10 @@ export default function LocalMarketingPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col sm:flex-row gap-2">
-            <Button className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto" onClick={() => toast({ title: "Scanning Directories", description: "Checking status across local directories (Simulated)..." })}>
               <Search className="mr-2 h-4 w-4" /> Scan Directories
             </Button>
-            <Button variant="outline" className="w-full sm:w-auto">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => toast({ title: "Syncing Listings", description: "Updating all local directory listings (Simulated)..." })}>
               <CloudUpload className="mr-2 h-4 w-4" /> Sync All Listings (Simulated)
             </Button>
           </CardFooter>
@@ -163,7 +166,7 @@ export default function LocalMarketingPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+            <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => toast({ title: "Campaign Launched", description: "Geo-targeted campaign has been launched (Simulated)." })}>
               <TrendingUp className="mr-2 h-4 w-4" /> Launch Geo-Targeted Campaign (Simulated)
             </Button>
           </CardFooter>
@@ -201,7 +204,7 @@ export default function LocalMarketingPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="w-full">
+            <Button className="w-full" onClick={() => toast({ title: "SEO Health Check", description: "Running local SEO health check and generating AI tips (Simulated)..." })}>
               <Lightbulb className="mr-2 h-4 w-4" /> Run SEO Health Check & Get AI Tips
             </Button>
           </CardFooter>

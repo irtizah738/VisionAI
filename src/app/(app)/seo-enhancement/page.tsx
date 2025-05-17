@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { KeyRound, FileSearch2, MonitorSmartphone, ListChecks, Lightbulb, Search, ExternalLink } from "lucide-react";
+import { useToast } from "@/hooks/use-toast"; // Added
+import { useRouter } from "next/navigation"; // Added
 
 export default function SeoEnhancementPage() {
   const [serpTitle, setSerpTitle] = useState("Your Awesome Page Title | Your Brand");
@@ -17,6 +19,8 @@ export default function SeoEnhancementPage() {
   const [serpDescription, setSerpDescription] = useState("This is an engaging and SEO-friendly meta description for your awesome page, highlighting key benefits and encouraging clicks from search results.");
   const [auditUrl, setAuditUrl] = useState("");
   const [auditResults, setAuditResults] = useState<null | { score: number; issues: { title: string; status: 'Good' | 'Needs Improvement' | 'Critical'; details: string }[] }>(null);
+  const { toast } = useToast(); // Added
+  const router = useRouter(); // Added
 
   const handleRunAudit = () => {
     if (!auditUrl) {
@@ -24,8 +28,10 @@ export default function SeoEnhancementPage() {
             score: 0,
             issues: [{title: "Error", status: "Critical", details: "Please enter a URL to audit."}]
         });
+        toast({ title: "Audit Error", description: "Please enter a URL to audit.", variant: "destructive"});
         return;
     }
+    toast({ title: "Audit Running", description: `Running SEO audit for ${auditUrl} (Simulated)...`});
     // Simulated AI Audit
     setAuditResults({
       score: Math.floor(Math.random() * 40) + 60, // Random score between 60-99
@@ -74,7 +80,7 @@ export default function SeoEnhancementPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="w-full">
+            <Button className="w-full" onClick={() => toast({ title: "Generating Keywords", description: "AI is generating keyword ideas (Simulated)..."})}>
               <Lightbulb className="mr-2 h-4 w-4" /> Generate Keywords (AI Simulated)
             </Button>
           </CardFooter>
@@ -110,7 +116,7 @@ export default function SeoEnhancementPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="w-full">
+            <Button className="w-full" onClick={() => toast({ title: "Finding Gaps", description: "AI is analyzing content gaps (Simulated)..."})}>
               <Search className="mr-2 h-4 w-4" /> Find Content Gaps (AI Simulated)
             </Button>
           </CardFooter>
@@ -159,7 +165,7 @@ export default function SeoEnhancementPage() {
             </div>
           </CardContent>
            <CardFooter className="flex justify-end">
-            <Button variant="outline" onClick={() => { /* Potentially trigger a re-render or save action */ }}>
+            <Button variant="outline" onClick={() => console.log("SERP Preview updated with current input values.")}>
                 Update Live Preview
             </Button>
           </CardFooter>
@@ -215,7 +221,7 @@ export default function SeoEnhancementPage() {
             )}
           </CardContent>
           <CardFooter className="flex justify-end">
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => router.push('/seo-enhancement/technical-report')}>
                 <ExternalLink className="mr-2 h-4 w-4" /> View Full Technical Report
             </Button>
           </CardFooter>
@@ -225,5 +231,3 @@ export default function SeoEnhancementPage() {
     </>
   );
 }
-
-    

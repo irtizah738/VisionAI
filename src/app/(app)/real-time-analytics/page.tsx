@@ -8,10 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Users, Briefcase, MapPin, Filter, BarChart3, ChevronDown, Settings2, FileSearch, BarChart as BarChartIconLucide, LineChart as LineChartIcon } from "lucide-react"; // Added BarChartIconLucide and LineChartIcon
-import { ResponsiveContainer, BarChart, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Bar, LineChart as RechartsLineChart, Line, Legend } from "recharts"; // Added RechartsLineChart, Line, Legend
+import { Users, Briefcase, MapPin, Filter, BarChart3, ChevronDown, Settings2, FileSearch, BarChart as BarChartIconLucide, LineChart as LineChartIcon } from "lucide-react";
+import { ResponsiveContainer, BarChart, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Bar, LineChart as RechartsLineChart, Line, Legend } from "recharts";
 import { ChartContainer, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation"; // Added
+import { useToast } from "@/hooks/use-toast"; // Added
 
 // Placeholder for Textarea since it might not be imported by default
 const Textarea = ({ className, ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
@@ -51,6 +53,9 @@ const chartConfig: ChartConfig = {
 
 
 export default function RealTimeAnalyticsPage() {
+  const router = useRouter(); // Added
+  const { toast } = useToast(); // Added
+
   return (
     <>
       <PageHeader
@@ -129,7 +134,7 @@ export default function RealTimeAnalyticsPage() {
                 </SelectContent>
               </Select>
             </div>
-            <Button className="w-full mt-2">
+            <Button className="w-full mt-2" onClick={() => toast({ title: "Filters Applied", description: "Analytics data is being updated (Simulated)." })}>
               <Filter className="mr-2 h-4 w-4" /> Apply Filters
             </Button>
           </CardContent>
@@ -151,7 +156,6 @@ export default function RealTimeAnalyticsPage() {
                 <div className="p-6 border border-dashed rounded-md flex flex-col items-center justify-center min-h-[200px] bg-muted/30">
                     <BarChartIconLucide className="h-12 w-12 text-muted-foreground/50 mb-2" />
                     <p className="text-muted-foreground text-center">Campaign performance data and charts will appear here.</p>
-                     {/* Placeholder for campaign chart */}
                     <ChartContainer config={chartConfig} className="w-full h-[200px] mt-4">
                       <ResponsiveContainer width="100%" height="100%">
                         <RechartsLineChart data={trendChartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
@@ -194,7 +198,6 @@ export default function RealTimeAnalyticsPage() {
                <div className="p-6 mt-2 border border-dashed rounded-md flex flex-col items-center justify-center min-h-[200px] bg-muted/30">
                     <Users className="h-12 w-12 text-muted-foreground/50 mb-2" />
                     <p className="text-muted-foreground text-center">Audience segment performance charts will display here.</p>
-                    {/* Placeholder for audience chart */}
                     <ChartContainer config={chartConfig} className="w-full h-[250px] mt-4">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={behaviorChartData} margin={{ top: 20, right: 20, bottom: 5, left: 0 }}>
@@ -213,7 +216,7 @@ export default function RealTimeAnalyticsPage() {
             </CardContent>
              <CardFooter className="flex justify-between items-center">
                 <div className="text-sm text-muted-foreground">Budget: $5,000 (Simulated)</div>
-                <Button variant="outline" size="sm">View Bundles/Offers</Button>
+                <Button variant="outline" size="sm" onClick={() => toast({ title: "Bundles & Offers", description: "Viewing available bundles and offers (Simulated)." })}>View Bundles/Offers</Button>
             </CardFooter>
           </Card>
           
@@ -230,7 +233,7 @@ export default function RealTimeAnalyticsPage() {
               <div className="p-6 border border-dashed rounded-md flex flex-col items-center justify-center min-h-[150px] bg-muted/30">
                 <FileSearch className="h-12 w-12 text-muted-foreground/50 mb-2" />
                 <p className="text-muted-foreground text-center">Select metrics, date ranges, and filters to build custom reports.</p>
-                <Button variant="outline" className="mt-4">Create Custom Report</Button>
+                <Button variant="outline" className="mt-4" onClick={() => router.push('/reports/create-custom')}>Create Custom Report</Button>
               </div>
             </CardContent>
           </Card>
