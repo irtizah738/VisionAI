@@ -9,8 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
+import { useRouter } from "next/navigation"; // Added
 
 export default function CrmIntegrationPage() {
+  const router = useRouter(); // Added
+
   return (
     <>
       <PageHeader
@@ -83,7 +86,7 @@ export default function CrmIntegrationPage() {
               </div>
             </CardContent>
              <CardFooter>
-                <Button variant="outline">View Full CRM Record</Button>
+                <Button variant="outline" onClick={() => console.log("View Full CRM Record Clicked")}>View Full CRM Record</Button>
             </CardFooter>
           </Card>
 
@@ -182,7 +185,7 @@ export default function CrmIntegrationPage() {
                   <div className="bg-red-500 h-2.5 rounded-full" style={{ width: "30%" }}></div>
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="w-full mt-2">View All Leads</Button>
+              <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => router.push('/crm-integration/leads')}>View All Leads</Button>
             </CardContent>
           </Card>
 
@@ -203,7 +206,7 @@ export default function CrmIntegrationPage() {
                 <Image src="https://placehold.co/300x100/EBF4FF/6366F1?text=Customer+Journey+Map" alt="Customer Journey Map Placeholder" width={300} height={100} data-ai-hint="journey map" className="opacity-50" />
                 <p className="text-xs text-muted-foreground mt-2">Customer journey visualization will appear here.</p>
               </div>
-               <Button variant="outline" size="sm" className="w-full mt-4">Explore Journeys</Button>
+               <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => router.push('/crm-integration/journeys')}>Explore Journeys</Button>
             </CardContent>
           </Card>
         </div>

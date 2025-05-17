@@ -4,10 +4,11 @@
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"; // Added import
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { FolderKanban, PlusCircle, Edit, Trash2, Settings2, Search } from "lucide-react";
+import { useRouter } from "next/navigation"; // Added
 
 // Mock data for content items
 const mockContentItems = [
@@ -19,6 +20,8 @@ const mockContentItems = [
 ];
 
 export default function ContentManagementPage() {
+  const router = useRouter(); // Added
+
   return (
     <>
       <PageHeader
@@ -26,10 +29,10 @@ export default function ContentManagementPage() {
         description="Organize, create, edit, and manage all your digital content efficiently."
         actions={
           <div className="flex items-center gap-2">
-            <Button>
+            <Button onClick={() => router.push('/content-management/create')}>
               <PlusCircle className="mr-2 h-4 w-4" /> Create New Content
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => console.log("Manage Content Types clicked")}>
               <Settings2 className="mr-2 h-4 w-4" /> Manage Content Types
             </Button>
           </div>

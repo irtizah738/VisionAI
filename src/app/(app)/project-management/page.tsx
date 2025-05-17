@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useRouter } from "next/navigation"; // Added
 
 // Mock Project Data
 const mockProjects = [
@@ -20,6 +21,8 @@ const mockProjects = [
 
 
 export default function ProjectManagementPage() {
+  const router = useRouter(); // Added
+
   return (
     <>
       <PageHeader
@@ -27,10 +30,10 @@ export default function ProjectManagementPage() {
         description="Organize tasks, track progress, and leverage AI for project forecasting."
         actions={
           <div className="flex items-center gap-2">
-            <Button>
+            <Button onClick={() => router.push('/project-management/create-project')}>
               <Briefcase className="mr-2 h-4 w-4" /> Create New Project
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => router.push('/project-management/create-task')}>
               <PlusCircle className="mr-2 h-4 w-4" /> Add New Task
             </Button>
           </div>

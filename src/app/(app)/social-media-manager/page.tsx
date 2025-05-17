@@ -9,14 +9,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, Edit3, PlusSquare, Image as ImageIcon, Youtube, TwitterIcon, MessageSquare, Settings2 } from "lucide-react"; // Using TwitterIcon from lucide if available, else placeholder
+import { CalendarDays, Edit3, PlusSquare, Image as ImageIcon, Youtube, TwitterIcon, MessageSquare, Settings2 } from "lucide-react"; 
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation"; // Added
 
-// Placeholder for a more specific X/Twitter icon if needed
-const XPlatformIcon = () => <TwitterIcon className="h-5 w-5" />; // or a generic MessageSquare or custom SVG
+const XPlatformIcon = () => <TwitterIcon className="h-5 w-5" />; 
 
 export default function SocialMediaManagerPage() {
+  const router = useRouter(); // Added
+
   return (
     <>
       <PageHeader
@@ -24,19 +26,18 @@ export default function SocialMediaManagerPage() {
         description="Schedule posts, create content, and manage your social presence."
       />
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left Column for Tools/Platforms (Mockup's mini-sidebar) */}
         <Card className="lg:w-1/4 shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg">Tools & Platforms</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full justify-start">
+            <Button variant="outline" className="w-full justify-start" onClick={() => console.log("Schedule Post clicked")}>
               <CalendarDays className="mr-2 h-4 w-4" /> Schedule Post
             </Button>
-            <Button variant="outline" className="w-full justify-start">
+            <Button variant="outline" className="w-full justify-start" onClick={() => console.log("Manage Posts clicked")}>
               <Edit3 className="mr-2 h-4 w-4" /> Manage Posts
             </Button>
-            <Button variant="default" className="w-full justify-start"> {/* New Post highlighted as in mockup */}
+            <Button variant="default" className="w-full justify-start" onClick={() => router.push('/social-media-manager/create-post')}>
               <PlusSquare className="mr-2 h-4 w-4" /> New Post
             </Button>
             
@@ -59,13 +60,12 @@ export default function SocialMediaManagerPage() {
             </div>
           </CardContent>
            <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" onClick={() => console.log("Platform Settings clicked")}>
                     <Settings2 className="mr-2 h-4 w-4"/> Platform Settings
                 </Button>
            </CardFooter>
         </Card>
 
-        {/* Main Content Area (Calendar/Post Creation) */}
         <div className="flex-1">
           <Card className="shadow-lg">
             <CardHeader className="flex flex-row justify-between items-center">
@@ -83,7 +83,6 @@ export default function SocialMediaManagerPage() {
               </Select>
             </CardHeader>
             <CardContent>
-              {/* Calendar View Placeholder */}
               <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground mb-2">
                 {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map(day => <div key={day}>{day}</div>)}
               </div>
@@ -91,7 +90,6 @@ export default function SocialMediaManagerPage() {
                 {Array.from({ length: 35 }).map((_, index) => (
                   <div key={index} className="border rounded-sm bg-background/50 p-1 flex flex-col items-start justify-start min-h-[60px]">
                     <span className="text-xs text-muted-foreground">{(index % 7) + 1 + (Math.floor(index/7)*7) > 31 ? "" : (index % 7) + 1 + (Math.floor(index/7)*7) - 4 < 1 ? "" : (index % 7) + 1 + (Math.floor(index/7)*7) - 4}</span>
-                    {/* Mockup specific posts */}
                     {index === 9 && <div className="mt-1 w-full bg-primary/20 p-1 rounded text-primary text-[8px] leading-tight truncate">Post Title 1</div>}
                     {index === 16 && <div className="mt-1 w-full bg-accent/20 p-1 rounded text-accent-foreground text-[8px] leading-tight truncate">Event Post</div>}
                      {index === 23 && <div className="mt-1 w-full bg-secondary/20 p-1 rounded text-secondary-foreground text-[8px] leading-tight truncate">Ad Campaign Start</div>}
@@ -111,7 +109,7 @@ export default function SocialMediaManagerPage() {
                 </div>
             </CardContent>
             <CardFooter>
-              <Button>View Full Schedule</Button>
+              <Button onClick={() => console.log("View Full Schedule Clicked")}>View Full Schedule</Button>
             </CardFooter>
           </Card>
         </div>

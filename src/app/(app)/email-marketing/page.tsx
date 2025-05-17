@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation"; // Added
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from "recharts";
 import type { ChartConfig } from "@/components/ui/chart";
-import { generateSubjectLinesAction } from "./actions"; // Import the new action
+import { generateSubjectLinesAction } from "./actions"; 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const emailPerformanceData = [
@@ -44,12 +45,12 @@ const mockCampaigns = [
 
 
 export default function EmailMarketingPage() {
+  const router = useRouter(); // Added
   const [subjectLineTopic, setSubjectLineTopic] = useState("");
   const [generatedSubjectLines, setGeneratedSubjectLines] = useState<string[]>([]);
   const [isSubjectLoading, setIsSubjectLoading] = useState(false);
   const [subjectError, setSubjectError] = useState<string | null>(null);
 
-  // Placeholder states for AI Email Body Assistant
   const [emailBodyPrompt, setEmailBodyPrompt] = useState("");
   const [generatedEmailBody, setGeneratedEmailBody] = useState<string | null>(null);
   const [isEmailBodyLoading, setIsEmailBodyLoading] = useState(false);
@@ -76,7 +77,6 @@ export default function EmailMarketingPage() {
   };
   
   const handleGenerateEmailBody = async () => {
-    // Placeholder for AI Email Body generation logic
     if (!emailBodyPrompt.trim()) {
       setEmailBodyError("Please describe the email's purpose.");
       return;
@@ -84,7 +84,7 @@ export default function EmailMarketingPage() {
     setIsEmailBodyLoading(true);
     setEmailBodyError(null);
     setGeneratedEmailBody(null);
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1500)); 
     setGeneratedEmailBody(`AI-Generated Email Body based on: "${emailBodyPrompt}"\n\nDear [Name],\n\nWe're excited to share some groundbreaking updates that will revolutionize how you approach [topic related to prompt]. Our team has been hard at work developing new features...\n\nSincerely,\nThe VisionAI Team`);
     setIsEmailBodyLoading(false);
   };
@@ -93,29 +93,27 @@ export default function EmailMarketingPage() {
   return (
     <>
       <PageHeader
-        title="Email Marketing Automation"
+        title="Email Automation Suite"
         description="Personalized campaigns with A/B testing and AI-powered enhancements."
       />
       <div className="space-y-8">
-        {/* Quick Actions */}
         <Card className="shadow-md">
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="w-full justify-start text-base py-6">
+            <Button variant="outline" className="w-full justify-start text-base py-6" onClick={() => router.push('/campaign-builder')}>
               <MailPlus className="mr-3 h-5 w-5" /> Create New Campaign
             </Button>
-            <Button variant="outline" className="w-full justify-start text-base py-6">
+            <Button variant="outline" className="w-full justify-start text-base py-6" onClick={() => router.push('/customer-segmentation')}>
               <Users className="mr-3 h-5 w-5" /> Manage Audiences
             </Button>
-            <Button variant="outline" className="w-full justify-start text-base py-6">
+            <Button variant="outline" className="w-full justify-start text-base py-6" onClick={() => console.log("View A/B Tests clicked")}>
               <TestTube2 className="mr-3 h-5 w-5" /> View A/B Tests
             </Button>
           </CardContent>
         </Card>
 
-        {/* Campaigns Overview */}
         <Card className="shadow-md">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -139,7 +137,7 @@ export default function EmailMarketingPage() {
                     <p><Send className="inline h-4 w-4 mr-1" />Sent: {campaign.sent.toLocaleString()}</p>
                     <p><Eye className="inline h-4 w-4 mr-1" />Open Rate: {campaign.openRate}</p>
                     <p><BarChart3 className="inline h-4 w-4 mr-1" />Click Rate: {campaign.clickRate}</p>
-                    <Button size="sm" variant="ghost" className="sm:ml-auto h-auto p-1 text-primary hover:text-primary/80">View Details</Button>
+                    <Button size="sm" variant="ghost" className="sm:ml-auto h-auto p-1 text-primary hover:text-primary/80" onClick={() => console.log(`View details for ${campaign.name}`)}>View Details</Button>
                   </div>
                 </div>
               ))}
@@ -147,7 +145,6 @@ export default function EmailMarketingPage() {
           </CardContent>
         </Card>
 
-        {/* Performance Snapshot */}
          <Card className="shadow-md">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -190,7 +187,6 @@ export default function EmailMarketingPage() {
             </CardContent>
         </Card>
 
-        {/* AI-Powered Tools */}
         <Card className="shadow-md">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

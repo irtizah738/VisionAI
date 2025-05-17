@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Users, Filter, PlusCircle, Edit3, Trash2, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation"; // Added
 
 const mockSegments = [
   { id: "1", name: "Tech Savvy Millennials", criteria: "Age: 25-35 | Interests: Technology, Gaming | Location: Urban Areas", members: 1250 },
@@ -19,13 +20,15 @@ const mockSegments = [
 
 
 export default function CustomerSegmentationPage() {
+  const router = useRouter(); // Added
+
   return (
     <>
       <PageHeader
         title="Customer Segmentation"
         description="Define and manage your target audience segments."
         actions={
-          <Button>
+          <Button onClick={() => router.push('/customer-segmentation/create')}>
             <PlusCircle className="mr-2 h-4 w-4" /> Create New Segment
           </Button>
         }
@@ -70,7 +73,7 @@ export default function CustomerSegmentationPage() {
             <Button variant="outline" className="w-full mt-2">
                 <Filter className="mr-2 h-4 w-4"/> Apply Filters
             </Button>
-            <Button className="w-full mt-2">
+            <Button className="w-full mt-2" onClick={() => router.push('/customer-segmentation')}>
                 <Users className="mr-2 h-4 w-4"/> Manage Audiences
             </Button>
           </CardContent>
