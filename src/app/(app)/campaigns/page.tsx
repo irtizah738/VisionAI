@@ -51,7 +51,11 @@ export default function CampaignsPage() {
   // const [statusFilter, setStatusFilter] = useState<CampaignStatus | "All">("All");
 
   const handleCreateCampaign = () => {
-    router.push('/campaign-builder'); // Updated
+    router.push('/campaign-builder');
+  };
+
+  const handleViewDetails = (campaignId: string) => {
+    router.push(`/campaigns/${campaignId}`);
   };
 
   return (
@@ -101,7 +105,7 @@ export default function CampaignsPage() {
               </div>
             </CardContent>
             <CardFooter className="flex gap-2 pt-4">
-              <Button variant="outline" size="sm" className="flex-1">View Details</Button>
+              <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewDetails(campaign.id)}>View Details</Button>
               <Button variant="default" size="sm" className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground">
                 <Wand2 className="mr-2 h-4 w-4" />
                 AI Optimize
