@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useRouter } from "next/navigation"; // Added
+import { useRouter } from "next/navigation";
 
 // Mock Project Data
 const mockProjects = [
@@ -21,7 +21,7 @@ const mockProjects = [
 
 
 export default function ProjectManagementPage() {
-  const router = useRouter(); // Added
+  const router = useRouter();
 
   return (
     <>
@@ -61,8 +61,8 @@ export default function ProjectManagementPage() {
                 {/* Example Kanban Columns */}
                 {["To Do", "In Progress", "Review", "Done"].map(status => (
                   <div key={status} className="bg-muted/50 p-4 rounded-lg min-h-[200px]">
-                    <h3 className="font-semibold mb-3 text-center">{status} ({status === "In Progress" ? 1 : status === "Planning" ? 1 : status === "Completed" ? 1: 0})</h3>
-                    {mockProjects.filter(p => (status === "To Do" && p.status === "Planning") || (status === "In Progress" && p.status === "In Progress") || (status === "Completed" && p.status === "Completed")).slice(0,1).map(project => (
+                    <h3 className="font-semibold mb-3 text-center">{status} ({status === "In Progress" ? mockProjects.filter(p => p.status === "In Progress").length : status === "Planning" ? mockProjects.filter(p => p.status === "Planning").length : status === "Completed" ? mockProjects.filter(p => p.status === "Completed").length: mockProjects.filter(p => p.status === "On Hold" || p.status === "To Do").length})</h3>
+                    {mockProjects.filter(p => (status === "To Do" && (p.status === "Planning" || p.status === "On Hold")) || (status === "In Progress" && p.status === "In Progress") || (status === "Review") || (status === "Done" && p.status === "Completed")).map(project => (
                        <Card key={project.id} className="mb-3 shadow-sm">
                          <CardHeader className="p-3">
                             <CardTitle className="text-sm">{project.name}</CardTitle>
@@ -73,7 +73,7 @@ export default function ProjectManagementPage() {
                          </CardContent>
                        </Card>
                     ))}
-                     {status === "To Do" && <p className="text-xs text-muted-foreground text-center">Drag tasks here or click 'Add New Task'.</p>}
+                     {(status === "To Do" && mockProjects.filter(p => (p.status === "Planning" || p.status === "On Hold")).length === 0) && <p className="text-xs text-muted-foreground text-center">Drag tasks here or click 'Add New Task'.</p>}
                   </div>
                 ))}
               </div>
@@ -166,3 +166,5 @@ export default function ProjectManagementPage() {
     </>
   );
 }
+
+    
