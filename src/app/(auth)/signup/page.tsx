@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { VisionAILogo } from "@/components/icons";
-import { Mail, Lock, User, Building } from "lucide-react";
+import { Mail, Lock, User, Building, Facebook } from "lucide-react"; // Added Facebook import
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -103,7 +103,7 @@ export default function SignupPage() {
             Google
           </Button>
           <Button variant="outline" className="w-full py-5 text-base" onClick={() => toast({ title: "Facebook Sign Up", description: "Facebook sign up functionality coming soon." })}>
-            <FacebookIcon className="mr-2 h-5 w-5 text-[#1877F2]" />
+            <Facebook className="mr-2 h-5 w-5 text-[#1877F2]" /> {/* Changed FacebookIcon to Facebook */}
             Facebook
           </Button>
         </div>
