@@ -16,10 +16,10 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <SettingsIcon className="h-6 w-6 text-primary" />
-            Platform Configuration
+            Account & Platform Configuration
           </CardTitle>
           <CardDescription>
-            Adjust your preferences for VisionAI.
+            Adjust your preferences for VisionAI, manage billing, and user access.
           </CardDescription>
         </CardHeader>
         <CardContent>
