@@ -33,9 +33,9 @@ import {
   UsersRound,
   Sun,
   Moon,
-  LogOut, // Added LogOut icon
+  LogOut,
 } from "lucide-react";
-import { useRouter } from "next/navigation"; // Added useRouter
+import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import {
@@ -108,12 +108,16 @@ const navItems = [
   // Organization
   { type: "separator", label: "Organization" },
   { href: "/project-management", icon: KanbanSquare, label: "Project Planner" },
+
+  // Account
+  { type: "separator", label: "Account" },
+  { href: "/settings", icon: SettingsIcon, label: "Settings" },
 ];
 
 export function SidebarNav() {
   const pathname = usePathname();
   const { setTheme } = useTheme();
-  const router = useRouter(); // Initialized router
+  const router = useRouter(); 
 
   return (
     <Sidebar>
@@ -143,7 +147,7 @@ export function SidebarNav() {
                 <Link href={item.href} passHref legacyBehavior>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/dashboard' && item.href !== '/')} // Adjusted condition to avoid matching /dashboard for all /dashboard/* routes
+                    isActive={pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/dashboard' && item.href !== '/')} 
                     tooltip={{ children: item.label, className:"bg-background border shadow-lg rounded-md px-2 py-1 text-xs"}}
                   >
                     <a>
@@ -174,7 +178,7 @@ export function SidebarNav() {
             <DropdownMenuContent side="right" align="start" className="w-56">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push('/settings')}> {/* Assuming a profile page might be under settings */}
+              <DropdownMenuItem onClick={() => router.push('/settings')}>
                 <Users className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
@@ -205,7 +209,7 @@ export function SidebarNav() {
               </DropdownMenuSub>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push('/login')}>
-                <LogOut className="mr-2 h-4 w-4" /> {/* Added LogOut icon */}
+                <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
