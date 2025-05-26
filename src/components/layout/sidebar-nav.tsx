@@ -15,7 +15,7 @@ import {
   Share2,
   FileText,
   Search,
-  Settings as SettingsIcon, // Renamed to avoid conflict with Settings2
+  Settings as SettingsIcon, 
   MapPin,
   Scaling,
   SearchCode,
@@ -33,7 +33,9 @@ import {
   UsersRound,
   Sun,
   Moon,
+  LogOut, // Added LogOut icon
 } from "lucide-react";
+import { useRouter } from "next/navigation"; // Added useRouter
 
 import { cn } from "@/lib/utils";
 import {
@@ -111,6 +113,7 @@ const navItems = [
 export function SidebarNav() {
   const pathname = usePathname();
   const { setTheme } = useTheme();
+  const router = useRouter(); // Initialized router
 
   return (
     <Sidebar>
@@ -140,7 +143,7 @@ export function SidebarNav() {
                 <Link href={item.href} passHref legacyBehavior>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/')}
+                    isActive={pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/dashboard' && item.href !== '/')} // Adjusted condition to avoid matching /dashboard for all /dashboard/* routes
                     tooltip={{ children: item.label, className:"bg-background border shadow-lg rounded-md px-2 py-1 text-xs"}}
                   >
                     <a>
@@ -171,11 +174,11 @@ export function SidebarNav() {
             <DropdownMenuContent side="right" align="start" className="w-56">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/settings')}> {/* Assuming a profile page might be under settings */}
                 <Users className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/settings')}>
                 <SettingsIcon className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
@@ -201,7 +204,8 @@ export function SidebarNav() {
                 </DropdownMenuPortal>
               </DropdownMenuSub>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/login')}>
+                <LogOut className="mr-2 h-4 w-4" /> {/* Added LogOut icon */}
                 <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
