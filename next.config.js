@@ -1,6 +1,7 @@
-import type {NextConfig} from 'next';
+const withNextIntl = require('next-intl/plugin')();
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const config = {
   /* config options here */
   typescript: {
     ignoreBuildErrors: true,
@@ -20,4 +21,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = withNextIntl(config); 

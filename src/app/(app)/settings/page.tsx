@@ -1,37 +1,70 @@
-
 "use client";
 
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Settings as SettingsIcon } from "lucide-react";
+import { Suspense } from 'react';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { prisma } from '@/lib/prisma';
+import { LoadingPage } from '@/components/ui/loading';
+import { ProfileForm } from './profile-form';
+import { ApiKeySection } from './api-key-section';
+import { SocialAccountsSection } from './social-accounts-section';
 
-export default function SettingsPage() {
+async function getSettings(userId: string) {
+  const [user, apiKeys, socialAccounts] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+    }),
+    prisma.apiKey.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.socialAccount.findMany({
+      where: { userId },
+    }),
+  ]);
+
+  return { user, apiKeys, socialAccounts };
+}
+
+export default async function SettingsPage() {
+  const session = await getServerSession(authOptions);
+  
+  if (!session?.user) {
+    return null;
+  }
+
+  const data = await getSettings(session.user.id);
+
   return (
-    <>
-      <PageHeader
-        title="Account Settings"
-        description="Manage your VisionAI account and platform settings."
-      />
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <SettingsIcon className="h-6 w-6 text-primary" />
-            Account & Platform Configuration
-          </CardTitle>
-          <CardDescription>
-            Adjust your preferences for VisionAI, manage billing, and user access.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="p-6 border border-dashed rounded-md flex flex-col items-center justify-center min-h-[200px] bg-muted/30">
-            <SettingsIcon className="h-12 w-12 text-muted-foreground/50 mb-2" />
-            <p className="text-muted-foreground text-center">
-              Account settings, billing information, user management, and platform preferences will be configured here.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    </>
+    <div className="container max-w-5xl py-8">
+      <h1 className="text-3xl font-bold mb-8">Settings</h1>
+
+      <div className="space-y-8">
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-6">Profile</h2>
+          <Suspense fallback={<LoadingPage />}>
+            <ProfileForm user={data.user} />
+          </Suspense>
+        </Card>
+
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-6">API Keys</h2>
+          <Suspense fallback={<LoadingPage />}>
+            <ApiKeySection apiKeys={data.apiKeys} />
+          </Suspense>
+        </Card>
+
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-6">Connected Accounts</h2>
+          <Suspense fallback={<LoadingPage />}>
+            <SocialAccountsSection accounts={data.socialAccounts} />
+          </Suspense>
+        </Card>
+      </div>
+    </div>
   );
 }
 

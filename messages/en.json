@@ -1,0 +1,228 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "language": "Language"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "forgotPassword": "Forgot Password",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "campaigns": "Campaigns",
+    "analytics": "Analytics",
+    "content": "Content",
+    "social": "Social Media",
+    "settings": "Settings"
+  },
+  "social": {
+    "platforms": {
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn"
+    },
+    "actions": {
+      "post": "Post",
+      "schedule": "Schedule",
+      "draft": "Save as Draft"
+    }
+  },
+  "accessibility": {
+    "skipToContent": "Skip to content",
+    "menuButton": "Toggle menu",
+    "closeButton": "Close",
+    "darkMode": "Toggle dark mode",
+    "languageSelector": "Select language",
+    "keyboardShortcuts": "Keyboard Shortcuts",
+    "keyboardShortcutsDescription": "Use these keyboard shortcuts to quickly navigate the application",
+    "shortcuts": {
+      "themeToggle": "Toggle dark mode",
+      "home": "Go to home",
+      "dashboard": "Go to dashboard",
+      "settings": "Go to settings",
+      "search": "Open search"
+    }
+  },
+  "campaigns": {
+    "title": "Campaign Management",
+    "description": "Create, manage, and optimize your marketing campaigns",
+    "tabs": {
+      "list": "All Campaigns",
+      "create": "Create Campaign",
+      "ai": {
+        "optimizations": "Optimizations",
+        "audience": "Audience Insights",
+        "prediction": "Performance Prediction"
+      }
+    },
+    "actions": {
+      "create": "Create Campaign",
+      "edit": "Edit Campaign",
+      "delete": "Delete Campaign",
+      "filter": "Filter",
+      "sort": "Sort",
+      "schedule": "Schedule",
+      "duplicate": "Duplicate"
+    },
+    "search": {
+      "label": "Search campaigns",
+      "placeholder": "Search by name, type, or status..."
+    },
+    "form": {
+      "basicInfo": {
+        "title": "Basic Information",
+        "description": "Enter the basic details of your campaign"
+      },
+      "targeting": {
+        "title": "Audience Targeting",
+        "description": "Define your target audience and demographics"
+      },
+      "content": {
+        "title": "Campaign Content",
+        "description": "Create and schedule your campaign content"
+      },
+      "fields": {
+        "name": "Campaign Name",
+        "description": "Campaign Description",
+        "type": "Campaign Type",
+        "platforms": "Platforms",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "budget": "Budget",
+        "targetAudience": "Target Audience",
+        "message": "Main Message",
+        "callToAction": "Call to Action"
+      },
+      "placeholders": {
+        "name": "Enter campaign name",
+        "description": "Enter campaign description",
+        "type": "Select campaign type",
+        "message": "Enter your main campaign message"
+      }
+    },
+    "types": {
+      "social": "Social Media",
+      "email": "Email Marketing",
+      "ads": "Paid Advertising",
+      "content": "Content Marketing"
+    },
+    "status": {
+      "draft": "Draft",
+      "scheduled": "Scheduled",
+      "active": "Active",
+      "completed": "Completed",
+      "paused": "Paused"
+    },
+    "metrics": {
+      "impressions": "Impressions",
+      "engagement": "Engagement",
+      "clicks": "Clicks",
+      "conversions": "Conversions",
+      "roi": "ROI"
+    },
+    "toast": {
+      "createSuccess": {
+        "title": "Campaign Created",
+        "description": "Your campaign has been created successfully"
+      },
+      "createError": {
+        "title": "Creation Failed",
+        "description": "Failed to create campaign. Please try again."
+      },
+      "updateSuccess": {
+        "title": "Campaign Updated",
+        "description": "Your campaign has been updated successfully"
+      },
+      "updateError": {
+        "title": "Update Failed",
+        "description": "Failed to update campaign. Please try again."
+      },
+      "deleteSuccess": {
+        "title": "Campaign Deleted",
+        "description": "Your campaign has been deleted successfully"
+      },
+      "deleteError": {
+        "title": "Deletion Failed",
+        "description": "Failed to delete campaign. Please try again."
+      },
+      "statusUpdateSuccess": {
+        "title": "Status Updated",
+        "description": "Campaign status has been updated successfully"
+      },
+      "statusUpdateError": {
+        "title": "Status Update Failed",
+        "description": "Failed to update campaign status. Please try again."
+      }
+    },
+    "ai": {
+      "optimizationTypes": {
+        "content": "Content Optimization",
+        "targeting": "Targeting Optimization",
+        "timing": "Timing Optimization",
+        "budget": "Budget Optimization"
+      },
+      "impact": {
+        "high": "High Impact",
+        "medium": "Medium Impact",
+        "low": "Low Impact"
+      },
+      "confidence": "Confidence: {level}%",
+      "affinity": "Affinity Score: {score}%",
+      "interests": "Interests",
+      "demographics": "Demographics",
+      "ageRange": "Age Range: {min}-{max}",
+      "locations": "Locations: {locations}",
+      "gender": "Gender: {gender}",
+      "metrics": {
+        "title": "Performance Metrics",
+        "current": "Current",
+        "predicted": "Predicted",
+        "impressions": "Impressions",
+        "engagement": "Engagement",
+        "clicks": "Clicks",
+        "conversions": "Conversions",
+        "roi": "ROI"
+      },
+      "factors": {
+        "positive": "Positive Factors",
+        "negative": "Areas for Improvement"
+      },
+      "noOptimizations": {
+        "title": "No Optimization Suggestions",
+        "description": "We couldn't generate optimization suggestions for this campaign at the moment. Try again later or adjust your campaign settings."
+      },
+      "noInsights": {
+        "title": "No Audience Insights",
+        "description": "We couldn't generate audience insights for this campaign at the moment. Try again later or provide more audience targeting information."
+      },
+      "noPrediction": {
+        "title": "No Performance Prediction",
+        "description": "We couldn't generate a performance prediction for this campaign at the moment. Try again later or provide more campaign metrics."
+      }
+    }
+  },
+  "error": {
+    "notFound": {
+      "title": "Page Not Found",
+      "description": "Sorry, we couldn't find the page you're looking for.",
+      "backHome": "Back to Home"
+    }
+  }
+} 

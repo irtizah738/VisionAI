@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -9,7 +8,20 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Plus, Activity, CheckCircle2, CalendarClock, Wallet, BarChart, Filter, Search, Wand2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast"; // Added useToast import
+import { useToast } from "@/hooks/use-toast";
+import { useTranslations } from 'next-intl';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Campaign, campaignSchema } from "@/types/campaign";
+import { format } from "date-fns";
+import { CalendarIcon, SortAsc } from "lucide-react";
+import { useAccessibility } from "@/hooks/use-accessibility";
 
 // Mock data for campaigns
 const mockCampaigns = [
@@ -42,11 +54,31 @@ const getStatusBadgeVariant = (status: CampaignStatus): "default" | "secondary" 
     }
 }
 
-
 export default function CampaignsPage() {
-  const [campaigns, setCampaigns] = useState(mockCampaigns);
+  const t = useTranslations('campaigns');
+  const { ariaLabels } = useAccessibility();
+  const [activeTab, setActiveTab] = useState('list');
   const router = useRouter();
-  const { toast } = useToast(); // Initialized useToast
+  const { toast } = useToast();
+
+  const form = useForm({
+    resolver: zodResolver(campaignSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      type: 'social',
+      platforms: [],
+      content: {
+        mainMessage: '',
+      },
+      targetAudience: {},
+    },
+  });
+
+  const onSubmit = async (data: any) => {
+    // TODO: Implement campaign creation
+    console.log(data);
+  };
 
   const handleCreateCampaign = () => {
     router.push('/campaign-builder');
@@ -65,20 +97,69 @@ export default function CampaignsPage() {
   };
 
   return (
-    <>
+    <div className="space-y-6">
       <PageHeader
-        title="Campaign Management"
-        description="Oversee, create, and optimize your marketing campaigns."
+        heading={t('title')}
+        description={t('description')}
         actions={
-          <div className="flex items-center gap-2">
-            {/* Placeholder for filter/search if needed
-            <Input placeholder="Search campaigns..." className="w-64" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-            <Button variant="outline"><Filter className="mr-2 h-4 w-4" /> Filter</Button>
-            */}
-          </div>
+          <Button onClick={() => setActiveTab('create')}>
+            <Plus className="mr-2 h-4 w-4" />
+            {t('actions.create')}
+          </Button>
         }
       />
 
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="list">{t('tabs.list')}</TabsTrigger>
+          <TabsTrigger value="create">{t('tabs.create')}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="list" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                <Filter className="mr-2 h-4 w-4" />
+                {t('actions.filter')}
+              </Button>
+              <Button variant="outline" size="sm">
+                <SortAsc className="mr-2 h-4 w-4" />
+                {t('actions.sort')}
+              </Button>
+            </div>
+            <Input
+              placeholder={t('search.placeholder')}
+              className="max-w-sm"
+              type="search"
+              aria-label={t('search.label')}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            {mockCampaigns.map((campaign) => (
+              <Card key={campaign.id} className="shadow-lg flex flex-col">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg">{campaign.name}</CardTitle>
+                    {getStatusIcon(campaign.status as CampaignStatus)}
+                  </div>
+                  <CardDescription>{campaign.channel}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow space-y-3">
+                  <div>
+                    <Badge variant={getStatusBadgeVariant(campaign.status as CampaignStatus)}>{campaign.status}</Badge>
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-center text-sm mb-1">
+                      <span className="text-muted-foreground flex items-center"><Wallet className="h-4 w-4 mr-1" /> Budget</span>
+                      <span>${campaign.budgetSpent.toLocaleString()} / ${campaign.totalBudget.toLocaleString()}</span>
+                    </div>
+                    <Progress value={(campaign.budgetSpent / campaign.totalBudget) * 100} className="h-2" />
+                  </div>
+                  <div className="text-sm">
+                    <h4 className="font-medium mb-1 text-muted-foreground flex items-center"><BarChart className="h-4 w-4 mr-1" /> Key Results:</h4>
+                    <ul className="list-disc list-inside pl-1 text-xs space-y-0.5">
+                      {Object.entries(campaign.results).map(([key, value]) => (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
         {campaigns.map((campaign) => (
           <Card key={campaign.id} className="shadow-lg flex flex-col">

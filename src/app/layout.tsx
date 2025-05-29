@@ -1,35 +1,56 @@
-import type {Metadata} from 'next';
-import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
-import './globals.css';
-import { Toaster } from "@/components/ui/toaster";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
+import { NextIntlClientProvider } from 'next-intl';
+import { notFound } from 'next/navigation';
+import "./globals.css";
 
-const geistSans = GeistSans; // Use the direct import
-const geistMono = GeistMono;
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'VisionAI - Marketing Intelligence Platform',
-  description: 'AI-powered marketing metrics, campaign management, SEO dashboard, blog generation, and chat assistance.',
+  title: "VisionAI - AI-Powered Marketing Platform",
+  description: "Transform your marketing with AI-powered insights and automation.",
 };
 
-export default function RootLayout({
+// Can be imported from a shared config
+const locales = ['en', 'es', 'fr', 'de', 'ar'];
+
+export default async function RootLayout({
   children,
-}: Readonly<{
+  params: { locale }
+}: {
   children: React.ReactNode;
-}>) {
+  params: { locale: string };
+}) {
+  let messages;
+  try {
+    messages = (await import(`../../messages/${locale}.json`)).default;
+  } catch (error) {
+    notFound();
+  }
+
+  // Validate that the incoming `locale` parameter is valid
+  if (!locales.includes(locale)) {
+    notFound();
+  }
+
+  const dir = locale === 'ar' ? 'rtl' : 'ltr';
+
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
-        <ThemeProvider
+    <html lang={locale} dir={dir} suppressHydrationWarning>
+      <body className={inter.className}>
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          <ThemeProvider
             attribute="class"
             defaultTheme="system"
             enableSystem
             disableTransitionOnChange
-        >
-          {children}
-          <Toaster />
-        </ThemeProvider>
+          >
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

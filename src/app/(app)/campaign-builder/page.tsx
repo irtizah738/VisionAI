@@ -1,146 +1,213 @@
-
 "use client";
 
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { PageHeader } from "@/components/layout/page-header";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PlusCircle, Settings, Filter, Users, MapPin, DollarSign, CalendarDays, Eye, UploadCloud } from "lucide-react";
-import Image from "next/image";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast"; // Added
+import { format } from "date-fns";
+import { CalendarIcon, PlusCircle } from "lucide-react";
+import { Campaign, CampaignCreateInput, CampaignType, Platform, campaignSchema } from '@/types/campaign';
+import { useCreateCampaign } from '@/hooks/use-campaigns';
 
 export default function CampaignBuilderPage() {
   const router = useRouter();
-  const { toast } = useToast(); // Added
+  const t = useTranslations('campaigns');
+  const createCampaign = useCreateCampaign();
+
+  const form = useForm<CampaignCreateInput>({
+    resolver: zodResolver(campaignSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      type: 'social',
+      status: 'draft',
+      platforms: [],
+      startDate: new Date(),
+      content: {
+        mainMessage: '',
+      },
+      targetAudience: {},
+    },
+  });
+
+  const onSubmit = async (data: CampaignCreateInput) => {
+    try {
+      await createCampaign.mutateAsync(data);
+      router.push('/campaigns');
+    } catch (error) {
+      console.error('Error creating campaign:', error);
+    }
+  };
 
   return (
-    <>
+    <div className="space-y-6">
       <PageHeader
-        title="Campaign Builder"
-        description="Create and configure your new marketing campaigns."
-        actions={
-          <Button onClick={() => toast({ title: "Campaign Saved", description: "Your new campaign settings have been saved (Simulated)." })}>
-            <PlusCircle className="mr-2 h-4 w-4" /> Save Campaign
-          </Button>
-        }
+        heading={t('form.basicInfo.title')}
+        description={t('form.basicInfo.description')}
       />
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left Column for Filters/Settings (Mockup's mini-sidebar) */}
-        <Card className="lg:w-1/4 shadow-sm">
+
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Campaign Setup</CardTitle>
+            <CardTitle>{t('form.basicInfo.title')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-             <div>
-              <Label htmlFor="campaignName">Campaign Name</Label>
-              <Input id="campaignName" placeholder="e.g., Summer Sale Q3" />
+            <div className="space-y-2">
+              <Label htmlFor="name">{t('form.fields.name')}</Label>
+              <Input
+                id="name"
+                {...form.register('name')}
+                placeholder={t('form.placeholders.name')}
+              />
+              {form.formState.errors.name && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.name.message}
+                </p>
+              )}
             </div>
-            <div>
-                <Label htmlFor="createAd">Create Ad</Label>
-                <Button variant="outline" className="w-full justify-start mt-1" onClick={() => router.push('/campaign-builder/ad-creative')}>
-                    <PlusCircle className="mr-2 h-4 w-4"/> New Ad Creative
-                </Button>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">{t('form.fields.description')}</Label>
+              <Textarea
+                id="description"
+                {...form.register('description')}
+                placeholder={t('form.placeholders.description')}
+              />
             </div>
-             <div>
-                <Label htmlFor="accountSettings">Account</Label>
-                <Button variant="outline" className="w-full justify-start mt-1" onClick={() => router.push('/settings')}>
-                    <Settings className="mr-2 h-4 w-4"/> Account Settings
-                </Button>
+
+            <div className="space-y-2">
+              <Label htmlFor="type">{t('form.fields.type')}</Label>
+              <Select
+                value={form.watch('type')}
+                onValueChange={(value) => form.setValue('type', value as CampaignType)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t('form.placeholders.type')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="social">{t('types.social')}</SelectItem>
+                  <SelectItem value="email">{t('types.email')}</SelectItem>
+                  <SelectItem value="ads">{t('types.ads')}</SelectItem>
+                  <SelectItem value="content">{t('types.content')}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div>
-                <Label htmlFor="filters">Filters</Label>
-                <Button variant="outline" className="w-full justify-start mt-1" onClick={() => router.push('/campaign-builder/audience-filters')}>
-                    <Filter className="mr-2 h-4 w-4"/> Audience Filters
-                </Button>
+
+            <div className="space-y-2">
+              <Label>{t('form.fields.platforms')}</Label>
+              <div className="flex flex-wrap gap-2">
+                {Object.values(Platform._def.values).map((platform) => (
+                  <Button
+                    key={platform}
+                    type="button"
+                    variant={form.watch('platforms')?.includes(platform as Platform) ? 'default' : 'outline'}
+                    onClick={() => {
+                      const platforms = form.watch('platforms') || [];
+                      if (platforms.includes(platform as Platform)) {
+                        form.setValue(
+                          'platforms',
+                          platforms.filter((p) => p !== platform)
+                        );
+                      } else {
+                        form.setValue('platforms', [...platforms, platform as Platform]);
+                      }
+                    }}
+                  >
+                    {platform}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>{t('form.fields.startDate')}</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      'w-full justify-start text-left font-normal',
+                      !form.watch('startDate') && 'text-muted-foreground'
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {form.watch('startDate') ? (
+                      format(form.watch('startDate'), 'PPP')
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={form.watch('startDate')}
+                    onSelect={(date) => form.setValue('startDate', date || new Date())}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="budget">{t('form.fields.budget')}</Label>
+              <Input
+                id="budget"
+                type="number"
+                {...form.register('budget', { valueAsNumber: true })}
+              />
             </div>
           </CardContent>
         </Card>
 
-        {/* Main Campaign Configuration Area */}
-        <div className="flex-1 space-y-6">
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle>Targeting Filters</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="age">Age</Label>
-                  <Input id="age" placeholder="e.g., 25-45" />
-                </div>
-                <div>
-                  <Label htmlFor="locationFilter">Location</Label>
-                  <Input id="locationFilter" placeholder="e.g., New York, USA" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('form.content.title')}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="mainMessage">{t('form.fields.message')}</Label>
+              <Textarea
+                id="mainMessage"
+                {...form.register('content.mainMessage')}
+                placeholder={t('form.placeholders.message')}
+              />
+            </div>
 
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle>Audience Target</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox id="behaviors" defaultChecked />
-                <Label htmlFor="behaviors">Behaviors</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="locationTarget" />
-                <Label htmlFor="locationTarget">Location</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="ageTarget" defaultChecked />
-                <Label htmlFor="ageTarget">Age</Label>
-              </div>
-              <div className="mt-4 p-4 border border-dashed rounded-md flex flex-col items-center justify-center bg-muted/30">
-                <Image
-                  src="https://placehold.co/300x150.png"
-                  alt="Ad creative placeholder"
-                  width={300}
-                  height={150}
-                  data-ai-hint="ad creative placeholder"
-                  className="rounded"
-                />
-                <Button variant="outline" size="sm" className="mt-3" onClick={() => toast({ title: "Upload Creative", description: "Upload creative functionality coming soon."})}>
-                  <UploadCloud className="mr-2 h-4 w-4" /> Upload Creative
-                </Button>
-                <Input id="imageDetails" placeholder="momatz: (image details from mockup - unclear)" className="mt-2 text-xs h-8"/>
-              </div>
-            </CardContent>
-          </Card>
+            <div className="space-y-2">
+              <Label htmlFor="callToAction">{t('form.fields.callToAction')}</Label>
+              <Input
+                id="callToAction"
+                {...form.register('content.callToAction')}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle>Budget & Duration</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col sm:flex-row items-center gap-4">
-              <div className="flex-1">
-                <Label htmlFor="budget">Budget</Label>
-                <Input id="budget" type="number" placeholder="5,300" defaultValue="5300" />
-              </div>
-              <div className="flex-1">
-                <Label htmlFor="duration">Duration</Label>
-                 <Button variant="outline" className="w-full justify-start text-left font-normal">
-                    <CalendarDays className="mr-2 h-4 w-4 text-muted-foreground"/>
-                    15 Days
-                </Button>
-              </div>
-            </CardContent>
-             <CardFooter>
-                <Button className="w-full sm:w-auto" onClick={() => toast({ title: "Preview Campaign", description: "Campaign preview functionality coming soon."})}>
-                    <Eye className="mr-2 h-4 w-4"/> Preview Campaign
-                </Button>
-            </CardFooter>
-          </Card>
+        <div className="flex justify-end gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push('/campaigns')}
+          >
+            {t('actions.cancel')}
+          </Button>
+          <Button type="submit" disabled={createCampaign.isPending}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            {t('actions.create')}
+          </Button>
         </div>
-      </div>
-    </>
+      </form>
+    </div>
   );
 }

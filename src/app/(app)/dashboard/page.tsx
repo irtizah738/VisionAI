@@ -1,6 +1,6 @@
-
 "use client";
 
+import { useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from "recharts";
 import type { ChartConfig } from "@/components/ui/chart";
 import { Progress } from "@/components/ui/progress";
-import { useRouter } from "next/navigation"; // Added
+import { useRouter } from "next/navigation";
 
 const kpiData = [
   { title: "Total Impressions", value: "1.2M", change: "+5.2%", icon: Eye, description: "Total views of your ads/content." },
@@ -51,10 +51,94 @@ const mockActiveCampaigns = [
     { id: "camp3", name: "Brand Awareness - Phase 2", progress: 90, status: "Exceeding Goals", endDate: "2024-11-30" },
 ];
 
+// Placeholder AI Assistant Chat Component
+function AIAssistantChat() {
+  const [messages, setMessages] = useState([
+    { from: "ai", text: "Hi! I'm your VisionAI assistant. How can I help you today?" },
+  ]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const sendMessage = async () => {
+    if (!input.trim() || isLoading) return;
+    
+    const userMessage = { from: "user", text: input };
+    setMessages([...messages, userMessage]);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: input,
+          mode: "general",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get AI response");
+      }
+
+      const data = await response.json();
+      setMessages((msgs) => [...msgs, { from: "ai", text: data.content }]);
+    } catch (error) {
+      console.error("Failed to get AI response:", error);
+      setMessages((msgs) => [
+        ...msgs,
+        { from: "ai", text: "Sorry, I encountered an error. Please try again." },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Card className="mt-8">
+      <CardHeader>
+        <CardTitle>VisionAI Assistant</CardTitle>
+        <CardDescription>Ask anything about your marketing, campaigns, or get AI-powered suggestions.</CardDescription>
+      </CardHeader>
+      <CardContent className="h-64 overflow-y-auto bg-muted rounded p-2 mb-2">
+        {messages.map((msg, idx) => (
+          <div key={idx} className={`mb-2 flex ${msg.from === "user" ? "justify-end" : "justify-start"}`}>
+            <div className={`px-3 py-2 rounded-lg max-w-xs ${msg.from === "user" ? "bg-primary text-primary-foreground" : "bg-white text-black border"}`}>
+              {msg.text}
+            </div>
+          </div>
+        ))}
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="px-3 py-2 rounded-lg max-w-xs bg-white text-black border">
+              Thinking...
+            </div>
+          </div>
+        )}
+      </CardContent>
+      <CardFooter className="flex gap-2">
+        <input
+          className="flex-1 border rounded px-2 py-1"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && sendMessage()}
+          placeholder="Type your message..."
+          disabled={isLoading}
+        />
+        <Button onClick={sendMessage} disabled={isLoading}>
+          Send
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
 
 export default function DashboardPage() {
-  const router = useRouter(); // Added
+  const router = useRouter();
 
+  // Empty state placeholders
   return (
     <>
       <PageHeader
@@ -62,124 +146,110 @@ export default function DashboardPage() {
         description="Your central hub for marketing intelligence and campaign oversight."
       />
 
-      {/* KPI Statistics Panel */}
+      {/* KPI Statistics Panel - Empty State */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-        {kpiData.map((kpi) => (
-          <Card key={kpi.title} className="shadow-md hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{kpi.title}</CardTitle>
-              <kpi.icon className="h-5 w-5 text-muted-foreground" />
+        {[1, 2, 3, 4].map((_, i) => (
+          <Card key={i} className="shadow-md">
+            <CardHeader>
+              <CardTitle className="text-sm font-medium">KPI</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{kpi.value}</div>
-              <p className={`text-xs ${kpi.change.startsWith('+') ? 'text-green-600' : 'text-red-500'}`}>
-                {kpi.change}
-              </p>
+              <div className="text-2xl font-bold text-muted-foreground">--</div>
+              <p className="text-xs text-muted-foreground">No data</p>
             </CardContent>
             <CardFooter className="text-xs text-muted-foreground pt-1 pb-3">
-              {kpi.description}
+              Data will appear here when available.
             </CardFooter>
           </Card>
         ))}
       </div>
 
-      {/* Main Dashboard Sections */}
+      {/* Main Dashboard Sections - Empty State */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        {/* Real-Time Performance Graph */}
+        {/* Real-Time Performance Graph - Empty State */}
         <Card className="lg:col-span-2 shadow-lg">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <LineChartIconLucide className="h-6 w-6 text-primary" />
-              Revenue Performance
-            </CardTitle>
-            <CardDescription>Comparison of revenue over the last 7 months.</CardDescription>
+            <CardTitle>Revenue Performance</CardTitle>
+            <CardDescription>No data to display. Connect your data source.</CardDescription>
           </CardHeader>
-          <CardContent className="h-[350px] pr-2">
-            <ChartContainer config={chartConfig} className="w-full h-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={revenueChartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="name" tickLine={false} axisLine={false} style={{ fontSize: '0.75rem' }} />
-                  <YAxis tickLine={false} axisLine={false} style={{ fontSize: '0.75rem' }} tickFormatter={(value) => `$${value / 1000}k`} />
-                  <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
-                  <Legend />
-                  <Line type="monotone" dataKey="revenue" stroke="var(--color-revenue)" strokeWidth={2} dot={{ r: 4, fill: "var(--color-revenue)" }} activeDot={{ r: 6 }} name="Current Revenue" />
-                  <Line type="monotone" dataKey="previousRevenue" stroke="var(--color-previousRevenue)" strokeWidth={2} strokeDasharray="5 5" dot={{ r: 4, fill: "var(--color-previousRevenue)" }} activeDot={{ r: 6 }} name="Previous Period" />
-                </LineChart>
-              </ResponsiveContainer>
-            </ChartContainer>
+          <CardContent className="h-[350px] flex items-center justify-center text-muted-foreground">
+            <span>No chart data available.</span>
           </CardContent>
         </Card>
 
-        {/* AI-Generated Notifications */}
+        {/* AI Notifications & Insights - Empty State */}
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="h-6 w-6 text-primary" />
-              AI Notifications & Insights
-            </CardTitle>
-            <CardDescription>Actionable alerts and suggestions from VisionAI.</CardDescription>
+            <CardTitle>AI Notifications & Insights</CardTitle>
+            <CardDescription>Actionable alerts and suggestions from VisionAI will appear here.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {mockNotifications.map(notification => (
-                <div key={notification.id} className={`p-3 rounded-md border-l-4 ${notification.type === 'warning' ? 'border-yellow-500 bg-yellow-500/10' : notification.type === 'success' ? 'border-green-500 bg-green-500/10' : 'border-blue-500 bg-blue-500/10'}`}>
-                    <div className="flex items-start gap-2">
-                        <notification.icon className={`h-5 w-5 mt-0.5 ${notification.type === 'warning' ? 'text-yellow-600' : notification.type === 'success' ? 'text-green-600' : 'text-blue-600'}`}/>
-                        <div>
-                            <p className="text-sm font-medium">{notification.title}</p>
-                            <p className="text-xs text-muted-foreground">{notification.description}</p>
-                            {notification.actionText && (
-                                <Button variant="link" size="sm" className="h-auto p-0 mt-1 text-xs text-primary hover:underline" onClick={() => router.push(notification.actionLink || '#')}>
-                                    {notification.actionText} <ArrowRight className="ml-1 h-3 w-3"/>
-                                </Button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            ))}
-             <Button variant="outline" className="w-full mt-2" onClick={() => router.push('/ai-assistant')}>
-                View All Notifications
-             </Button>
+          <CardContent className="flex flex-col gap-2 text-muted-foreground">
+            <span>No notifications yet.</span>
+            <Button variant="outline" className="w-full mt-2" onClick={() => router.push('/ai-assistant')}>
+              Go to AI Assistant
+            </Button>
           </CardContent>
         </Card>
       </div>
-      
-      {/* Active Campaigns Progress */}
-       <Card className="shadow-lg">
+
+      {/* Active Campaigns Progress - Empty State */}
+      <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-6 w-6 text-primary" />
-            Active Campaigns Snapshot
-          </CardTitle>
+          <CardTitle>Active Campaigns Snapshot</CardTitle>
           <CardDescription>Quick overview of ongoing marketing efforts.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-            {mockActiveCampaigns.map(campaign => (
-                 <div key={campaign.id} className="p-3 border rounded-lg hover:shadow-sm transition-shadow">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
-                        <h4 className="font-semibold">{campaign.name}</h4>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${campaign.status === "On Track" ? "bg-blue-100 text-blue-700" : campaign.status === "Needs Attention" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
-                            {campaign.status}
-                        </span>
-                    </div>
-                    <Progress value={campaign.progress} className="h-2 mb-1" indicatorClassName={campaign.status === "Needs Attention" ? "bg-red-500" : campaign.status === "Exceeding Goals" ? "bg-green-500" : "bg-blue-500"} />
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Ends: {campaign.endDate}</span>
-                        <span>{campaign.progress}% complete</span>
-                    </div>
-                     <Button variant="outline" size="sm" className="mt-2 w-full sm:w-auto" onClick={() => router.push('/campaigns')}>
-                        View Details
-                    </Button>
-                 </div>
-            ))}
-             {mockActiveCampaigns.length === 0 && <p className="text-muted-foreground">No active campaigns currently.</p>}
+        <CardContent className="space-y-4 text-muted-foreground">
+          <span>No active campaigns currently.</span>
         </CardContent>
         <CardFooter>
-            <Button className="w-full sm:w-auto" onClick={() => router.push('/campaigns')}>
-                Manage All Campaigns
-            </Button>
+          <Button className="w-full sm:w-auto" onClick={() => router.push('/campaigns')}>
+            Manage All Campaigns
+          </Button>
         </CardFooter>
       </Card>
+
+      {/* AI Features Entry Points */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle>Blog Generator</CardTitle>
+            <CardDescription>Generate blog content with AI.</CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Button onClick={() => router.push('/blog-generator')}>Try Blog Generator</Button>
+          </CardFooter>
+        </Card>
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle>Subject Line Generator</CardTitle>
+            <CardDescription>Get AI-powered email subject lines.</CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Button onClick={() => router.push('/subject-line-generator')}>Try Subject Line Generator</Button>
+          </CardFooter>
+        </Card>
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle>Chat Assistant</CardTitle>
+            <CardDescription>Ask VisionAI anything.</CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Button onClick={() => router.push('/ai-assistant')}>Open Chat Assistant</Button>
+          </CardFooter>
+        </Card>
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle>More AI Tools</CardTitle>
+            <CardDescription>Explore additional AI features.</CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Button onClick={() => router.push('/ai-tools')}>Explore AI Tools</Button>
+          </CardFooter>
+        </Card>
+      </div>
+
+      {/* User-Facing AI Assistant/Chat Interface */}
+      <AIAssistantChat />
     </>
   );
 }

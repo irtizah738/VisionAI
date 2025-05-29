@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -36,6 +35,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 import { cn } from "@/lib/utils";
 import {
@@ -208,7 +208,7 @@ export function SidebarNav() {
                 </DropdownMenuPortal>
               </DropdownMenuSub>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push('/login')}>
+              <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/login' })}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
