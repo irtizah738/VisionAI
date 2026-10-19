@@ -1,0 +1,679 @@
+{
+  "users": [
+    {
+      "id": "usr_visionai_admin",
+      "name": "Alex Morgan",
+      "email": "admin@vision.ai",
+      "role": "VP of Growth & Social",
+      "company": "VisionAI Technologies",
+      "timezone": "America/New_York",
+      "language": "en",
+      "bio": "Leading multi-channel social strategy, AI content velocity, and brand engagement across 5 global channels.",
+      "avatarUrl": "https://placehold.co/100x100.png",
+      "notifications": {
+        "emailDigest": true,
+        "publishAlerts": true,
+        "mentionAlerts": true,
+        "weeklyReports": true
+      },
+      "createdAt": "2026-09-19T01:11:20.252Z",
+      "updatedAt": "2026-10-19T01:11:20.252Z"
+    }
+  ],
+  "brandVoice": {
+    "id": "bv_default",
+    "userId": "usr_visionai_admin",
+    "brandName": "VisionAI Technologies",
+    "tone": "Authoritative, Data-Driven & Executive",
+    "targetAudience": "B2B SaaS CMOs, VPs of Growth, and Social Media Directors",
+    "keyPillars": "1. Fold-Aware Native Previews above the mobile cutoff\n2. Quantifiable Multi-Network Pipeline Attribution (4.2x ROI)\n3. Zero-Slop Executive Clarity & High-Contrast Visuals",
+    "bannedWords": "synergy, delve, game-changer, revolutionary, unleash",
+    "ctaStyle": "Include a direct benchmark URL (https://visionai.studio/launch) with concrete ROI metrics before the fold.",
+    "enabled": true,
+    "updatedAt": "2026-10-19T01:11:20.252Z"
+  },
+  "workspaceItems": [
+    {
+      "id": "ws_content_1",
+      "userId": "usr_visionai_admin",
+      "suite": "content",
+      "title": "2026 Omnichannel Attribution Benchmark Playbook",
+      "status": "published",
+      "summary": "Long-form executive guide + 5 social cutdowns analyzing fold truncation across LinkedIn, X, and Instagram.",
+      "primaryMetric": 28450,
+      "secondaryMetric": 6.8,
+      "meta": {
+        "type": "blog",
+        "author": "Alex Morgan",
+        "channel": "LinkedIn & Blog"
+      },
+      "createdAt": "2026-10-14T01:11:20.252Z",
+      "updatedAt": "2026-10-19T01:11:20.252Z"
+    },
+    {
+      "id": "ws_content_2",
+      "userId": "usr_visionai_admin",
+      "suite": "content",
+      "title": "Q4 Product Keynote: Autonomous Social Dispatcher",
+      "status": "scheduled",
+      "summary": "Video walkthrough and carousel asset pack for YouTube, Instagram Reels, and X native video.",
+      "primaryMetric": 14200,
+      "secondaryMetric": 5.4,
+      "meta": {
+        "type": "video",
+        "author": "Elena Rostova",
+        "channel": "YouTube & Instagram"
+      },
+      "createdAt": "2026-10-17T01:11:20.252Z",
+      "updatedAt": "2026-10-19T01:11:20.252Z"
+    },
+    {
+      "id": "ws_cro_1",
+      "userId": "usr_visionai_admin",
+      "suite": "cro",
+      "title": "Above-the-Fold Hook Length (115 chars vs 240 chars)",
+      "status": "running",
+      "summary": "Testing compact ROI-first hook above mobile cutoff against storytelling paragraph on LinkedIn & X.",
+      "primaryMetric": 4.8,
+      "secondaryMetric": 96,
+      "meta": {
+        "variantA": "2.9% CTR (240 chars)",
+        "variantB": "4.8% CTR (115 chars)",
+        "visitors": 18400
+      },
+      "createdAt": "2026-10-12T01:11:20.252Z",
+      "updatedAt": "2026-10-19T01:11:20.252Z"
+    },
+    {
+      "id": "ws_cro_2",
+      "userId": "usr_visionai_admin",
+      "suite": "cro",
+      "title": "Interactive ROI Calculator vs Static Case Study Card",
+      "status": "completed",
+      "summary": "Comparing interactive benchmark link cards against static PDF downloads on enterprise landing pages.",
+      "primaryMetric": 6.2,
+      "secondaryMetric": 99,
+      "meta": {
+        "variantA": "3.1% Conv",
+        "variantB": "6.2% Conv",
+        "visitors": 31200
+      },
+      "createdAt": "2026-10-05T01:11:20.252Z",
+      "updatedAt": "2026-10-19T01:11:20.252Z"
+    },
+    {
+      "id": "ws_crm_1",
+      "userId": "usr_visionai_admin",
+      "suite": "crm",
+      "title": "FinScale Enterprise (Marcus Vance - VP Marketing)",
+      "status": "qualified",
+      "summary": "Engaged with LinkedIn fold preview benchmark; requested multi-workspace OAuth demo for 18 regional pages.",
+      "primaryMetric": 48000,
+      "secondaryMetric": 92,
+      "meta": {
+        "email": "m.vance@finscale.io",
+        "segment": "enterprise",
+        "source": "LinkedIn Organic"
+      },
+      "createdAt": "2026-10-15T01:11:20.252Z",
+      "updatedAt": "2026-10-19T01:11:20.252Z"
+    },
+    {
+      "id": "ws_crm_2",
+      "userId": "usr_visionai_admin",
+      "suite": "crm",
+      "title": "OmniRetail Group (David Chen - Growth Lead)",
+      "status": "customer",
+      "summary": "Expanded annual seat license after Q3 Instagram + YouTube Shorts automation sprint delivered 3.4x ROAS.",
+      "primaryMetric": 84000,
+      "secondaryMetric": 98,
+      "meta": {
+        "email": "dchen@omniretail.com",
+        "segment": "vip",
+        "source": "Multi-Channel Attribution"
+      },
+      "createdAt": "2026-10-07T01:11:20.252Z",
+      "updatedAt": "2026-10-19T01:11:20.252Z"
+    },
+    {
+      "id": "ws_seg_1",
+      "userId": "usr_visionai_admin",
+      "suite": "segment",
+      "title": "High-Velocity B2B SaaS Marketing Leaders",
+      "status": "active",
+      "summary": "CMOs and VPs of Growth at 50–500 person SaaS companies posting 4+ times/week across LinkedIn & X.",
+      "primaryMetric": 14800,
+      "secondaryMetric": 24.5,
+      "meta": {
+        "criteria": "Role: CMO/VP Growth · Channels: LinkedIn + X · LTV > $25k",
+        "primaryChannel": "LinkedIn"
+      },
+      "createdAt": "2026-10-09T01:11:20.252Z",
+      "updatedAt": "2026-10-19T01:11:20.252Z"
+    },
+    {
+      "id": "ws_seg_2",
+      "userId": "usr_visionai_admin",
+      "suite": "segment",
+      "title": "Omnichannel D2C Creative Studio Teams",
+      "status": "active",
+      "summary": "Consumer brand social directors managing daily visual drops across Instagram, YouTube Shorts, and Facebook.",
+      "primaryMetric": 29400,
+      "secondaryMetric": 31.2,
+      "meta": {
+        "criteria": "Format: 1:1 & 9:16 Visuals · Frequency: Daily",
+        "primaryChannel": "Instagram"
+      },
+      "createdAt": "2026-10-11T01:11:20.252Z",
+      "updatedAt": "2026-10-19T01:11:20.252Z"
+    },
+    {
+      "id": "ws_proj_1",
+      "userId": "usr_visionai_admin",
+      "suite": "project",
+      "title": "Q4 Omnichannel Social Preview Launch",
+      "status": "In Progress",
+      "summary": "Coordinate multi-network launch thread and LinkedIn carousel showcasing live fold truncation previews.",
+      "primaryMetric": 85,
+      "secondaryMetric": 1,
+      "meta": {
+        "owner": "Alex Morgan",
+        "deadline": "2026-10-24",
+        "channel": "LinkedIn & X",
+        "priority": "High"
+      },
+      "createdAt": "2026-10-13T01:11:20.252Z",
+      "updatedAt": "2026-10-19T01:11:20.252Z"
+    },
+    {
+      "id": "ws_proj_2",
+      "userId": "usr_visionai_admin",
+      "suite": "project",
+      "title": "Technical SEO & Schema.org JSON-LD Rollout",
+      "status": "Review",
+      "summary": "Audit structured data markup and meta descriptions across all high-intent landing pages.",
+      "primaryMetric": 92,
+      "secondaryMetric": 2,
+      "meta": {
+        "owner": "Elena Rostova",
+        "deadline": "2026-10-28",
+        "channel": "SEO Suite",
+        "priority": "Medium"
+      },
+      "createdAt": "2026-10-14T01:11:20.252Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "ws_proj_3",
+      "userId": "usr_visionai_admin",
+      "suite": "project",
+      "title": "YouTube 16:9 Product Walkthrough Video",
+      "status": "To Do",
+      "summary": "Record 4K walkthrough demonstrating 1-click omnichannel repurposing from blog to 5 social channels.",
+      "primaryMetric": 40,
+      "secondaryMetric": 3,
+      "meta": {
+        "owner": "Marcus Vance",
+        "deadline": "2026-11-02",
+        "channel": "YouTube",
+        "priority": "High"
+      },
+      "createdAt": "2026-10-16T01:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "ws_proj_4",
+      "userId": "usr_visionai_admin",
+      "suite": "project",
+      "title": "Firebase Firestore Zero-Trust Security Audit",
+      "status": "Done",
+      "summary": "Verify all 12 Dirty-Dozen red-team payloads and enforce Brand Voice Memory persistence.",
+      "primaryMetric": 100,
+      "secondaryMetric": 4,
+      "meta": {
+        "owner": "Alex Morgan",
+        "deadline": "2026-10-18",
+        "channel": "Platform Core",
+        "priority": "Critical"
+      },
+      "createdAt": "2026-10-10T01:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "ws_inbox_1",
+      "userId": "usr_visionai_admin",
+      "suite": "inbox",
+      "title": "Marcus Vance (VP Marketing @ FinScale) — Enterprise Multi-Page UTM Inquiry",
+      "status": "Question",
+      "summary": "Does VisionAI Studio support bulk scheduling across 18 regional LinkedIn company pages with custom UTM tagging and role-based approval?",
+      "primaryMetric": 94,
+      "secondaryMetric": 48000,
+      "meta": {
+        "network": "linkedin",
+        "author": "Marcus Vance",
+        "handle": "VP Marketing @ FinScale",
+        "sentiment": "Question",
+        "replied": false,
+        "escalatedToCrm": true,
+        "time": "38m ago"
+      },
+      "createdAt": "2026-10-19T00:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "ws_inbox_2",
+      "userId": "usr_visionai_admin",
+      "suite": "inbox",
+      "title": "Sarah Jenkins (@sarahj_growth) — Launch Thread Fold Cutoff Praise",
+      "status": "Positive",
+      "summary": "@VisionAI_HQ The side-by-side LinkedIn + X truncation preview just saved our product launch thread from cutting off the signup link! Huge fan of the command center.",
+      "primaryMetric": 98,
+      "secondaryMetric": 18500,
+      "meta": {
+        "network": "twitter",
+        "author": "Sarah Jenkins",
+        "handle": "@sarahj_growth",
+        "sentiment": "Positive",
+        "replied": false,
+        "escalatedToCrm": false,
+        "time": "12m ago"
+      },
+      "createdAt": "2026-10-19T00:41:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "ws_inbox_3",
+      "userId": "usr_visionai_admin",
+      "suite": "inbox",
+      "title": "David Chen (Growth Lead @ OmniRetail) — Q4 Benchmark PDF Request",
+      "status": "Urgent",
+      "summary": "Our executive team is finalizing Q1 social budget allocation today—can you send the Q4 social engagement & fold benchmark PDF mentioned in your post?",
+      "primaryMetric": 91,
+      "secondaryMetric": 84000,
+      "meta": {
+        "network": "facebook",
+        "author": "David Chen",
+        "handle": "Growth Lead @ OmniRetail",
+        "sentiment": "Urgent",
+        "replied": false,
+        "escalatedToCrm": false,
+        "time": "2h ago"
+      },
+      "createdAt": "2026-10-18T23:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "ws_inbox_4",
+      "userId": "usr_visionai_admin",
+      "suite": "inbox",
+      "title": "Elena Rostova (@elena.creates) — 4:5 Instagram & YouTube 16:9 Workflow Feedback",
+      "status": "Positive",
+      "summary": "Tested the new 4:5 Instagram feed preview alongside YouTube 16:9 cards—super clean workflow for cross-posting!",
+      "primaryMetric": 96,
+      "secondaryMetric": 12000,
+      "meta": {
+        "network": "instagram",
+        "author": "Elena Rostova",
+        "handle": "@elena.creates",
+        "sentiment": "Positive",
+        "replied": true,
+        "replyText": "Thank you Elena! Thrilled to hear the 4:5 preview is speeding up your cross-channel workflow.",
+        "escalatedToCrm": false,
+        "time": "1h ago"
+      },
+      "createdAt": "2026-10-18T23:41:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    }
+  ],
+  "posts": [
+    {
+      "id": "sp-1",
+      "network": "twitter",
+      "platforms": [
+        "twitter",
+        "linkedin"
+      ],
+      "handle": "@VisionAI_HQ",
+      "content": "We just shipped native multi-platform fold & truncation previews inside VisionAI Studio! Preview X, LinkedIn, Instagram, Facebook & YouTube side-by-side before scheduling. https://visionai.studio/launch #SocialMedia #ProductLaunch #MarketingAI",
+      "scheduledTime": "Mon, Oct 19 at 2:30 PM",
+      "dateKey": "2026-10-19",
+      "presetId": "preset-analytics",
+      "scheduledAt": "2026-10-19T04:11:20.253Z",
+      "status": "scheduled",
+      "likes": 142,
+      "comments": 28,
+      "shares": 39,
+      "reach": "18.4K",
+      "userId": "usr_visionai_admin",
+      "createdAt": "2026-10-18T19:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "sp-2",
+      "network": "linkedin",
+      "platforms": [
+        "linkedin"
+      ],
+      "handle": "VisionAI Technologies",
+      "content": "Why do 68% of B2B social posts lose engagement at the fold? Because critical CTAs get buried below the \"...more\" cutoff.\n\nOur latest benchmark report breaks down optimal hook lengths across LinkedIn, X, and Instagram for Q4. https://visionai.studio/benchmarks #B2BMarketing #ContentStrategy #Growth",
+      "scheduledTime": "Tue, Oct 20 at 9:00 AM",
+      "dateKey": "2026-10-20",
+      "presetId": "preset-playbook",
+      "scheduledAt": "2026-10-19T07:11:20.253Z",
+      "status": "scheduled",
+      "likes": 318,
+      "comments": 64,
+      "shares": 82,
+      "reach": "42.1K",
+      "userId": "usr_visionai_admin",
+      "createdAt": "2026-10-18T20:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "sp-3",
+      "network": "instagram",
+      "platforms": [
+        "instagram",
+        "facebook"
+      ],
+      "handle": "@visionai.studio",
+      "content": "Behind the scenes of our Q4 Creative Automation workflow ✨ From single brief to 5 channel-native assets in 30 seconds. Link in bio! #CreatorEconomy #DesignSystems #SocialSuite",
+      "scheduledTime": "Wed, Oct 21 at 1:15 PM",
+      "dateKey": "2026-10-21",
+      "presetId": "preset-launch",
+      "scheduledAt": "2026-10-19T21:11:20.253Z",
+      "status": "scheduled",
+      "likes": 894,
+      "comments": 91,
+      "shares": 120,
+      "reach": "64.8K",
+      "userId": "usr_visionai_admin",
+      "createdAt": "2026-10-18T21:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "sp-4",
+      "network": "youtube",
+      "platforms": [
+        "youtube"
+      ],
+      "handle": "VisionAI Official",
+      "content": "Full Walkthrough: Building a High-Velocity Social Command Center for 2026 | See how modern marketing teams cut scheduling time by 74% with real-time stream monitoring and native card validation.",
+      "scheduledTime": "Thu, Oct 22 at 11:30 AM",
+      "dateKey": "2026-10-22",
+      "presetId": "preset-launch",
+      "scheduledAt": "2026-10-20T01:11:20.253Z",
+      "status": "scheduled",
+      "likes": 512,
+      "comments": 73,
+      "shares": 95,
+      "reach": "51.2K",
+      "userId": "usr_visionai_admin",
+      "createdAt": "2026-10-18T22:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "sp-5",
+      "network": "facebook",
+      "platforms": [
+        "facebook"
+      ],
+      "handle": "VisionAI Official Page",
+      "content": "Join our live executive workshop this Friday: Mastering Multi-Channel Social Growth with Real-Time Telemetry & Brand Voice Memory. Reserve your seat at https://visionai.io/events #DigitalMarketing #VisionAI",
+      "scheduledTime": "Fri, Oct 23 at 4:00 PM",
+      "dateKey": "2026-10-23",
+      "presetId": "preset-analytics",
+      "scheduledAt": "2026-10-20T13:11:20.253Z",
+      "status": "scheduled",
+      "likes": 275,
+      "comments": 34,
+      "shares": 51,
+      "reach": "29.4K",
+      "userId": "usr_visionai_admin",
+      "createdAt": "2026-10-18T23:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "pub-1",
+      "network": "linkedin",
+      "platforms": [
+        "linkedin",
+        "twitter"
+      ],
+      "handle": "VisionAI Technologies",
+      "content": "Customer Story: How Acme Cloud scaled organic pipeline by 3.4x using unified social streams and AI-assisted hook optimization. Read the full breakdown: https://visionai.studio/cases/acme #SaaS #CustomerSuccess",
+      "scheduledTime": "Published 3h ago",
+      "publishedAt": "2026-10-18T22:11:20.253Z",
+      "status": "published",
+      "likes": 642,
+      "comments": 87,
+      "shares": 134,
+      "reach": "78.9K",
+      "userId": "usr_visionai_admin",
+      "createdAt": "2026-10-18T13:11:20.253Z",
+      "updatedAt": "2026-10-18T22:11:20.253Z"
+    },
+    {
+      "id": "pub-2",
+      "network": "twitter",
+      "platforms": [
+        "twitter"
+      ],
+      "handle": "@VisionAI_HQ",
+      "content": "Hot take: Scheduling posts without checking mobile fold truncation first is like shipping code without running tests. Always inspect the cutoff line! #MarketingOps #SocialMediaManager",
+      "scheduledTime": "Published Yesterday",
+      "publishedAt": "2026-10-18T01:11:20.253Z",
+      "status": "published",
+      "likes": 489,
+      "comments": 53,
+      "shares": 112,
+      "reach": "54.3K",
+      "userId": "usr_visionai_admin",
+      "createdAt": "2026-10-17T21:11:20.253Z",
+      "updatedAt": "2026-10-18T01:11:20.253Z"
+    }
+  ],
+  "mentions": [
+    {
+      "id": "m-1",
+      "network": "twitter",
+      "author": "Sarah Jenkins",
+      "handle": "@sarahj_growth",
+      "avatar": "SJ",
+      "content": "@VisionAI_HQ The side-by-side LinkedIn + X truncation preview just saved our product launch thread from cutting off the signup link! Huge fan of the new command center.",
+      "time": "12m ago",
+      "sentiment": "Positive",
+      "replied": false
+    },
+    {
+      "id": "m-2",
+      "network": "linkedin",
+      "author": "Marcus Vance",
+      "handle": "VP Marketing @ FinScale",
+      "avatar": "MV",
+      "content": "Does VisionAI Studio support bulk scheduling across multiple regional LinkedIn company pages with custom UTM tagging?",
+      "time": "38m ago",
+      "sentiment": "Question",
+      "replied": false
+    },
+    {
+      "id": "m-3",
+      "network": "instagram",
+      "author": "Elena Rostova",
+      "handle": "@elena.creates",
+      "avatar": "ER",
+      "content": "Tested the new 4:5 Instagram feed preview alongside YouTube 16:9 cards—super clean workflow for cross-posting!",
+      "time": "1h ago",
+      "sentiment": "Positive",
+      "replied": true,
+      "replyText": "Thank you Elena! Thrilled to hear the 4:5 preview is speeding up your workflow."
+    },
+    {
+      "id": "m-4",
+      "network": "facebook",
+      "author": "David Chen",
+      "handle": "Growth Lead @ OmniRetail",
+      "avatar": "DC",
+      "content": "Can your team share the Q4 social engagement benchmark PDF mentioned in today’s post?",
+      "time": "2h ago",
+      "sentiment": "Question",
+      "replied": false
+    }
+  ],
+  "socialAccounts": [
+    {
+      "id": "acc_twitter",
+      "provider": "twitter",
+      "accountName": "VisionAI Official",
+      "handle": "@VisionAI_HQ",
+      "followers": "48.2K",
+      "status": "connected",
+      "lastSynced": "2 mins ago",
+      "userId": "usr_visionai_admin",
+      "createdAt": "2026-09-29T01:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "acc_linkedin",
+      "provider": "linkedin",
+      "accountName": "VisionAI Technologies",
+      "handle": "linkedin.com/company/visionai",
+      "followers": "112.5K",
+      "status": "connected",
+      "lastSynced": "4 mins ago",
+      "userId": "usr_visionai_admin",
+      "createdAt": "2026-09-29T01:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "acc_instagram",
+      "provider": "instagram",
+      "accountName": "VisionAI Studio",
+      "handle": "@visionai.studio",
+      "followers": "84.9K",
+      "status": "connected",
+      "lastSynced": "5 mins ago",
+      "userId": "usr_visionai_admin",
+      "createdAt": "2026-10-04T01:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "acc_facebook",
+      "provider": "facebook",
+      "accountName": "VisionAI Official Page",
+      "handle": "fb.com/VisionAIStudio",
+      "followers": "63.1K",
+      "status": "connected",
+      "lastSynced": "10 mins ago",
+      "userId": "usr_visionai_admin",
+      "createdAt": "2026-10-07T01:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "acc_youtube",
+      "provider": "youtube",
+      "accountName": "VisionAI Official Channel",
+      "handle": "youtube.com/@VisionAI",
+      "followers": "95.4K",
+      "status": "connected",
+      "lastSynced": "8 mins ago",
+      "userId": "usr_visionai_admin",
+      "createdAt": "2026-10-09T01:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    }
+  ],
+  "campaigns": [
+    {
+      "id": "camp_1",
+      "name": "Q4 Product Launch — Multi-Network Social Blitz",
+      "description": "Coordinated launch campaign across X, LinkedIn, Instagram, and YouTube showcasing live native post previews.",
+      "type": "multi-channel",
+      "status": "active",
+      "budget": 18500,
+      "spent": 11240,
+      "impressions": 428900,
+      "clicks": 19450,
+      "conversions": 1420,
+      "roi": 340,
+      "channels": [
+        "twitter",
+        "linkedin",
+        "instagram",
+        "youtube"
+      ],
+      "startDate": "2026-10-01",
+      "endDate": "2026-12-31",
+      "userId": "usr_visionai_admin",
+      "createdAt": "2026-10-05T01:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "camp_2",
+      "name": "Enterprise B2B Thought Leadership Series",
+      "description": "Executive LinkedIn & Email sequence targeting Marketing VPs and Growth Directors.",
+      "type": "social",
+      "status": "active",
+      "budget": 12000,
+      "spent": 6850,
+      "impressions": 215400,
+      "clicks": 11280,
+      "conversions": 890,
+      "roi": 295,
+      "channels": [
+        "linkedin",
+        "email"
+      ],
+      "startDate": "2026-10-10",
+      "endDate": "2026-11-30",
+      "userId": "usr_visionai_admin",
+      "createdAt": "2026-10-09T01:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    },
+    {
+      "id": "camp_3",
+      "name": "Creator Economy Instagram & YouTube Shorts Push",
+      "description": "Visual storytelling and short-form video series highlighting 1-click AI content adaptation.",
+      "type": "content",
+      "status": "paused",
+      "budget": 8500,
+      "spent": 4100,
+      "impressions": 189000,
+      "clicks": 8400,
+      "conversions": 540,
+      "roi": 215,
+      "channels": [
+        "instagram",
+        "youtube",
+        "facebook"
+      ],
+      "startDate": "2026-09-15",
+      "endDate": "2026-11-15",
+      "userId": "usr_visionai_admin",
+      "createdAt": "2026-09-28T01:11:20.253Z",
+      "updatedAt": "2026-10-19T01:11:20.253Z"
+    }
+  ],
+  "streamColumns": [
+    {
+      "id": "col-scheduled",
+      "title": "Scheduled Queue (All Networks)",
+      "network": "all",
+      "type": "scheduled",
+      "position": 0
+    },
+    {
+      "id": "col-mentions",
+      "title": "Unified Mentions & Inbox",
+      "network": "all",
+      "type": "mentions",
+      "position": 1
+    },
+    {
+      "id": "col-published",
+      "title": "Published & Live Metrics",
+      "network": "all",
+      "type": "published",
+      "position": 2
+    }
+  ]
+}

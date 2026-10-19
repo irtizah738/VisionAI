@@ -1,0 +1,228 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Se produjo un error",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "sort": "Ordenar",
+    "settings": "Configuración",
+    "profile": "Perfil",
+    "logout": "Cerrar sesión",
+    "language": "Idioma"
+  },
+  "auth": {
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar contraseña"
+  },
+  "navigation": {
+    "dashboard": "Panel de control",
+    "campaigns": "Campañas",
+    "analytics": "Análisis",
+    "content": "Contenido",
+    "social": "Redes sociales",
+    "settings": "Configuración"
+  },
+  "social": {
+    "settings": {
+      "title": "Canales Sociales Conectados",
+      "description": "Administra tus redes sociales conectadas y permisos de publicación"
+    },
+    "platforms": {
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "youtube": "YouTube"
+    },
+    "platformConnected": "Conectado y sincronizado",
+    "platformNotConnected": "No conectado",
+    "connect": "Conectar",
+    "connecting": "Conectando...",
+    "reconnect": "Reconectar",
+    "connectedAccounts": "Cuentas Conectadas",
+    "lastSync": "Última sincronización",
+    "connectSuccess": {
+      "title": "Canal Conectado",
+      "description": "Se conectó tu cuenta de {platform} exitosamente."
+    },
+    "connectError": {
+      "title": "Error de Conexión",
+      "description": "No se pudo conectar la cuenta social. Inténtalo de nuevo."
+    },
+    "disconnectSuccess": {
+      "title": "Canal Desconectado",
+      "description": "La cuenta social ha sido eliminada de tu espacio de trabajo."
+    },
+    "disconnectError": {
+      "title": "Error al Desconectar",
+      "description": "No se pudo desconectar la cuenta social."
+    },
+    "disconnectConfirm": {
+      "title": "Desconectar Cuenta Social",
+      "description": "¿Estás seguro de que deseas desconectar {username} en {platform}?",
+      "cancel": "Cancelar",
+      "confirm": "Desconectar"
+    },
+    "actions": {
+      "post": "Publicar",
+      "schedule": "Programar",
+      "draft": "Guardar como borrador"
+    }
+  },
+  "accessibility": {
+    "skipToContent": "Saltar al contenido",
+    "menuButton": "Alternar menú",
+    "closeButton": "Cerrar",
+    "darkMode": "Alternar modo oscuro",
+    "languageSelector": "Seleccionar idioma"
+  },
+  "campaigns": {
+    "title": "Gestión de Campañas",
+    "description": "Crea, gestiona y optimiza tus campañas de marketing",
+    "noCampaignDescription": "No hay descripción para esta campaña.",
+    "error": {
+      "title": "Error de Campaña",
+      "description": "No se pudo cargar la información de la campaña. Por favor intenta de nuevo."
+    },
+    "tabs": {
+      "list": "Todas las Campañas",
+      "create": "Crear Campaña",
+      "details": "Detalles de la Campaña",
+      "insights": "Perspectivas de IA"
+    },
+    "actions": {
+      "create": "Crear Campaña",
+      "edit": "Editar Campaña",
+      "delete": "Eliminar Campaña",
+      "filter": "Filtrar",
+      "sort": "Ordenar",
+      "schedule": "Programar",
+      "duplicate": "Duplicar",
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    },
+    "search": {
+      "label": "Buscar campañas",
+      "placeholder": "Buscar por nombre, tipo o estado..."
+    },
+    "form": {
+      "title": "Crear Campaña",
+      "description": "Ingresa los detalles para crear una nueva campaña",
+      "actions": {
+        "submit": "Crear Campaña",
+        "cancel": "Cancelar"
+      },
+      "basicInfo": {
+        "title": "Información Básica",
+        "description": "Ingresa los detalles básicos de tu campaña"
+      },
+      "targeting": {
+        "title": "Segmentación de Audiencia",
+        "description": "Define tu audiencia objetivo y demografía"
+      },
+      "content": {
+        "title": "Contenido de la Campaña",
+        "description": "Crea y programa el contenido de tu campaña"
+      },
+      "fields": {
+        "name": "Nombre de la Campaña",
+        "description": "Descripción de la Campaña",
+        "type": "Tipo de Campaña",
+        "platforms": "Plataformas",
+        "startDate": "Fecha de Inicio",
+        "endDate": "Fecha de Finalización",
+        "budget": "Presupuesto",
+        "targetAudience": "Audiencia Objetivo",
+        "message": "Mensaje Principal",
+        "callToAction": "Llamada a la Acción"
+      },
+      "placeholders": {
+        "name": "Ingresa el nombre de la campaña",
+        "description": "Ingresa la descripción de la campaña",
+        "type": "Selecciona el tipo de campaña",
+        "message": "Ingresa el mensaje principal de tu campaña"
+      }
+    },
+    "types": {
+      "social": "Redes Sociales",
+      "email": "Marketing por Email",
+      "ads": "Publicidad Pagada",
+      "content": "Marketing de Contenido"
+    },
+    "status": {
+      "draft": "Borrador",
+      "scheduled": "Programada",
+      "active": "Activa",
+      "completed": "Completada",
+      "paused": "Pausada"
+    },
+    "metrics": {
+      "impressions": "Impresiones",
+      "engagement": "Interacción",
+      "clicks": "Clics",
+      "conversions": "Conversiones",
+      "roi": "ROI"
+    },
+    "toast": {
+      "createSuccess": {
+        "title": "Campaña Creada",
+        "description": "Tu campaña ha sido creada exitosamente"
+      },
+      "createError": {
+        "title": "Error al Crear",
+        "description": "No se pudo crear la campaña. Por favor, intenta de nuevo."
+      },
+      "updateSuccess": {
+        "title": "Campaña Actualizada",
+        "description": "Tu campaña ha sido actualizada exitosamente"
+      },
+      "updateError": {
+        "title": "Error al Actualizar",
+        "description": "No se pudo actualizar la campaña. Por favor, intenta de nuevo."
+      },
+      "deleteSuccess": {
+        "title": "Campaña Eliminada",
+        "description": "Tu campaña ha sido eliminada exitosamente"
+      },
+      "deleteError": {
+        "title": "Error al Eliminar",
+        "description": "No se pudo eliminar la campaña. Por favor, intenta de nuevo."
+      },
+      "statusUpdateSuccess": {
+        "title": "Estado Actualizado",
+        "description": "El estado de la campaña ha sido actualizado exitosamente"
+      },
+      "statusUpdateError": {
+        "title": "Error al Actualizar Estado",
+        "description": "No se pudo actualizar el estado de la campaña. Por favor, intenta de nuevo."
+      }
+    },
+    "recommendations": {
+      "title": "Recomendaciones de IA",
+      "description": "Sugerencias inteligentes para mejorar el rendimiento de tu campaña",
+      "loading": "Analizando tu campaña...",
+      "noRecommendations": "No hay recomendaciones en este momento",
+      "types": {
+        "content": "Optimización de Contenido",
+        "targeting": "Segmentación de Audiencia",
+        "performance": "Rendimiento",
+        "schedule": "Programación",
+        "budget": "Presupuesto"
+      },
+      "priorities": {
+        "high": "Alta Prioridad",
+        "medium": "Prioridad Media",
+        "low": "Baja Prioridad"
+      }
+    }
+  }
+} 

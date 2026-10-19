@@ -1,0 +1,289 @@
+# AI API Documentation
+
+## Overview
+
+Our AI API provides a suite of powerful AI-powered features for content generation, analysis, and optimization. All endpoints require authentication via the `x-api-key` header.
+
+## Base URL
+
+```
+https://your-domain.com/api/ai
+```
+
+## Authentication
+
+All requests must include an API key in the header:
+
+```http
+x-api-key: your-api-key-here
+```
+
+## Rate Limiting
+
+Requests are limited to 100 per minute per API key. Exceeding this limit will result in a 429 response.
+
+## Endpoints
+
+### Chat Assistant
+
+`POST /api/ai/chat`
+
+Generate AI-powered responses for various queries.
+
+#### Request
+
+```json
+{
+  "message": "How can I improve my website's SEO?",
+  "conversationId": "optional-conversation-id",
+  "useCache": true
+}
+```
+
+#### Response
+
+```json
+{
+  "message": "Here are some ways to improve your website's SEO...",
+  "model": "googleai/gemini-2.0-flash",
+  "timing": {
+    "startTime": 1234567890,
+    "endTime": 1234567891,
+    "duration": 1000
+  }
+}
+```
+
+### Social Media Post Generation
+
+`POST /api/ai/social-media`
+
+Generate platform-specific social media posts.
+
+#### Request
+
+```json
+{
+  "topic": "New Product Launch",
+  "platform": "twitter",
+  "tone": "professional"
+}
+```
+
+#### Response
+
+```json
+{
+  "post": {
+    "content": "🚀 Exciting news! We're launching...",
+    "hashtags": ["#ProductLaunch", "#Innovation"],
+    "bestTimeToPost": "Tuesday 10:00 AM",
+    "targetPlatform": "twitter"
+  },
+  "model": "googleai/gemini-2.0-flash",
+  "timing": {
+    "startTime": 1234567890,
+    "endTime": 1234567891,
+    "duration": 1000
+  }
+}
+```
+
+### SEO Optimization
+
+`POST /api/ai/seo`
+
+Get SEO optimization suggestions for content.
+
+#### Request
+
+```json
+{
+  "content": "Your webpage or content here...",
+  "targetKeywords": ["optional", "keywords", "list"]
+}
+```
+
+#### Response
+
+```json
+{
+  "suggestions": {
+    "title": "Suggested SEO Title",
+    "description": "Meta description suggestion",
+    "keywords": ["keyword1", "keyword2"],
+    "improvements": [
+      "Add more headings",
+      "Include keywords in first paragraph"
+    ]
+  },
+  "model": "googleai/gemini-2.0-flash",
+  "timing": {
+    "startTime": 1234567890,
+    "endTime": 1234567891,
+    "duration": 1000
+  }
+}
+```
+
+### Content Analytics
+
+`POST /api/ai/analytics`
+
+Analyze content for sentiment, keywords, and generate summaries.
+
+#### Request
+
+```json
+{
+  "content": "Your content to analyze...",
+  "includeSentiment": true,
+  "includeKeywords": true,
+  "includeSummary": true,
+  "maxKeywords": 10
+}
+```
+
+#### Response
+
+```json
+{
+  "results": {
+    "sentiment": {
+      "sentiment": "positive",
+      "score": 0.8,
+      "highlights": ["positive phrase 1", "positive phrase 2"]
+    },
+    "keywords": {
+      "keywords": ["keyword1", "keyword2"],
+      "relevanceScores": [0.9, 0.8]
+    },
+    "summary": {
+      "summary": "Brief summary...",
+      "keyPoints": ["point 1", "point 2"],
+      "wordCount": 100
+    }
+  },
+  "timings": {
+    "sentiment": {
+      "duration": 500
+    },
+    "keywords": {
+      "duration": 300
+    },
+    "summary": {
+      "duration": 400
+    }
+  },
+  "totalDuration": 1200
+}
+```
+
+### Translation
+
+`POST /api/ai/translate`
+
+Translate content between languages.
+
+#### Request
+
+```json
+{
+  "text": "Hello, world!",
+  "targetLanguage": "es",
+  "sourceLanguage": "en"
+}
+```
+
+#### Response
+
+```json
+{
+  "translation": {
+    "translatedText": "¡Hola, mundo!",
+    "detectedLanguage": "en",
+    "confidence": 0.98
+  },
+  "model": "googleai/gemini-2.0-flash",
+  "timing": {
+    "startTime": 1234567890,
+    "endTime": 1234567891,
+    "duration": 1000
+  }
+}
+```
+
+### Image Analysis
+
+`POST /api/ai/image`
+
+Analyze images for content, objects, and text.
+
+#### Request
+
+```json
+{
+  "imageUrl": "https://example.com/image.jpg"
+}
+```
+
+#### Response
+
+```json
+{
+  "analysis": {
+    "description": "A detailed description of the image",
+    "tags": ["tag1", "tag2"],
+    "objects": [
+      {
+        "name": "object1",
+        "confidence": 0.95,
+        "location": {
+          "x": 100,
+          "y": 100,
+          "width": 200,
+          "height": 200
+        }
+      }
+    ],
+    "textContent": ["detected text 1", "detected text 2"],
+    "dominantColors": ["#FF0000", "#00FF00"]
+  },
+  "model": "googleai/gemini-2.0-flash",
+  "timing": {
+    "startTime": 1234567890,
+    "endTime": 1234567891,
+    "duration": 1000
+  }
+}
+```
+
+## Error Handling
+
+All endpoints follow the same error response format:
+
+```json
+{
+  "error": "Error message",
+  "details": ["Optional array of detailed error messages"]
+}
+```
+
+Common HTTP status codes:
+- 200: Success
+- 400: Invalid request data
+- 401: Missing or invalid API key
+- 429: Rate limit exceeded
+- 500: Internal server error
+
+## Best Practices
+
+1. Always include error handling in your implementation
+2. Use the cache parameter when appropriate to improve response times
+3. Implement exponential backoff for rate limit handling
+4. Keep content lengths within the specified limits
+5. Monitor the timing information to optimize your usage
+
+## Support
+
+For API support or questions, please contact our team at api-support@yourdomain.com. 

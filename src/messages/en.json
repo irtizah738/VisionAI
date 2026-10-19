@@ -1,0 +1,55 @@
+{
+  "campaigns": {
+    "ai": {
+      "tabs": {
+        "optimizations": "Optimizations",
+        "audience": "Audience Insights",
+        "prediction": "Performance Prediction"
+      },
+      "optimizationTypes": {
+        "content": "Content Optimization",
+        "targeting": "Targeting Optimization",
+        "timing": "Timing Optimization",
+        "budget": "Budget Optimization"
+      },
+      "impact": {
+        "high": "High Impact",
+        "medium": "Medium Impact",
+        "low": "Low Impact"
+      },
+      "confidence": "Confidence: {level}%",
+      "affinity": "Affinity Score: {score}%",
+      "interests": "Interests",
+      "demographics": "Demographics",
+      "ageRange": "Age Range: {min}-{max}",
+      "locations": "Locations: {locations}",
+      "gender": "Gender: {gender}",
+      "metrics": {
+        "title": "Performance Metrics",
+        "current": "Current",
+        "predicted": "Predicted",
+        "impressions": "Impressions",
+        "engagement": "Engagement",
+        "clicks": "Clicks",
+        "conversions": "Conversions",
+        "roi": "ROI"
+      },
+      "factors": {
+        "positive": "Positive Factors",
+        "negative": "Areas for Improvement"
+      },
+      "noOptimizations": {
+        "title": "No Optimization Suggestions",
+        "description": "We couldn't generate optimization suggestions for this campaign at the moment. Try again later or adjust your campaign settings."
+      },
+      "noInsights": {
+        "title": "No Audience Insights",
+        "description": "We couldn't generate audience insights for this campaign at the moment. Try again later or provide more audience targeting information."
+      },
+      "noPrediction": {
+        "title": "No Performance Prediction",
+        "description": "We couldn't generate a performance prediction for this campaign at the moment. Try again later or provide more campaign metrics."
+      }
+    }
+  }
+} 
