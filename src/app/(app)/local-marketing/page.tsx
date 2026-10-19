@@ -1,216 +1,296 @@
-
 "use client";
 
+import React, { useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { MapPin, Building, ListChecks, TrendingUp, Edit3, MessageSquareShare, BarChart3, Compass, Users, Lightbulb, Search, CloudUpload, Globe } from "lucide-react";
-import Image from "next/image";
-import { useToast } from "@/hooks/use-toast"; // Added
+import {
+  MapPin,
+  Building,
+  ListChecks,
+  TrendingUp,
+  Globe,
+  Sparkles,
+  RefreshCw,
+  CheckCircle2,
+  Send,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function LocalMarketingPage() {
-  const { toast } = useToast(); // Added
+  const { toast } = useToast();
+  const [businessName, setBusinessName] = useState("VisionAI Studio — NYC Hub");
+  const [address, setAddress] = useState("350 Fifth Avenue, New York, NY 10118");
+  const [phone, setPhone] = useState("+1 (212) 555-0194");
+  const [website, setWebsite] = useState("https://visionai.studio/nyc");
+  const [services, setServices] = useState(
+    "Enterprise AI marketing command center, multi-platform social scheduling, and real-time attribution workshops."
+  );
+  const [isAuditingLocal, setIsAuditingLocal] = useState(false);
+  const [localTips, setLocalTips] = useState<string[]>([
+    "Include 'New York Enterprise AI Marketing Studio' in your Google Business Profile primary category and secondary attributes.",
+    "Publish weekly Geo-Targeted LinkedIn and Instagram posts featuring local client case studies with NYC location tags.",
+    "Maintain 100% NAP (Name, Address, Phone) citation consistency across Google Business Profile, Bing Places, and Apple Business Connect.",
+  ]);
+
+  const [geoCity, setGeoCity] = useState("New York Metro & Tri-State");
+  const [geoCopy, setGeoCopy] = useState(
+    "Joining fellow NYC marketing leaders this Thursday for our live Multi-Platform Social Velocity Workshop in Midtown! Reserve your seat: https://visionai.studio/nyc #NYCTech #MarketingOps"
+  );
+  const [isLaunchingGeo, setIsLaunchingGeo] = useState(false);
+
+  const handleRunLocalAudit = async () => {
+    setIsAuditingLocal(true);
+    try {
+      const res = await fetch("/api/ai/seo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: `${businessName} · ${address} · ${services}`,
+          keywords: ["local SEO", address, businessName],
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to run local SEO audit");
+      const json = await res.json();
+      if (Array.isArray(json.data?.suggestions) && json.data.suggestions.length > 0) {
+        setLocalTips(json.data.suggestions);
+      }
+      toast({
+        title: "Local SEO & Directory Audit Complete",
+        description: `Optimized local signals for ${businessName}.`,
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Local Audit Error",
+        description: error?.message || "Could not complete local SEO audit.",
+      });
+    } finally {
+      setIsAuditingLocal(false);
+    }
+  };
+
+  const handleLaunchGeoCampaign = async () => {
+    if (!geoCopy.trim()) return;
+    setIsLaunchingGeo(true);
+    try {
+      const [postRes, campRes] = await Promise.all([
+        fetch("/api/social/publish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            content: geoCopy,
+            platforms: ["linkedin", "twitter", "instagram"],
+            publishNow: false,
+            scheduledTime: `Geo-Targeted (${geoCity}) · Tomorrow 10:00 AM`,
+          }),
+        }),
+        fetch("/api/campaigns", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: `Geo-Targeted Launch: ${geoCity}`,
+            description: geoCopy,
+            type: "social",
+            status: "active",
+            budget: 3500,
+            channels: ["linkedin", "twitter", "instagram"],
+          }),
+        }),
+      ]);
+
+      if (!postRes.ok || !campRes.ok) {
+        throw new Error("Failed to launch geo-targeted campaign");
+      }
+
+      toast({
+        title: `Geo-Targeted Campaign Active (${geoCity})`,
+        description:
+          "Queued regional social posts and created a tracked campaign.",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Launch Error",
+        description: error?.message || "Could not launch regional campaign.",
+      });
+    } finally {
+      setIsLaunchingGeo(false);
+    }
+  };
 
   return (
-    <>
+    <div className="space-y-6">
       <PageHeader
-        title="Local Marketing Optimization"
-        description="Tools to enhance your business's local presence and reach."
+        title="Local & Geo-Targeted Marketing Studio"
+        description="Optimize regional business profiles, audit NAP directory citations, and dispatch geo-targeted social campaigns."
+        icon={MapPin}
       />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Business Profile Optimizer Card */}
-        <Card className="shadow-lg">
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building className="h-6 w-6 text-primary" />
-              Business Profile Optimizer
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Building className="h-5 w-5 text-primary" />
+              Regional Business Profile &amp; Local SEO Optimizer
             </CardTitle>
             <CardDescription>
-              Ensure your business information is accurate, complete, and optimized across platforms.
+              Keep NAP (Name, Address, Phone) metadata synchronized and optimized for regional search intent.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="businessName">Business Name</Label>
-              <Input id="businessName" placeholder="e.g., VisionAI Cafe" />
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="loc-name">Business / Hub Name</Label>
+                <Input
+                  id="loc-name"
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="loc-phone">Regional Phone</Label>
+                <Input
+                  id="loc-phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+              </div>
             </div>
-            <div>
-              <Label htmlFor="address">Address</Label>
-              <Input id="address" placeholder="e.g., 123 AI Street, Tech City" />
+            <div className="space-y-1.5">
+              <Label htmlFor="loc-addr">Street Address &amp; Postal Code</Label>
+              <Input
+                id="loc-addr"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
             </div>
-            <div>
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input id="phone" type="tel" placeholder="e.g., (555) 123-4567" />
+            <div className="space-y-1.5">
+              <Label htmlFor="loc-web">Regional Landing Page URL</Label>
+              <Input
+                id="loc-web"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+              />
             </div>
-             <div>
-              <Label htmlFor="website">Website</Label>
-              <Input id="website" type="url" placeholder="e.g., https://visionai.example.com" />
+            <div className="space-y-1.5">
+              <Label htmlFor="loc-serv">Regional Services &amp; Keywords</Label>
+              <Textarea
+                id="loc-serv"
+                rows={3}
+                value={services}
+                onChange={(e) => setServices(e.target.value)}
+              />
             </div>
-            <div>
-              <Label htmlFor="hours">Operating Hours</Label>
-              <Input id="hours" placeholder="e.g., Mon-Fri 9AM-6PM, Sat 10AM-4PM" />
-            </div>
-            <div>
-              <Label htmlFor="services">Services/Description</Label>
-              <Textarea id="services" placeholder="Describe your business and services offered..." className="min-h-[80px]" />
-            </div>
-            <div className="space-y-2">
-              <Label>Profile Completeness</Label>
-              <Progress value={65} className="h-3" indicatorClassName="bg-green-500" />
-              <p className="text-xs text-muted-foreground">65% complete. Add more details for better visibility.</p>
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs">
+                <span>NAP Citation &amp; Schema Completeness</span>
+                <span className="font-mono tabular-nums text-emerald-500 font-semibold">
+                  94%
+                </span>
+              </div>
+              <Progress value={94} className="h-2" />
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col sm:flex-row gap-2">
-            <Button className="w-full sm:w-auto" onClick={() => toast({ title: "AI Analysis", description: "Analyzing profile and generating suggestions (Simulated)..." })}>
-              <Lightbulb className="mr-2 h-4 w-4" /> Analyze & Suggest (AI)
-            </Button>
-            <Button variant="outline" className="w-full sm:w-auto" onClick={() => toast({ title: "Profile Saved", description: "Business profile saved and syncing (Simulated)." })}>
-              <CloudUpload className="mr-2 h-4 w-4" /> Save & Sync
+          <CardFooter className="border-t pt-4">
+            <Button
+              type="button"
+              disabled={isAuditingLocal}
+              onClick={handleRunLocalAudit}
+              className="w-full gap-2 cursor-pointer"
+            >
+              {isAuditingLocal ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  Running Gemini Local SEO Audit...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Audit Local SEO with Gemini
+                </>
+              )}
             </Button>
           </CardFooter>
         </Card>
 
-        {/* Local Directory Management Card */}
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ListChecks className="h-6 w-6 text-primary" />
-              Local Directory Management
-            </CardTitle>
-            <CardDescription>
-              Manage and synchronize your listings across important local directories.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center p-3 bg-muted/50 rounded-md">
-              <div className="flex items-center gap-2">
-                <Globe className="h-5 w-5 text-blue-500"/>
-                <span>Google Business Profile</span>
-              </div>
-              <Badge variant="default" className="bg-green-500 hover:bg-green-600">Synced</Badge>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-muted/50 rounded-md">
-              <div className="flex items-center gap-2">
-                 <Users className="h-5 w-5 text-red-500"/>
-                <span>Yelp</span>
-              </div>
-              <Badge variant="destructive">Needs Update</Badge>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-muted/50 rounded-md">
-              <div className="flex items-center gap-2">
-                <Compass className="h-5 w-5 text-sky-500"/>
-                <span>Bing Places</span>
-              </div>
-              <Badge variant="secondary">Pending</Badge>
-            </div>
-             <div className="flex justify-between items-center p-3 bg-muted/50 rounded-md">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-orange-500"/>
-                <span>Local Maps Service</span>
-              </div>
-              <Badge variant="default" className="bg-green-500 hover:bg-green-600">Synced</Badge>
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col sm:flex-row gap-2">
-            <Button className="w-full sm:w-auto" onClick={() => toast({ title: "Scanning Directories", description: "Checking status across local directories (Simulated)..." })}>
-              <Search className="mr-2 h-4 w-4" /> Scan Directories
-            </Button>
-            <Button variant="outline" className="w-full sm:w-auto" onClick={() => toast({ title: "Syncing Listings", description: "Updating all local directory listings (Simulated)..." })}>
-              <CloudUpload className="mr-2 h-4 w-4" /> Sync All Listings (Simulated)
-            </Button>
-          </CardFooter>
-        </Card>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <ListChecks className="h-5 w-5 text-primary" />
+                Gemini Local Search &amp; Citation Recommendations
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2.5">
+              {localTips.map((tip, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-start gap-2.5 rounded-lg border p-3 text-xs leading-relaxed"
+                >
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <span>{tip}</span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
 
-        {/* Geo-Targeted Social Campaigns Card */}
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquareShare className="h-6 w-6 text-primary" />
-              Geo-Targeted Social Campaigns
-            </CardTitle>
-            <CardDescription>
-              Create social media campaigns targeting customers in specific geographic areas.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="socialPlatform">Platform</Label>
-              <Select>
-                <SelectTrigger id="socialPlatform">
-                  <SelectValue placeholder="Select platform" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="facebook">Facebook</SelectItem>
-                  <SelectItem value="instagram">Instagram</SelectItem>
-                  <SelectItem value="twitter">X (Twitter)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="targetArea">Target Area (e.g., City, Zip Code, Radius)</Label>
-              <Input id="targetArea" placeholder="e.g., San Francisco, CA or 5 miles around 94107" />
-            </div>
-            <div>
-              <Label htmlFor="postContent">Post Content / Ad Creative</Label>
-              <Textarea id="postContent" placeholder="Craft your engaging local post..." className="min-h-[100px]" />
-            </div>
-             <div className="p-3 border border-dashed rounded-md bg-muted/30 text-center">
-              <p className="text-sm text-muted-foreground">Campaign Performance Preview (Placeholder)</p>
-              <BarChart3 className="h-12 w-12 text-muted-foreground/50 mx-auto mt-2"/>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => toast({ title: "Campaign Launched", description: "Geo-targeted campaign has been launched (Simulated)." })}>
-              <TrendingUp className="mr-2 h-4 w-4" /> Launch Geo-Targeted Campaign (Simulated)
-            </Button>
-          </CardFooter>
-        </Card>
-
-        {/* Local SEO Health Check Card */}
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Search className="h-6 w-6 text-primary" />
-              Local SEO Health Check
-            </CardTitle>
-            <CardDescription>
-              Analyze your local search performance and get actionable insights.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="seoKeyword">Target Keyword</Label>
-              <Input id="seoKeyword" placeholder="e.g., best coffee near me" />
-            </div>
-            <div>
-              <Label htmlFor="seoLocation">Location</Label>
-              <Input id="seoLocation" placeholder="e.g., Downtown Tech City" />
-            </div>
-             <div className="mt-4 p-4 border border-dashed rounded-md bg-muted/30">
-                <h4 className="font-semibold text-sm mb-2">Analysis Results (Placeholder):</h4>
-                <ul className="list-disc list-inside text-xs space-y-1 text-muted-foreground">
-                    <li>Overall Score: <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">72/100</Badge></li>
-                    <li>Google Business Profile Optimization: Good</li>
-                    <li>Local Citations Consistency: Needs Improvement</li>
-                    <li>Online Reviews & Ratings: Excellent</li>
-                    <li>Local On-Page SEO: Fair</li>
-                </ul>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full" onClick={() => toast({ title: "SEO Health Check", description: "Running local SEO health check and generating AI tips (Simulated)..." })}>
-              <Lightbulb className="mr-2 h-4 w-4" /> Run SEO Health Check & Get AI Tips
-            </Button>
-          </CardFooter>
-        </Card>
-
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Globe className="h-5 w-5 text-primary" />
+                Geo-Targeted Social Campaign Dispatcher
+              </CardTitle>
+              <CardDescription>
+                Launch a regional campaign synced with your Omnichannel Campaigns and Social Queue.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="geo-city">Target Metro / Radius</Label>
+                <Input
+                  id="geo-city"
+                  value={geoCity}
+                  onChange={(e) => setGeoCity(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="geo-copy">Regional Post Copy</Label>
+                <Textarea
+                  id="geo-copy"
+                  rows={3}
+                  value={geoCopy}
+                  onChange={(e) => setGeoCopy(e.target.value)}
+                />
+              </div>
+            </CardContent>
+            <CardFooter className="border-t pt-4">
+              <Button
+                type="button"
+                disabled={isLaunchingGeo}
+                onClick={handleLaunchGeoCampaign}
+                className="w-full gap-2 cursor-pointer"
+              >
+                <Send className="h-4 w-4" />
+                {isLaunchingGeo
+                  ? "Launching Regional Campaign..."
+                  : `Launch Geo-Targeted Campaign (${geoCity})`}
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

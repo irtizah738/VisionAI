@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { NextIntlClientProvider } from 'next-intl';
-import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -13,26 +13,29 @@ export const metadata: Metadata = {
   description: "Transform your marketing with AI-powered insights and automation.",
 };
 
-// Can be imported from a shared config
-const locales = ['en', 'es', 'fr', 'de', 'ar'];
+const supportedLocales = ['en', 'es'];
 
 export default async function RootLayout({
   children,
-  params: { locale }
 }: {
   children: React.ReactNode;
-  params: { locale: string };
 }) {
+  let locale = 'en';
+  try {
+    const cookieStore = await cookies();
+    const cookieLocale = cookieStore.get('NEXT_LOCALE')?.value;
+    if (cookieLocale && supportedLocales.includes(cookieLocale)) {
+      locale = cookieLocale;
+    }
+  } catch {
+    // Fallback to default locale
+  }
+
   let messages;
   try {
     messages = (await import(`../../messages/${locale}.json`)).default;
-  } catch (error) {
-    notFound();
-  }
-
-  // Validate that the incoming `locale` parameter is valid
-  if (!locales.includes(locale)) {
-    notFound();
+  } catch {
+    messages = (await import(`../../messages/en.json`)).default;
   }
 
   const dir = locale === 'ar' ? 'rtl' : 'ltr';

@@ -32,11 +32,45 @@
     "settings": "Settings"
   },
   "social": {
+    "settings": {
+      "title": "Connected Social Channels",
+      "description": "Manage your connected social networks and publishing permissions"
+    },
     "platforms": {
       "facebook": "Facebook",
       "twitter": "Twitter",
       "instagram": "Instagram",
-      "linkedin": "LinkedIn"
+      "linkedin": "LinkedIn",
+      "youtube": "YouTube"
+    },
+    "platformConnected": "Connected and syncing",
+    "platformNotConnected": "Not connected",
+    "connect": "Connect",
+    "connecting": "Connecting...",
+    "reconnect": "Reconnect",
+    "connectedAccounts": "Connected Accounts",
+    "lastSync": "Last synced",
+    "connectSuccess": {
+      "title": "Channel Connected",
+      "description": "Successfully connected your {platform} account."
+    },
+    "connectError": {
+      "title": "Connection Failed",
+      "description": "Could not connect your social account. Please try again."
+    },
+    "disconnectSuccess": {
+      "title": "Channel Disconnected",
+      "description": "The social account has been removed from your workspace."
+    },
+    "disconnectError": {
+      "title": "Disconnection Failed",
+      "description": "Could not disconnect the social account."
+    },
+    "disconnectConfirm": {
+      "title": "Disconnect Social Account",
+      "description": "Are you sure you want to disconnect {username} on {platform}?",
+      "cancel": "Cancel",
+      "confirm": "Disconnect"
     },
     "actions": {
       "post": "Post",
@@ -63,9 +97,16 @@
   "campaigns": {
     "title": "Campaign Management",
     "description": "Create, manage, and optimize your marketing campaigns",
+    "noCampaignDescription": "No description provided for this campaign.",
+    "error": {
+      "title": "Campaign Error",
+      "description": "Failed to load campaign information. Please try again."
+    },
     "tabs": {
       "list": "All Campaigns",
       "create": "Create Campaign",
+      "details": "Campaign Details",
+      "insights": "AI Insights",
       "ai": {
         "optimizations": "Optimizations",
         "audience": "Audience Insights",
@@ -79,13 +120,21 @@
       "filter": "Filter",
       "sort": "Sort",
       "schedule": "Schedule",
-      "duplicate": "Duplicate"
+      "duplicate": "Duplicate",
+      "cancel": "Cancel",
+      "save": "Save"
     },
     "search": {
       "label": "Search campaigns",
       "placeholder": "Search by name, type, or status..."
     },
     "form": {
+      "title": "Create Campaign",
+      "description": "Enter the details to create a new campaign",
+      "actions": {
+        "submit": "Create Campaign",
+        "cancel": "Cancel"
+      },
       "basicInfo": {
         "title": "Basic Information",
         "description": "Enter the basic details of your campaign"

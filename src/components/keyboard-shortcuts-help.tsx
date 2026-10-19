@@ -1,3 +1,6 @@
+"use client";
+
+import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -53,4 +56,6 @@ export function KeyboardShortcutsHelp() {
       </DialogContent>
     </Dialog>
   );
-} 
+}
+
+export default KeyboardShortcutsHelp;

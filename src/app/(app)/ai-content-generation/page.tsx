@@ -1,160 +1,371 @@
-
 "use client";
 
 import { useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sparkles, Wand2, Lightbulb, Loader2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import {
+  Sparkles,
+  Copy,
+  Send,
+  FileText,
+  Mail,
+  MessageSquare,
+  RefreshCw,
+  Layers,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useFirebase } from "@/components/firebase/firebase-provider";
+import { savePostToFirestore } from "@/lib/firebase";
+import {
+  SocialPostLivePreview,
+  SocialNetwork,
+} from "@/components/social/social-post-live-preview";
 
-export default function AiContentGenerationPage() {
-  const [contentType, setContentType] = useState<string>("");
-  const [prompt, setPrompt] = useState<string>("");
-  const [tone, setTone] = useState<string>("");
-  const [generatedContent, setGeneratedContent] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+export default function AIContentGenerationPage() {
+  const { toast } = useToast();
+  const { user: firebaseUser } = useFirebase();
+  const [contentType, setContentType] = useState("social");
+  const [topic, setTopic] = useState(
+    "Launching our unified multi-platform social preview & command center"
+  );
+  const [tone, setTone] = useState("professional");
+  const [keywords, setKeywords] = useState(
+    "social media preview, fold cutoff, marketing automation"
+  );
+  const [generatedContent, setGeneratedContent] = useState(
+    `🚀 Launching our unified multi-platform social preview & command center!\n\nSee how your posts render on X, LinkedIn, Instagram, Facebook, and YouTube before you schedule—complete with real-time character truncation cutoffs and native OG link cards.\n\nTry it live: https://visionai.studio/launch #SocialMedia #MarketingAI #ProductLaunch`
+  );
+  const [activePlatform, setActivePlatform] =
+    useState<SocialNetwork>("linkedin");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isQueuing, setIsQueuing] = useState(false);
+  const [isRepurposing, setIsRepurposing] = useState(false);
 
-  const handleGenerateContent = async () => {
-    if (!prompt.trim() || !contentType) {
-        // Basic validation
-        setGeneratedContent("Please select a content type and provide a prompt.");
-        return;
+  const handleGenerate = async () => {
+    if (!topic.trim()) {
+      toast({
+        title: "Topic Required",
+        description: "Please enter a topic for your content.",
+        variant: "destructive",
+      });
+      return;
     }
+
     setIsLoading(true);
-    setGeneratedContent("");
-    // Simulate AI generation
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    const exampleContent = `AI-Generated ${contentType} about "${prompt}" (Tone: ${tone || 'Default'}):\n\nThis is a sample output. In a real application, AI would generate compelling content based on your inputs. For instance, if you asked for a blog post idea about 'sustainable fashion', the AI might suggest:\n\nTitle: "5 Ways to Embrace Sustainable Fashion Without Breaking the Bank"\n\nKey Points:\n1. Thrifting and second-hand shopping.\n2. Investing in quality, durable pieces.\n3. Supporting ethical and transparent brands.\n4. DIY and upcycling old clothes.\n5. Renting outfits for special occasions.`;
-    setGeneratedContent(exampleContent);
-    setIsLoading(false);
+    try {
+      const response = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: contentType === "social" ? "social" : "content",
+          useBrandVoice: true,
+          message: `Generate ${contentType} copy about "${topic}". Tone: ${tone}. Include keywords: ${keywords}. Make it ready to publish immediately with a clear above-the-fold hook.`,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to generate content");
+      const data = await response.json();
+      setGeneratedContent(data.content || data.message || "");
+
+      toast({
+        title: "Content Generated with Gemini & Brand Voice",
+        description: "Your AI content is ready to review or schedule.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to generate content.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRepurposeForSelectedNetwork = async () => {
+    if (!generatedContent.trim()) return;
+    setIsRepurposing(true);
+    try {
+      const res = await fetch("/api/ai/repurpose", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: topic,
+          content: generatedContent,
+          targetUrl: "https://visionai.studio/launch",
+          useBrandVoice: true,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to repurpose content");
+      const data = await res.json();
+      const match = (data.variants || []).find(
+        (v: any) => v.network === activePlatform
+      );
+      if (match) {
+        setGeneratedContent(match.content);
+        toast({
+          title: `Adapted for ${activePlatform.toUpperCase()} Fold`,
+          description: match.foldStrategy,
+        });
+      }
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Adaptation Error",
+        description: err?.message || "Could not adapt copy.",
+      });
+    } finally {
+      setIsRepurposing(false);
+    }
+  };
+
+  const handleQueueToStreams = async () => {
+    if (!generatedContent.trim()) return;
+    setIsQueuing(true);
+    try {
+      const res = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: generatedContent,
+          network: activePlatform,
+          platforms: [activePlatform, "twitter", "linkedin"],
+          status: "scheduled",
+          scheduledTime: "Today, 5:30 PM",
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to schedule content");
+      const { post } = await res.json();
+
+      if (firebaseUser && firebaseUser.emailVerified && post) {
+        await savePostToFirestore({
+          id: `${firebaseUser.uid}_${post.id}`,
+          userId: firebaseUser.uid,
+          network: activePlatform,
+          handle: "@VisionAI_HQ",
+          content: generatedContent,
+          status: "scheduled",
+          scheduledTime: "Today, 5:30 PM",
+        });
+      }
+
+      toast({
+        title: "Sent to Streams & Planner Queue",
+        description: firebaseUser
+          ? `Scheduled for Today at 5:30 PM and synced to Firestore /posts.`
+          : `Scheduled across ${activePlatform.toUpperCase()} for Today at 5:30 PM.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Schedule Error",
+        description: error?.message || "Could not schedule post.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsQueuing(false);
+    }
   };
 
   return (
-    <>
+    <div className="space-y-6">
       <PageHeader
-        title="AI Content Generation Studio"
-        description="Craft compelling marketing copy, blog ideas, social media updates, and more with the power of AI."
+        title="AI Content Generation & Omnichannel Adapter"
+        description="Create conversion-ready social copy, ad variations, and product announcements with Brand Voice Memory and live fold validation."
+        icon={Sparkles}
       />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 shadow-lg">
+
+      <div className="grid gap-6 lg:grid-cols-12">
+        <Card className="lg:col-span-5 h-fit">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-primary" />
-              Content Creation Toolkit
-            </CardTitle>
+            <CardTitle>Content Configuration</CardTitle>
             <CardDescription>
-              Select your content type, provide a prompt, choose a tone, and let VisionAI do the heavy lifting.
+              Configure format, tone, and target keywords for Gemini 3.8 Flash.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="contentType">Content Type</Label>
-                <Select value={contentType} onValueChange={setContentType}>
-                  <SelectTrigger id="contentType">
-                    <SelectValue placeholder="Select content type..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Blog Post Idea">Blog Post Idea</SelectItem>
-                    <SelectItem value="Social Media Post (Twitter)">Social Media Post (Twitter)</SelectItem>
-                    <SelectItem value="Social Media Post (LinkedIn)">Social Media Post (LinkedIn)</SelectItem>
-                    <SelectItem value="Ad Headline">Ad Headline</SelectItem>
-                    <SelectItem value="Product Description">Product Description</SelectItem>
-                    <SelectItem value="Email Subject Line">Email Subject Line</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="tone">Tone of Voice (Optional)</Label>
-                 <Select value={tone} onValueChange={setTone}>
-                  <SelectTrigger id="tone">
-                    <SelectValue placeholder="Select tone (optional)..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Professional">Professional</SelectItem>
-                    <SelectItem value="Casual">Casual</SelectItem>
-                    <SelectItem value="Witty">Witty</SelectItem>
-                    <SelectItem value="Formal">Formal</SelectItem>
-                    <SelectItem value="Persuasive">Persuasive</SelectItem>
-                    <SelectItem value="Friendly">Friendly</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="content-type">Content Format</Label>
+              <Select value={contentType} onValueChange={setContentType}>
+                <SelectTrigger id="content-type">
+                  <SelectValue placeholder="Select content type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="social">
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="h-4 w-4" />
+                      Multi-Network Social Post
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="blog">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Executive LinkedIn Article
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="email">
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Product Launch Email Snippet
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div>
-              <Label htmlFor="prompt">Your Prompt / Topic / Instructions</Label>
+
+            <div className="space-y-2">
+              <Label htmlFor="topic">Campaign Topic / Value Proposition</Label>
               <Textarea
-                id="prompt"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="e.g., 'Write a catchy Twitter post about our new eco-friendly product launch targeting millennials.' or 'Brainstorm blog post ideas for sustainable travel.'"
-                className="min-h-[120px]"
-                disabled={isLoading}
+                id="topic"
+                placeholder="Describe what you're announcing or promoting..."
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                rows={3}
               />
             </div>
-            
-            <Button onClick={handleGenerateContent} disabled={isLoading || !prompt.trim() || !contentType} className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground">
+
+            <div className="space-y-2">
+              <Label htmlFor="tone">Brand Voice Override</Label>
+              <Select value={tone} onValueChange={setTone}>
+                <SelectTrigger id="tone">
+                  <SelectValue placeholder="Select tone" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="professional">
+                    Executive &amp; Authoritative
+                  </SelectItem>
+                  <SelectItem value="casual">
+                    Creator-Friendly &amp; Conversational
+                  </SelectItem>
+                  <SelectItem value="persuasive">
+                    High-Converting Direct Response
+                  </SelectItem>
+                  <SelectItem value="informative">
+                    Data-Driven &amp; Analytical
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="keywords">Keywords / Hashtag Seeds</Label>
+              <Input
+                id="keywords"
+                placeholder="Enter keywords separated by commas"
+                value={keywords}
+                onChange={(e) => setKeywords(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2 pt-2 border-t">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="draft-editor">Editable Draft Output</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={isRepurposing}
+                  onClick={handleRepurposeForSelectedNetwork}
+                  className="h-7 text-xs gap-1.5 cursor-pointer"
+                >
+                  <Layers className="h-3.5 w-3.5 text-primary" />
+                  {isRepurposing
+                    ? "Adapting..."
+                    : `Optimize for ${activePlatform} Fold`}
+                </Button>
+              </div>
+              <Textarea
+                id="draft-editor"
+                value={generatedContent}
+                onChange={(e) => setGeneratedContent(e.target.value)}
+                rows={5}
+                className="text-xs leading-relaxed"
+              />
+            </div>
+          </CardContent>
+          <CardFooter className="flex flex-col gap-2 border-t pt-4">
+            <Button
+              type="button"
+              onClick={handleGenerate}
+              disabled={isLoading}
+              className="w-full gap-2 cursor-pointer"
+            >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  Generating with Gemini...
                 </>
               ) : (
                 <>
-                  <Wand2 className="mr-2 h-4 w-4" />
-                  Generate Content
+                  <Sparkles className="h-4 w-4" />
+                  Generate Content with Brand Voice
                 </>
               )}
             </Button>
-
-            {generatedContent && (
-              <div className="pt-4">
-                <Label htmlFor="generatedOutput" className="text-base font-medium">AI Generated Output:</Label>
-                <Textarea
-                  id="generatedOutput"
-                  value={generatedContent}
-                  readOnly
-                  className="min-h-[200px] bg-muted/50 mt-2"
-                />
-              </div>
-            )}
-          </CardContent>
+            <div className="flex w-full gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 gap-1.5 text-xs cursor-pointer"
+                onClick={() => {
+                  navigator.clipboard.writeText(generatedContent);
+                  toast({
+                    title: "Copied to Clipboard",
+                    description: "Draft copied to your clipboard.",
+                  });
+                }}
+              >
+                <Copy className="h-3.5 w-3.5" />
+                Copy Text
+              </Button>
+              <Button
+                type="button"
+                disabled={isQueuing}
+                onClick={handleQueueToStreams}
+                className="flex-1 gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+              >
+                <Send className="h-3.5 w-3.5" />
+                {isQueuing ? "Scheduling..." : "Queue to Planner"}
+              </Button>
+            </div>
+          </CardFooter>
         </Card>
 
-        <Card className="lg:col-span-1 shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="h-5 w-5 text-primary" />
-              Prompting Tips
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground space-y-3">
-            <p>
-              <strong>Be Specific:</strong> The more detail you provide, the better the AI can understand your needs.
-              Mention target audience, desired length, key message, and any constraints.
-            </p>
-            <p>
-              <strong>Use Keywords:</strong> Include relevant keywords you want the AI to focus on.
-            </p>
-            <p>
-              <strong>Define the Goal:</strong> What do you want this content to achieve? (e.g., drive engagement, inform, sell).
-            </p>
-            <p>
-              <strong>Iterate:</strong> If the first result isn't perfect, try refining your prompt and generating again.
-            </p>
-            <p>
-              <strong>Example Prompt:</strong>
-              <span className="block mt-1 p-2 bg-muted/70 rounded-md text-xs">
-                "Create three attention-grabbing Facebook ad headlines for a new online course on digital photography. Target beginners. Focus on ease of learning and achieving professional results quickly."
-              </span>
-            </p>
-          </CardContent>
-        </Card>
+        <div className="lg:col-span-7">
+          <SocialPostLivePreview
+            content={generatedContent}
+            selectedPlatforms={[
+              "twitter",
+              "linkedin",
+              "instagram",
+              "facebook",
+              "youtube",
+            ]}
+            activePlatform={activePlatform}
+            onActivePlatformChange={setActivePlatform}
+            selectedPresetId="preset-launch"
+            scheduledTime="Today, 5:30 PM"
+          />
+        </div>
       </div>
-    </>
+    </div>
   );
 }

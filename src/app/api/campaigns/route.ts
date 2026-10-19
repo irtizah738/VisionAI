@@ -1,69 +1,110 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
-import { CampaignService } from '@/services/campaign';
-import { campaignSchema } from '@/types/campaign';
-import { z } from 'zod';
+import { prisma } from '@/lib/prisma';
 
-export async function POST(request: NextRequest) {
+export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const body = await request.json();
-    const validatedData = campaignSchema.parse(body);
-
-    const campaign = await CampaignService.createCampaign(validatedData);
-    return NextResponse.json(campaign);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
-        { status: 400 }
-      );
-    }
-    console.error('Campaign creation error:', error);
+    const campaigns = await prisma.campaign.findMany();
+    return NextResponse.json({ campaigns });
+  } catch (error: any) {
     return NextResponse.json(
-      { error: 'Failed to create campaign' },
+      { error: error?.message || 'Failed to fetch campaigns' },
       { status: 500 }
     );
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const body = await request.json();
+    const {
+      name,
+      description = '',
+      type = 'multi-channel',
+      status = 'active',
+      budget = 5000,
+      channels = ['twitter', 'linkedin'],
+      startDate,
+      endDate,
+    } = body;
+
+    if (!name || !String(name).trim()) {
+      return NextResponse.json(
+        { error: 'Campaign name is required' },
+        { status: 400 }
+      );
     }
 
-    const { searchParams } = new URL(request.url);
-    const search = searchParams.get('search') || undefined;
-    const status = searchParams.getAll('status');
-    const type = searchParams.getAll('type');
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const sortBy = searchParams.get('sortBy') || 'createdAt';
-    const sortOrder = (searchParams.get('sortOrder') || 'desc') as 'asc' | 'desc';
-
-    const result = await CampaignService.getCampaigns({
-      search,
-      status,
-      type,
-      page,
-      limit,
-      sortBy,
-      sortOrder,
+    const numericBudget = Number(budget) || 5000;
+    const campaign = await prisma.campaign.create({
+      data: {
+        id: `camp_${Date.now()}`,
+        name: String(name).trim(),
+        description: String(description).trim(),
+        type,
+        status,
+        budget: numericBudget,
+        spent: 0,
+        impressions: 0,
+        clicks: 0,
+        conversions: 0,
+        roi: 0,
+        channels: Array.isArray(channels) ? channels : ['twitter', 'linkedin'],
+        startDate: startDate || new Date().toISOString().split('T')[0],
+        endDate:
+          endDate ||
+          new Date(Date.now() + 86400000 * 30).toISOString().split('T')[0],
+        userId: 'usr_visionai_admin',
+      },
     });
 
-    return NextResponse.json(result);
-  } catch (error) {
-    console.error('Campaign fetch error:', error);
+    return NextResponse.json({ campaign }, { status: 201 });
+  } catch (error: any) {
     return NextResponse.json(
-      { error: 'Failed to fetch campaigns' },
+      { error: error?.message || 'Failed to create campaign' },
       { status: 500 }
     );
   }
-} 
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id, ...updates } = body;
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Campaign ID is required' },
+        { status: 400 }
+      );
+    }
+    const updated = await prisma.campaign.update({
+      where: { id },
+      data: updates,
+    });
+    return NextResponse.json({ campaign: updated });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error?.message || 'Failed to update campaign' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Campaign ID is required' },
+        { status: 400 }
+      );
+    }
+    await prisma.campaign.delete({ where: { id } });
+    return NextResponse.json({ success: true, id });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error?.message || 'Failed to delete campaign' },
+      { status: 500 }
+    );
+  }
+}

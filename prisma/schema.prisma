@@ -38,17 +38,22 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  campaigns     Campaign[]
-  projects      Project[]
-  analytics     Analytics[]
+  id             String          @id @default(cuid())
+  name           String?
+  email          String?         @unique
+  emailVerified  DateTime?
+  image          String?
+  role           String          @default("ADMIN")
+  company        String?
+  timezone       String          @default("America/Los_Angeles")
+  accounts       Account[]
+  sessions       Session[]
+  campaigns      Campaign[]
+  projects       Project[]
+  analytics      Analytics[]
   socialAccounts SocialAccount[]
+  posts          Post[]
+  streamColumns  StreamColumn[]
 }
 
 model VerificationToken {
@@ -59,25 +64,68 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-model Campaign {
+model Post {
   id             String    @id @default(cuid())
+  content        String    @db.Text
+  network        String
+  platforms      String[]
+  handle         String
+  contentType    String    @default("image")
+  status         String    @default("scheduled")
+  scheduledTime  String?
+  publishedTime  String?
+  dateKey        String?
+  presetId       String?
+  characterCount Int       @default(0)
+  metrics        Json?
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaignId     String?
+  campaign       Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([network])
+}
+
+model StreamColumn {
+  id        String   @id @default(cuid())
+  title     String
+  type      String
+  platform  String   @default("all")
+  order     Int      @default(0)
+  filters   Json?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Campaign {
+  id             String      @id @default(cuid())
   name           String
-  description    String?   @db.Text
+  description    String?     @db.Text
   type           String
   status         String
   platforms      String[]
   startDate      DateTime
   endDate        DateTime?
   budget         Float?
+  budgetSpent    Float?      @default(0)
   targetAudience Json?
   content        Json
   metrics        Json?
   aiInsights     Json?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
   userId         String
-  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   contents       Content[]
+  posts          Post[]
   analytics      Analytics[]
 
   @@index([userId])
@@ -87,61 +135,65 @@ model Campaign {
 }
 
 model Content {
-  id          String   @id @default(cuid())
-  type        ContentType
-  title       String
-  body        String   @db.Text
-  campaignId  String
-  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  status      ContentStatus @default(DRAFT)
-  metadata    Json?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String        @id @default(cuid())
+  type       ContentType
+  title      String
+  body       String        @db.Text
+  campaignId String
+  campaign   Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  status     ContentStatus @default(DRAFT)
+  metadata   Json?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 
-  analytics   Analytics[]
+  analytics Analytics[]
 }
 
 model SocialAccount {
-  id            String   @id @default(cuid())
-  platform      String
-  accountId     String
-  accessToken   String   @db.Text
-  refreshToken  String?  @db.Text
-  expiresAt     DateTime?
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String    @id @default(cuid())
+  platform     String
+  accountId    String
+  handle       String?
+  displayName  String?
+  followers    String?
+  status       String    @default("connected")
+  accessToken  String    @db.Text
+  refreshToken String?   @db.Text
+  expiresAt    DateTime?
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@unique([platform, accountId])
 }
 
 model Project {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   name        String
-  description String?  @db.Text
+  description String?     @db.Text
   userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   analytics   Analytics[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   @@index([userId])
 }
 
 model Analytics {
-  id          String   @id @default(cuid())
-  type        AnalyticsType
-  data        Json
-  userId      String?
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  projectId   String?
-  project     Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  campaignId  String?
-  campaign    Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-  contentId   String?
-  content     Content? @relation(fields: [contentId], references: [id], onDelete: SetNull)
-  createdAt   DateTime @default(now())
+  id         String        @id @default(cuid())
+  type       AnalyticsType
+  data       Json
+  userId     String?
+  user       User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  projectId  String?
+  project    Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  campaignId String?
+  campaign   Campaign?     @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  contentId  String?
+  content    Content?      @relation(fields: [contentId], references: [id], onDelete: SetNull)
+  createdAt  DateTime      @default(now())
 }
 
 enum UserRole {
@@ -182,4 +234,4 @@ enum AnalyticsType {
   AI_REQUEST
   API_CALL
   ERROR
-} 
+}

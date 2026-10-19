@@ -1,0 +1,6 @@
+{
+  "summary": "Implementation plan for the Multi-Platform Live Social Post Preview component and responsive tab/control upgrades across the VisionAI Social Command Center. Covers native post rendering for X/Twitter, LinkedIn, Instagram, Facebook, and YouTube, interactive single-platform vs. side-by-side comparison modes, platform-accurate character truncation, automatic hashtag/mention/URL link card parsing, and direct click-handler wiring for all workspace tabs and controls.",
+  "updatedAt": "2026-10-18T19:37:43.104395001Z",
+  "requestFeedback": true,
+  "userFacing": true
+}

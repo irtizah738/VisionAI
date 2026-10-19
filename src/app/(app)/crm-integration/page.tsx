@@ -1,218 +1,457 @@
-
 "use client";
 
+import React, { useState, useEffect, useCallback } from "react";
 import { PageHeader } from "@/components/layout/page-header";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { UserCircle, Gauge, Route, Lightbulb, TrendingUp, UsersCog, MessageSquarePlus, Target, Mail, CalendarPlus, ShoppingBag, History, FileText } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import Image from "next/image";
-import { Separator } from "@/components/ui/separator";
-import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast"; // Added
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { useFirebase } from "@/components/firebase/firebase-provider";
+import {
+  saveWorkspaceItemToFirestore,
+  deleteWorkspaceItemFromFirestore,
+} from "@/lib/firebase";
+import {
+  Users,
+  Plus,
+  Sparkles,
+  Trash2,
+  Cloud,
+  RefreshCw,
+  Building2,
+} from "lucide-react";
+
+interface CrmSuiteItem {
+  id: string;
+  title: string;
+  status: string;
+  summary: string;
+  primaryMetric: number;
+  secondaryMetric: number;
+  meta?: {
+    email?: string;
+    segment?: string;
+    source?: string;
+  };
+}
 
 export default function CrmIntegrationPage() {
-  const router = useRouter();
-  const { toast } = useToast(); // Added
+  const { toast } = useToast();
+  const { user: firebaseUser, cloudWorkspaceItems } = useFirebase();
+
+  const [contacts, setContacts] = useState<CrmSuiteItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+
+  const [companyAndContact, setCompanyAndContact] = useState("");
+  const [email, setEmail] = useState("");
+  const [stage, setStage] = useState("qualified");
+  const [ltv, setLtv] = useState("36000");
+  const [intentScore, setIntentScore] = useState("89");
+  const [notes, setNotes] = useState("");
+
+  const loadContacts = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/workspace-suites?suite=crm");
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.items)) {
+          setContacts(data.items);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load CRM contacts:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadContacts();
+  }, [loadContacts]);
+
+  const handleGeneratePlaybook = async () => {
+    const target = companyAndContact.trim() || "Enterprise SaaS Account";
+    setIsGeneratingAI(true);
+    try {
+      const res = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "general",
+          useBrandVoice: true,
+          message: `Write a 2-sentence account-based marketing (ABM) social + email outreach playbook for "${target}" in the "${stage}" pipeline stage.`,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to generate ABM playbook");
+      const data = await res.json();
+      if (!companyAndContact.trim()) {
+        setCompanyAndContact("Apex Cloud Systems (Sarah Jenkins - CMO)");
+      }
+      setNotes((data.content || data.message || "").slice(0, 600));
+      toast({
+        title: "AI ABM Playbook Generated",
+        description: "Tailored using your workspace Brand Voice Memory.",
+      });
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "AI Error",
+        description: err?.message || "Could not generate ABM playbook.",
+      });
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
+
+  const handleCreateContact = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!companyAndContact.trim()) return;
+    setIsCreating(true);
+    try {
+      const res = await fetch("/api/workspace-suites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          suite: "crm",
+          title: companyAndContact.trim(),
+          status: stage,
+          summary:
+            notes.trim() ||
+            "Multi-touch attribution lead captured via LinkedIn & X social stream.",
+          primaryMetric: Number(ltv) || 25000,
+          secondaryMetric: Number(intentScore) || 85,
+          meta: {
+            email: email.trim() || "contact@enterprise.io",
+            segment: "enterprise",
+            source: "Social Command Center",
+          },
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to save CRM account");
+      const { item } = await res.json();
+      setContacts((prev) => [item, ...prev]);
+
+      if (firebaseUser && firebaseUser.emailVerified && item) {
+        await saveWorkspaceItemToFirestore({
+          id: `${firebaseUser.uid}_${item.id}`,
+          userId: firebaseUser.uid,
+          suite: "crm",
+          title: item.title,
+          status: item.status,
+          summary: item.summary,
+          primaryMetric: Number(item.primaryMetric) || 0,
+          secondaryMetric: Number(item.secondaryMetric) || 0,
+        });
+      }
+
+      setCompanyAndContact("");
+      setEmail("");
+      setNotes("");
+      toast({
+        title: "CRM Account Synced",
+        description: firebaseUser
+          ? "Saved locally and synced to Firestore /workspaceItems."
+          : "Saved to CRM pipeline store.",
+      });
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "CRM Error",
+        description: err?.message || "Could not save CRM account.",
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    setContacts((prev) => prev.filter((c) => c.id !== id));
+    try {
+      await fetch(`/api/workspace-suites?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      if (firebaseUser && firebaseUser.emailVerified) {
+        await deleteWorkspaceItemFromFirestore(`${firebaseUser.uid}_${id}`);
+      }
+      toast({
+        title: "Account Removed",
+        description: "Removed from CRM attribution pipeline.",
+      });
+    } catch (err) {
+      console.error("Failed to delete CRM record:", err);
+    }
+  };
+
+  const totalPipelineLtv = contacts.reduce(
+    (acc, c) => acc + (Number(c.primaryMetric) || 0),
+    0
+  );
+  const cloudCrmCount = cloudWorkspaceItems.filter(
+    (i) => i.suite === "crm"
+  ).length;
 
   return (
-    <>
+    <div className="space-y-6">
       <PageHeader
-        title="CRM Integration & Customer Insights"
-        description="Manage customer relationships, track sales, and gain AI-powered recommendations."
+        title="CRM Pipeline Attribution & Social Lead Intelligence"
+        description="Track enterprise accounts, social-attributed deal velocity, and AI ABM outreach playbooks with live Firestore persistence."
+        icon={Users}
       />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Customer Profile and AI Recommendations */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <UserCircle className="h-6 w-6 text-primary" />
-                Customer Profile: John Doe
-              </CardTitle>
-              <CardDescription>Detailed overview of customer interactions, history, and preferences.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src="https://placehold.co/100x100.png" alt="Customer Avatar" data-ai-hint="person avatar"/>
-                  <AvatarFallback>JD</AvatarFallback>
-                </Avatar>
-                <div className="space-y-1">
-                  <h3 className="text-2xl font-semibold">John Doe</h3>
-                  <p className="text-sm text-muted-foreground">john.doe@example.com | +1-555-123-4567</p>
-                  <p className="text-xs text-muted-foreground">Loyalty Tier: Gold | Member Since: Jan 15, 2022</p>
-                </div>
-              </div>
-              
-              <Separator />
 
-              <div>
-                <h4 className="font-semibold mb-2 text-primary flex items-center gap-1"><ShoppingBag className="h-5 w-5"/> Transaction History</h4>
-                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 pl-2">
-                  <li>Order #1024 - Smart Watch Model X - $299.99 (July 10, 2024)</li>
-                  <li>Order #985 - Wireless Earbuds - $79.00 (June 05, 2024)</li>
-                  <li>Order #950 - Fitness Tracker - $120.50 (April 20, 2024)</li>
-                </ul>
-                 <p className="text-xs text-muted-foreground mt-1">Total Spend: $1,250.49</p>
-              </div>
-              
-              <Separator />
-
-              <div>
-                <h4 className="font-semibold mb-2 text-primary flex items-center gap-1"><History className="h-5 w-5"/> Interaction Timeline</h4>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-start gap-2">
-                    <FileText className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
-                    <div>
-                      <span className="font-medium">Visited 'New Arrivals' page</span>
-                      <p className="text-xs text-muted-foreground">July 15, 2024 - 10:30 AM</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                     <ShoppingBag className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
-                    <div>
-                      <span className="font-medium">Added 'Wireless Headphones' to cart</span>
-                      <p className="text-xs text-muted-foreground">July 15, 2024 - 10:35 AM</p>
-                    </div>
-                  </div>
-                   <div className="flex items-start gap-2">
-                    <Mail className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
-                    <div>
-                      <span className="font-medium">Opened 'Weekly Deals' newsletter</span>
-                      <p className="text-xs text-muted-foreground">July 14, 2024 - 09:00 AM</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-             <CardFooter>
-                <Button variant="outline" onClick={() => toast({ title: "CRM Record", description: "Navigating to full CRM record (External system placeholder)." })}>View Full CRM Record</Button>
-            </CardFooter>
-          </Card>
-
-          <Card className="shadow-lg bg-accent/10 border-accent">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-accent">
-                <Lightbulb className="h-6 w-6" />
-                AI-Powered Next Best Actions
-              </CardTitle>
-              <CardDescription className="text-accent/80">
-                Tailored suggestions to enhance engagement with John Doe.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-4 bg-background/70 rounded-md shadow-sm border">
-                <h4 className="font-semibold flex items-center gap-1.5 mb-1">
-                  <MessageSquarePlus className="h-5 w-5 text-primary"/>
-                  High Priority: Cart Abandonment
-                </h4>
-                <p className="text-sm text-muted-foreground mb-2">
-                  John Doe has 'Wireless Headphones' in his cart. Send a follow-up email offering a 5% discount to encourage purchase.
-                </p>
-                <Button size="sm" onClick={() => toast({ title: "Action Triggered", description: "Sending discount email (Simulated)..."})}>
-                  <Mail className="mr-2 h-4 w-4"/>
-                  Send Discount Email (Simulated)
-                </Button>
-              </div>
-              <div className="p-4 bg-background/70 rounded-md shadow-sm border">
-                <h4 className="font-semibold flex items-center gap-1.5 mb-1">
-                  <Target className="h-5 w-5 text-primary"/>
-                  Content Engagement: Smart Watch
-                </h4>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Share a blog post about 'Top 5 Accessories for Smart Watches' with John, based on his last purchase.
-                </p>
-                 <Button size="sm" variant="secondary" onClick={() => toast({ title: "Action Triggered", description: "Sharing blog post (Simulated)..."})}>
-                  <FileText className="mr-2 h-4 w-4"/>
-                  Share Blog Post (Simulated)
-                </Button>
-              </div>
-               <div className="p-4 bg-background/70 rounded-md shadow-sm border">
-                <h4 className="font-semibold flex items-center gap-1.5 mb-1">
-                  <CalendarPlus className="h-5 w-5 text-primary"/>
-                  Proactive Follow-up: Loyalty
-                </h4>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Schedule a task to check in with John in 2 weeks about his Gold Tier benefits.
-                </p>
-                 <Button size="sm" variant="secondary" onClick={() => toast({ title: "Action Triggered", description: "Scheduling task (Simulated)..."})}>
-                  <CalendarPlus className="mr-2 h-4 w-4"/>
-                  Schedule Task (Simulated)
-                </Button>
-              </div>
-            </CardContent>
-             <CardFooter>
-                <p className="text-xs text-muted-foreground">AI recommendations are updated in real-time based on new data.</p>
-            </CardFooter>
-          </Card>
-        </div>
-
-        {/* Right Column: Lead Scoring and Journey Tracking */}
-        <div className="lg:col-span-1 space-y-6">
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Gauge className="h-6 w-6 text-primary" />
-                Lead Scoring
-              </CardTitle>
-              <CardDescription>Prioritize leads based on their engagement and likelihood to convert.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <div className="flex justify-between text-sm font-medium mb-1">
-                  <span>Jane Smith (Lead Score: 85)</span>
-                  <span className="text-green-500">High Priority</span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2.5">
-                  <div className="bg-green-500 h-2.5 rounded-full" style={{ width: "85%" }}></div>
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between text-sm font-medium mb-1">
-                  <span>Robert Brown (Lead Score: 60)</span>
-                  <span className="text-yellow-500">Medium Priority</span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2.5">
-                  <div className="bg-yellow-500 h-2.5 rounded-full" style={{ width: "60%" }}></div>
-                </div>
-              </div>
-               <div>
-                <div className="flex justify-between text-sm font-medium mb-1">
-                  <span>Lisa Green (Lead Score: 30)</span>
-                  <span className="text-red-500">Low Priority</span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2.5">
-                  <div className="bg-red-500 h-2.5 rounded-full" style={{ width: "30%" }}></div>
-                </div>
-              </div>
-              <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => router.push('/crm-integration/leads')}>View All Leads</Button>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Route className="h-6 w-6 text-primary" />
-                Customer Journey Tracking
-              </CardTitle>
-              <CardDescription>Visualize and analyze customer touchpoints.</CardDescription>
-            </CardHeader>
-            <CardContent>
-               <p className="text-sm text-muted-foreground mb-3">
-                Follow the path customers take from awareness to conversion and beyond.
-              </p>
-              {/* Placeholder for a journey map visual */}
-              <div className="relative h-48 border border-dashed rounded-md p-2 flex flex-col items-center justify-center bg-muted/50">
-                <Image src="https://placehold.co/300x100/EBF4FF/6366F1?text=Customer+Journey+Map" alt="Customer Journey Map Placeholder" width={300} height={100} data-ai-hint="journey map" className="opacity-50" />
-                <p className="text-xs text-muted-foreground mt-2">Customer journey visualization will appear here.</p>
-              </div>
-               <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => router.push('/crm-integration/journeys')}>Explore Journeys</Button>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Card>
+          <CardHeader className="p-4 pb-2">
+            <CardDescription className="text-xs">Total Attributed Pipeline</CardDescription>
+            <CardTitle className="text-2xl font-mono tabular-nums text-emerald-500">
+              ${totalPipelineLtv.toLocaleString()}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0 text-xs text-muted-foreground">
+            Across {contacts.length} active enterprise accounts
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="p-4 pb-2">
+            <CardDescription className="text-xs">Mean Buyer Intent Score</CardDescription>
+            <CardTitle className="text-2xl font-mono tabular-nums">
+              {contacts.length
+                ? Math.round(
+                    contacts.reduce(
+                      (acc, c) => acc + (Number(c.secondaryMetric) || 0),
+                      0
+                    ) / contacts.length
+                  )
+                : 90}{" "}
+              / 100
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0 text-xs text-muted-foreground">
+            Based on social link card &amp; thread interactions
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="p-4 pb-2">
+            <CardDescription className="text-xs flex items-center gap-1.5">
+              <Cloud className="h-3.5 w-3.5 text-emerald-500" />
+              Firestore Cloud Sync
+            </CardDescription>
+            <CardTitle className="text-2xl font-mono tabular-nums">
+              {firebaseUser ? `${cloudCrmCount} Synced` : "Local Ready"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0 text-xs text-muted-foreground">
+            Collection: <code>/workspaceItems</code>
+          </CardContent>
+        </Card>
       </div>
-    </>
+
+      <div className="grid gap-6 lg:grid-cols-12 items-start">
+        <Card className="lg:col-span-5">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">Add Attributed Account</CardTitle>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleGeneratePlaybook}
+                disabled={isGeneratingAI}
+                className="h-7 text-xs gap-1.5 cursor-pointer"
+              >
+                {isGeneratingAI ? (
+                  <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
+                )}
+                AI ABM Playbook
+              </Button>
+            </div>
+            <CardDescription className="text-xs">
+              Log a social-attributed prospect or enterprise customer.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleCreateContact} className="space-y-3.5">
+              <div className="space-y-1.5">
+                <Label htmlFor="crm-name" className="text-xs">
+                  Account &amp; Decision Maker
+                </Label>
+                <Input
+                  id="crm-name"
+                  placeholder="e.g. FinScale Enterprise (Marcus Vance - VP)"
+                  value={companyAndContact}
+                  onChange={(e) => setCompanyAndContact(e.target.value)}
+                  className="text-xs h-8"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="crm-email" className="text-xs">
+                    Contact Email
+                  </Label>
+                  <Input
+                    id="crm-email"
+                    type="email"
+                    placeholder="vp@company.io"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="text-xs h-8"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="crm-stage" className="text-xs">
+                    Pipeline Stage
+                  </Label>
+                  <select
+                    id="crm-stage"
+                    value={stage}
+                    onChange={(e) => setStage(e.target.value)}
+                    className="w-full h-8 text-xs border border-border rounded px-2 bg-background"
+                  >
+                    <option value="lead">Inbound Social Lead</option>
+                    <option value="qualified">Sales Qualified (SQL)</option>
+                    <option value="customer">Active Customer</option>
+                    <option value="vip">Enterprise VIP</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="crm-ltv" className="text-xs">
+                    Annual Contract Value ($)
+                  </Label>
+                  <Input
+                    id="crm-ltv"
+                    type="number"
+                    value={ltv}
+                    onChange={(e) => setLtv(e.target.value)}
+                    className="text-xs h-8 font-mono"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="crm-score" className="text-xs">
+                    Intent Score (1–100)
+                  </Label>
+                  <Input
+                    id="crm-score"
+                    type="number"
+                    value={intentScore}
+                    onChange={(e) => setIntentScore(e.target.value)}
+                    className="text-xs h-8 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="crm-notes" className="text-xs">
+                  Attribution Touchpoints &amp; ABM Playbook
+                </Label>
+                <Textarea
+                  id="crm-notes"
+                  rows={3}
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="text-xs"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isCreating || !companyAndContact.trim()}
+                className="w-full h-8 text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                {isCreating ? "Saving..." : "Save Account & Sync to Firestore"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-7">
+          <CardHeader>
+            <CardTitle className="text-base">Attributed CRM Accounts</CardTitle>
+            <CardDescription className="text-xs">
+              Real-time pipeline records persisted across local store and Firestore.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {isLoading ? (
+              <div className="py-12 text-center text-xs text-muted-foreground">
+                Loading CRM accounts...
+              </div>
+            ) : (
+              contacts.map((contact) => (
+                <div
+                  key={contact.id}
+                  className="p-4 rounded-lg border border-border bg-card space-y-2 text-xs"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                      <div>
+                        <div className="font-semibold text-sm text-foreground">
+                          {contact.title}
+                        </div>
+                        <div className="text-[11px] text-muted-foreground font-mono">
+                          {contact.meta?.email || "enterprise@account.io"} ·{" "}
+                          {contact.meta?.source || "LinkedIn Organic"}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="uppercase text-[10px]">
+                        {contact.status}
+                      </Badge>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(contact.id)}
+                        className="h-7 w-7 text-destructive hover:bg-destructive/10 cursor-pointer"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <p className="text-muted-foreground leading-relaxed">
+                    {contact.summary}
+                  </p>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-border/60 font-mono text-[11px]">
+                    <span>
+                      ACV / LTV:{" "}
+                      <strong className="text-emerald-500">
+                        ${Number(contact.primaryMetric).toLocaleString()}
+                      </strong>
+                    </span>
+                    <span>
+                      Intent Score:{" "}
+                      <strong className="text-foreground">
+                        {contact.secondaryMetric}/100
+                      </strong>
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }

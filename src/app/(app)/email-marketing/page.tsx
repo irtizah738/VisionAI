@@ -1,280 +1,276 @@
-
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation"; // Added
+import React, { useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { MailPlus, Users, TestTube2, Send, Eye, BarChart3, Zap, Edit3, ListChecks, LineChart as LineChartIcon, Loader2, AlertTriangle } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from "recharts";
-import type { ChartConfig } from "@/components/ui/chart";
-import { generateSubjectLinesAction } from "./actions"; 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-
-const emailPerformanceData = [
-  { date: "Wk 1", openRate: 22, clickRate: 3.5 },
-  { date: "Wk 2", openRate: 25, clickRate: 4.1 },
-  { date: "Wk 3", openRate: 23, clickRate: 3.8 },
-  { date: "Wk 4", openRate: 27, clickRate: 4.5 },
-];
-
-const chartConfig: ChartConfig = {
-  openRate: {
-    label: "Open Rate (%)",
-    color: "hsl(var(--chart-1))",
-  },
-  clickRate: {
-    label: "Click Rate (%)",
-    color: "hsl(var(--chart-2))",
-  },
-};
-
-const mockCampaigns = [
-  { id: "1", name: "Welcome Series - Email 1", status: "Active", sent: 1500, openRate: "35%", clickRate: "5.2%" },
-  { id: "2", name: "Product Update - July", status: "Sent", sent: 12500, openRate: "22%", clickRate: "3.1%" },
-  { id: "3", name: "Summer Promo Newsletter", status: "Draft", sent: 0, openRate: "N/A", clickRate: "N/A" },
-  { id: "4", name: "Abandoned Cart Reminder", status: "Active", sent: 850, openRate: "45%", clickRate: "8.0%" },
-];
-
+import { useToast } from "@/hooks/use-toast";
+import {
+  MailCheck,
+  Sparkles,
+  Copy,
+  Send,
+  RefreshCw,
+  CheckCircle2,
+  Mail,
+} from "lucide-react";
 
 export default function EmailMarketingPage() {
-  const router = useRouter(); // Added
-  const [subjectLineTopic, setSubjectLineTopic] = useState("");
-  const [generatedSubjectLines, setGeneratedSubjectLines] = useState<string[]>([]);
-  const [isSubjectLoading, setIsSubjectLoading] = useState(false);
-  const [subjectError, setSubjectError] = useState<string | null>(null);
+  const { toast } = useToast();
+  const [topic, setTopic] = useState(
+    "Q2 Product Launch: Live Multi-Platform Social Previews & Command Center"
+  );
+  const [audience, setAudience] = useState(
+    "VP of Marketing, Growth Leads & Social Media Managers"
+  );
+  const [tone, setTone] = useState("High-Converting & Executive");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isSavingCampaign, setIsSavingCampaign] = useState(false);
+  const [selectedSubjectIdx, setSelectedSubjectIdx] = useState(0);
 
-  const [emailBodyPrompt, setEmailBodyPrompt] = useState("");
-  const [generatedEmailBody, setGeneratedEmailBody] = useState<string | null>(null);
-  const [isEmailBodyLoading, setIsEmailBodyLoading] = useState(false);
-  const [emailBodyError, setEmailBodyError] = useState<string | null>(null);
+  const [emailData, setEmailData] = useState({
+    subjectLines: [
+      "[New] Preview X, LinkedIn, Instagram, Facebook & YouTube side-by-side before scheduling",
+      "Why 68% of social CTAs get cut off below the fold (and how to fix it in 10 seconds)",
+      "Meet the new VisionAI Streams & Planner Command Center ⚡",
+      "3x your social CTR by eliminating premature '...more' truncation",
+    ],
+    preheaders: [
+      "See exact character cutoffs and link cards across all 5 channels before you publish.",
+      "Interactive platform tabs + side-by-side comparison mode are now live.",
+    ],
+    emailBody: `Hi there,\n\nWe just shipped our most requested capability inside VisionAI Studio: **Live Multi-Platform Native Post Previews** integrated directly into your Streams & Planner Command Center.\n\nBefore scheduling any post, you can now validate:\n• Exact character truncation and "...more" fold cutoffs for X/Twitter, LinkedIn, Instagram, Facebook, and YouTube\n• Automatic hashtag, @mention, and OG link card rendering\n• Interactive single-platform tabs or side-by-side comparison mode\n\nLog into your workspace today to test your next campaign.\n\nBest,\nThe VisionAI Product Team`,
+  });
 
+  const handleGenerateEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!topic.trim()) return;
 
-  const handleGenerateSubjects = async () => {
-    if (!subjectLineTopic.trim()) {
-      setSubjectError("Please enter a topic for subject lines.");
-      return;
+    setIsGenerating(true);
+    try {
+      const res = await fetch("/api/ai/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic, audience, tone }),
+      });
+      if (!res.ok) throw new Error("Failed to generate email campaign");
+      const data = await res.json();
+      setEmailData(data);
+      setSelectedSubjectIdx(0);
+      toast({
+        title: "Email Sequence Generated",
+        description: `Generated ${data.subjectLines?.length || 5} high-converting subject lines and body copy.`,
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Generation Error",
+        description: error?.message || "Could not generate email copy.",
+      });
+    } finally {
+      setIsGenerating(false);
     }
-    setIsSubjectLoading(true);
-    setSubjectError(null);
-    setGeneratedSubjectLines([]);
-
-    const result = await generateSubjectLinesAction({ topic: subjectLineTopic });
-
-    if ('error' in result) {
-      setSubjectError(result.error);
-    } else {
-      setGeneratedSubjectLines(result.subjectLines);
-    }
-    setIsSubjectLoading(false);
   };
-  
-  const handleGenerateEmailBody = async () => {
-    if (!emailBodyPrompt.trim()) {
-      setEmailBodyError("Please describe the email's purpose.");
-      return;
-    }
-    setIsEmailBodyLoading(true);
-    setEmailBodyError(null);
-    setGeneratedEmailBody(null);
-    await new Promise(resolve => setTimeout(resolve, 1500)); 
-    setGeneratedEmailBody(`AI-Generated Email Body based on: "${emailBodyPrompt}"\n\nDear [Name],\n\nWe're excited to share some groundbreaking updates that will revolutionize how you approach [topic related to prompt]. Our team has been hard at work developing new features...\n\nSincerely,\nThe VisionAI Team`);
-    setIsEmailBodyLoading(false);
-  };
 
+  const handleSaveAsCampaign = async () => {
+    setIsSavingCampaign(true);
+    try {
+      const chosenSubject =
+        emailData.subjectLines[selectedSubjectIdx] || topic;
+      const res = await fetch("/api/campaigns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: `Email Blast: ${chosenSubject.slice(0, 60)}`,
+          description: emailData.preheaders[0] || topic,
+          type: "email",
+          status: "active",
+          budget: 4500,
+          channels: ["email", "linkedin"],
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to save email campaign");
+      toast({
+        title: "Email Campaign Saved & Scheduled",
+        description:
+          "Added to your active Campaigns dashboard with tracking enabled.",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Campaign Error",
+        description: error?.message || "Could not save campaign.",
+      });
+    } finally {
+      setIsSavingCampaign(false);
+    }
+  };
 
   return (
-    <>
+    <div className="space-y-6">
       <PageHeader
-        title="Email Automation Suite"
-        description="Personalized campaigns with A/B testing and AI-powered enhancements."
+        title="AI Email Marketing & Subject Line Studio"
+        description="Generate A/B subject lines, preheaders, and conversion-focused email copy with Gemini AI."
+        icon={MailCheck}
       />
-      <div className="space-y-8">
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="w-full justify-start text-base py-6" onClick={() => router.push('/campaign-builder')}>
-              <MailPlus className="mr-3 h-5 w-5" /> Create New Campaign
-            </Button>
-            <Button variant="outline" className="w-full justify-start text-base py-6" onClick={() => router.push('/customer-segmentation')}>
-              <Users className="mr-3 h-5 w-5" /> Manage Audiences
-            </Button>
-            <Button variant="outline" className="w-full justify-start text-base py-6" onClick={() => console.log("View A/B Tests clicked")}>
-              <TestTube2 className="mr-3 h-5 w-5" /> View A/B Tests
-            </Button>
-          </CardContent>
+
+      <div className="grid gap-6 lg:grid-cols-12">
+        <Card className="lg:col-span-5 h-fit">
+          <form onSubmit={handleGenerateEmail}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Sparkles className="h-5 w-5 text-primary" />
+                Campaign Offer &amp; Audience
+              </CardTitle>
+              <CardDescription>
+                Generate subject line variants and full body copy tailored to your segment.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email-topic">Campaign Topic / Offer</Label>
+                <Textarea
+                  id="email-topic"
+                  rows={3}
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email-audience">Target Segment</Label>
+                <Input
+                  id="email-audience"
+                  value={audience}
+                  onChange={(e) => setAudience(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email-tone">Voice &amp; Tone</Label>
+                <Input
+                  id="email-tone"
+                  value={tone}
+                  onChange={(e) => setTone(e.target.value)}
+                />
+              </div>
+            </CardContent>
+            <CardFooter className="border-t pt-4">
+              <Button
+                type="submit"
+                disabled={isGenerating}
+                className="w-full gap-2 cursor-pointer"
+              >
+                {isGenerating ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Generating Variants...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    Generate Subject Lines &amp; Email Copy
+                  </>
+                )}
+              </Button>
+            </CardFooter>
+          </form>
         </Card>
 
-        <Card className="shadow-md">
+        <Card className="lg:col-span-7">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ListChecks className="h-6 w-6 text-primary" />
-              Campaigns Overview
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <Badge variant="outline" className="gap-1.5">
+                <Mail className="h-3.5 w-3.5 text-primary" />
+                A/B Subject Line Variants
+              </Badge>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 text-xs cursor-pointer"
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      `Subject: ${emailData.subjectLines[selectedSubjectIdx]}\n\n${emailData.emailBody}`
+                    );
+                    toast({
+                      title: "Email Copied",
+                      description: "Subject line and body copied to clipboard.",
+                    });
+                  }}
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                  Copy Email
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={isSavingCampaign}
+                  onClick={handleSaveAsCampaign}
+                  className="gap-1.5 text-xs cursor-pointer"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  {isSavingCampaign
+                    ? "Launching..."
+                    : "Launch as Active Campaign"}
+                </Button>
+              </div>
+            </div>
+            <CardTitle className="text-lg pt-2">
+              Select Winning Subject Line
             </CardTitle>
-            <CardDescription>Monitor your ongoing and recent email campaigns.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {mockCampaigns.map(campaign => (
-                <div key={campaign.id} className="p-4 border rounded-lg hover:shadow-sm transition-shadow">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                    <h4 className="font-semibold text-lg">{campaign.name}</h4>
-                    <Badge variant={campaign.status === "Active" ? "default" : campaign.status === "Draft" ? "secondary" : "outline"}
-                           className={campaign.status === "Active" ? "bg-green-500 hover:bg-green-600" : campaign.status === "Draft" ? "bg-yellow-500 hover:bg-yellow-600 text-black" : ""}>
-                      {campaign.status}
-                    </Badge>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-sm text-muted-foreground">
-                    <p><Send className="inline h-4 w-4 mr-1" />Sent: {campaign.sent.toLocaleString()}</p>
-                    <p><Eye className="inline h-4 w-4 mr-1" />Open Rate: {campaign.openRate}</p>
-                    <p><BarChart3 className="inline h-4 w-4 mr-1" />Click Rate: {campaign.clickRate}</p>
-                    <Button size="sm" variant="ghost" className="sm:ml-auto h-auto p-1 text-primary hover:text-primary/80" onClick={() => console.log(`View details for ${campaign.name}`)}>View Details</Button>
-                  </div>
-                </div>
+          <CardContent className="space-y-5">
+            <div className="space-y-2">
+              {emailData.subjectLines.map((subj, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setSelectedSubjectIdx(idx)}
+                  className={`w-full text-left flex items-center justify-between rounded-lg border p-3 text-sm transition-colors cursor-pointer ${
+                    selectedSubjectIdx === idx
+                      ? "border-primary bg-primary/10 font-medium"
+                      : "hover:bg-muted/40"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <CheckCircle2
+                      className={`h-4 w-4 shrink-0 ${
+                        selectedSubjectIdx === idx
+                          ? "text-primary"
+                          : "text-muted-foreground/40"
+                      }`}
+                    />
+                    {subj}
+                  </span>
+                  <Badge variant="secondary" className="text-[10px]">
+                    Variant {String.fromCharCode(65 + idx)}
+                  </Badge>
+                </button>
               ))}
             </div>
-          </CardContent>
-        </Card>
 
-         <Card className="shadow-md">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <LineChartIcon className="h-6 w-6 text-primary" />
-                    Performance Snapshot
-                </CardTitle>
-                <CardDescription>Key email marketing metrics at a glance.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                    <div className="p-4 border rounded-lg bg-muted/40">
-                        <p className="text-sm text-muted-foreground">Total Subscribers</p>
-                        <p className="text-2xl font-bold">25,830</p>
-                    </div>
-                    <div className="p-4 border rounded-lg bg-muted/40">
-                        <p className="text-sm text-muted-foreground">Avg. Open Rate (Last 30d)</p>
-                        <p className="text-2xl font-bold">24.5%</p>
-                    </div>
-                    <div className="p-4 border rounded-lg bg-muted/40">
-                        <p className="text-sm text-muted-foreground">Avg. Click-Through Rate (Last 30d)</p>
-                        <p className="text-2xl font-bold">4.2%</p>
-                    </div>
-                </div>
-                <div className="h-[300px]">
-                  <ChartContainer config={chartConfig} className="w-full h-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={emailPerformanceData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" />
-                        <YAxis yAxisId="left" />
-                        <YAxis yAxisId="right" orientation="right" />
-                        <RechartsTooltip content={<ChartTooltipContent />} />
-                        <Legend />
-                        <Line yAxisId="left" type="monotone" dataKey="openRate" stroke="var(--color-openRate)" name="Open Rate (%)" />
-                        <Line yAxisId="right" type="monotone" dataKey="clickRate" stroke="var(--color-clickRate)" name="Click Rate (%)" />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
-                </div>
-            </CardContent>
-        </Card>
-
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="h-6 w-6 text-primary" />
-              AI-Powered Email Tools
-            </CardTitle>
-            <CardDescription>Enhance your emails with AI assistance.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid md:grid-cols-2 gap-x-8 gap-y-6">
-            <div className="space-y-3">
-              <Label htmlFor="aiSubject" className="text-base font-medium">AI Subject Line Generator</Label>
-              <Input 
-                id="aiSubject" 
-                placeholder="Enter email topic or keywords..." 
-                value={subjectLineTopic}
-                onChange={(e) => setSubjectLineTopic(e.target.value)}
-                disabled={isSubjectLoading}
-              />
-              <Button 
-                onClick={handleGenerateSubjects} 
-                disabled={isSubjectLoading || !subjectLineTopic.trim()}
-                className="bg-accent hover:bg-accent/90 text-accent-foreground"
-              >
-                {isSubjectLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Zap className="mr-2 h-4 w-4" />
-                )}
-                Generate Subject Lines
-              </Button>
-              {subjectError && (
-                 <Alert variant="destructive" className="mt-2">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{subjectError}</AlertDescription>
-                  </Alert>
-              )}
-              {generatedSubjectLines.length > 0 && (
-                <div className="p-3 bg-muted/50 rounded-md text-sm text-muted-foreground min-h-[60px] mt-2">
-                  <p className="font-medium">Suggestions:</p>
-                  <ul className="list-disc list-inside pl-2">
-                    {generatedSubjectLines.map((line, index) => (
-                      <li key={index}>{line}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-3">
-              <Label htmlFor="aiBody" className="text-base font-medium">AI Email Body Assistant</Label>
-              <Textarea 
-                id="aiBody" 
-                placeholder="Describe the email's purpose, key points, and desired tone..." 
-                className="min-h-[100px]" 
-                value={emailBodyPrompt}
-                onChange={(e) => setEmailBodyPrompt(e.target.value)}
-                disabled={isEmailBodyLoading}
-              />
-              <Button 
-                onClick={handleGenerateEmailBody} 
-                disabled={isEmailBodyLoading || !emailBodyPrompt.trim()}
-                className="bg-accent hover:bg-accent/90 text-accent-foreground"
-              >
-                {isEmailBodyLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                 <Edit3 className="mr-2 h-4 w-4" />
-                )}
-                Draft Email Body (AI)
-              </Button>
-              {emailBodyError && (
-                 <Alert variant="destructive" className="mt-2">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{emailBodyError}</AlertDescription>
-                  </Alert>
-              )}
-               {generatedEmailBody && (
-                <div className="p-3 bg-muted/50 rounded-md text-sm text-muted-foreground min-h-[60px] mt-2 whitespace-pre-wrap">
-                  <p className="font-medium">Generated Snippet:</p>
-                  {generatedEmailBody}
-                </div>
-              )}
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+                Email Body Copy
+              </Label>
+              <div className="rounded-lg border bg-card p-4 whitespace-pre-wrap text-sm leading-relaxed">
+                {emailData.emailBody}
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
-    </>
+    </div>
   );
 }

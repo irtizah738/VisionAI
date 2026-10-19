@@ -162,9 +162,9 @@ export default function AIAssistantPage() {
                           : "bg-muted"
                       }`}
                     >
-                      <p className="text-sm">{message.content}</p>
+                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                       <p className="text-xs opacity-50 mt-1">
-                        {message.timestamp.toLocaleTimeString()}
+                        {new Date(message.timestamp).toLocaleTimeString()}
                       </p>
                     </div>
                   </div>

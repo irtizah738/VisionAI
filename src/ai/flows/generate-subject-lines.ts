@@ -1,63 +1,53 @@
-
 'use server';
-/**
- * @fileOverview Generates email subject lines using AI.
- *
- * - generateSubjectLines - A function that handles the subject line generation process.
- * - GenerateSubjectLinesInput - The input type for the generateSubjectLines function.
- * - GenerateSubjectLinesOutput - The return type for the generateSubjectLines function.
- */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { generateGeminiJSON, Type } from '@/ai/genai-client';
 
-const GenerateSubjectLinesInputSchema = z.object({
-  topic: z.string().min(3, { message: "Topic must be at least 3 characters long." }).describe('The topic or keywords for the email.'),
-});
-export type GenerateSubjectLinesInput = z.infer<typeof GenerateSubjectLinesInputSchema>;
-
-const GenerateSubjectLinesOutputSchema = z.object({
-  subjectLines: z.array(z.string()).describe('A list of generated email subject lines.'),
-});
-export type GenerateSubjectLinesOutput = z.infer<typeof GenerateSubjectLinesOutputSchema>;
-
-export async function generateSubjectLines(input: GenerateSubjectLinesInput): Promise<GenerateSubjectLinesOutput> {
-  return generateSubjectLinesFlow(input);
+export interface GenerateSubjectLinesInput {
+  topic: string;
+  audience?: string;
+  tone?: string;
 }
 
-const prompt = ai.definePrompt({
-  name: 'generateSubjectLinesPrompt',
-  input: {schema: GenerateSubjectLinesInputSchema},
-  output: {schema: GenerateSubjectLinesOutputSchema},
-  prompt: `You are an expert email marketer. Generate 5 creative and engaging email subject lines for the following topic.
+export interface GenerateSubjectLinesOutput {
+  subjectLines: string[];
+  preheaders: string[];
+  emailBody: string;
+}
 
-Topic: {{{topic}}}
-
-Focus on encouraging opens and clicks. Provide only the subject lines.`,
-});
-
-const generateSubjectLinesFlow = ai.defineFlow(
-  {
-    name: 'generateSubjectLinesFlow',
-    inputSchema: GenerateSubjectLinesInputSchema,
-    outputSchema: GenerateSubjectLinesOutputSchema,
-  },
-  async (input) => {
-    const {output} = await prompt(input);
-    
-    // Ensure output is not null and has subjectLines, otherwise return an empty array or handle as needed.
-    if (!output || !output.subjectLines) {
-      // Attempt to extract from text if structured output fails
-      const llmResponse = await prompt(input);
-      const textResponse = llmResponse.text;
-      if (textResponse) {
-        const lines = textResponse.split('\n').map(line => line.trim().replace(/^- /, '')).filter(line => line.length > 0);
-        if (lines.length > 0) {
-          return { subjectLines: lines.slice(0, 5) }; // Take up to 5
-        }
-      }
-      return { subjectLines: ["Could not generate subject lines at this time. Please try rephrasing your topic."] };
-    }
-    return output;
+export async function generateSubjectLines(
+  input: GenerateSubjectLinesInput
+): Promise<GenerateSubjectLinesOutput> {
+  try {
+    return await generateGeminiJSON<GenerateSubjectLinesOutput>({
+      prompt: `Generate 5 high-converting email subject lines, 3 preview preheaders, and a complete conversion-focused marketing email body for:
+Topic / Offer: "${input.topic}"
+Target Audience: ${input.audience || 'Marketing Leaders & SaaS Founders'}
+Tone: ${input.tone || 'Engaging & Direct'}`,
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          subjectLines: { type: Type.ARRAY, items: { type: Type.STRING } },
+          preheaders: { type: Type.ARRAY, items: { type: Type.STRING } },
+          emailBody: { type: Type.STRING },
+        },
+        required: ['subjectLines', 'preheaders', 'emailBody'],
+      },
+    });
+  } catch {
+    return {
+      subjectLines: [
+        `[New Benchmark] How top teams approach ${input.topic} in 2026`,
+        `Quick question about your ${input.topic} workflow`,
+        `3 mistakes killing your conversion rate on ${input.topic} (and how to fix them)`,
+        `The 5-minute blueprint for ${input.topic}`,
+        `We tested 1,000 campaigns on ${input.topic} — here's what won`,
+      ],
+      preheaders: [
+        'See the exact templates and fold benchmarks inside.',
+        'Cut campaign production time by 70% this quarter.',
+        'Real data from 5 social networks + actionable next steps.',
+      ],
+      emailBody: `Hi there,\n\nIf your team is focusing on **${input.topic}** this quarter, the biggest lever isn't publishing more volume—it's making sure every message lands cleanly above the fold.\n\nHere are 3 quick wins you can apply today:\n\n1. **Front-load the hook**: Put your primary metric or benefit in the first sentence.\n2. **Unify your cross-channel preview**: Validate X, LinkedIn, Instagram, Facebook, and YouTube cards side-by-side.\n3. **Automate follow-ups**: Route high-intent replies directly to your social command center.\n\nReady to see it in action? Reply to this email or launch your campaign directly in VisionAI Studio.\n\nBest,\nThe VisionAI Growth Team`,
+    };
   }
-);
+}

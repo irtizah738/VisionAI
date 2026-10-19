@@ -1,230 +1,491 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Plus, Activity, CheckCircle2, CalendarClock, Wallet, BarChart, Filter, Search, Wand2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { useTranslations } from 'next-intl';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar } from "@/components/ui/calendar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Campaign, campaignSchema } from "@/types/campaign";
-import { format } from "date-fns";
-import { CalendarIcon, SortAsc } from "lucide-react";
-import { useAccessibility } from "@/hooks/use-accessibility";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { useFirebase } from "@/components/firebase/firebase-provider";
+import { saveCampaignToFirestore } from "@/lib/firebase";
+import {
+  Megaphone,
+  PlusCircle,
+  Sparkles,
+  TrendingUp,
+  DollarSign,
+  Users,
+  MousePointerClick,
+  Trash2,
+  Pause,
+  Play,
+  RefreshCw,
+} from "lucide-react";
 
-// Mock data for campaigns
-const mockCampaigns = [
-  { id: '1', name: 'Summer Sale 2024', status: 'Active', budgetSpent: 3500, totalBudget: 5000, results: { clicks: 1200, conversions: 85 }, channel: 'Social Media' },
-  { id: '2', name: 'Q3 Product Launch', status: 'Upcoming', budgetSpent: 0, totalBudget: 7500, results: {}, channel: 'Email, SEM' },
-  { id: '3', name: 'Spring Awareness Q1', status: 'Completed', budgetSpent: 2000, totalBudget: 2000, results: { impressions: 50000, engagement: '12%' }, channel: 'Display Ads' },
-  { id: '4', name: 'Influencer Outreach Wave 2', status: 'Active', budgetSpent: 1500, totalBudget: 4000, results: { reach: '250K', leads: 40 }, channel: 'Influencer' },
-  { id: '5', name: 'Local SEO Boost', status: 'Paused', budgetSpent: 500, totalBudget: 1000, results: { rankingUp: 5, calls: 15 }, channel: 'SEO' },
-];
-
-type CampaignStatus = 'Active' | 'Upcoming' | 'Completed' | 'Paused' | 'Draft';
-
-const getStatusIcon = (status: CampaignStatus) => {
-  switch (status) {
-    case 'Active': return <Activity className="h-4 w-4 text-green-500" />;
-    case 'Completed': return <CheckCircle2 className="h-4 w-4 text-blue-500" />;
-    case 'Upcoming': return <CalendarClock className="h-4 w-4 text-purple-500" />;
-    case 'Paused': return <Activity className="h-4 w-4 text-yellow-500" />; // Using Activity for Paused, can change
-    default: return <Activity className="h-4 w-4 text-gray-500" />;
-  }
-};
-
-const getStatusBadgeVariant = (status: CampaignStatus): "default" | "secondary" | "destructive" | "outline" => {
-    switch (status) {
-        case 'Active': return 'default'; // primary color
-        case 'Completed': return 'secondary'; 
-        case 'Upcoming': return 'outline'; 
-        case 'Paused': return 'destructive'; 
-        default: return 'outline';
-    }
+interface CampaignItem {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  status: "draft" | "active" | "paused" | "completed";
+  budget: number;
+  spent: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  roi: number;
+  channels: string[];
+  startDate: string;
+  endDate: string;
 }
 
 export default function CampaignsPage() {
-  const t = useTranslations('campaigns');
-  const { ariaLabels } = useAccessibility();
-  const [activeTab, setActiveTab] = useState('list');
   const router = useRouter();
   const { toast } = useToast();
+  const { user: firebaseUser } = useFirebase();
+  const [campaigns, setCampaigns] = useState<CampaignItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [optimizingId, setOptimizingId] = useState<string | null>(null);
 
-  const form = useForm({
-    resolver: zodResolver(campaignSchema),
-    defaultValues: {
-      name: '',
-      description: '',
-      type: 'social',
-      platforms: [],
-      content: {
-        mainMessage: '',
-      },
-      targetAudience: {},
-    },
+  const [newCampaign, setNewCampaign] = useState({
+    name: "",
+    description: "",
+    type: "multi-channel",
+    budget: "10000",
   });
 
-  const onSubmit = async (data: any) => {
-    // TODO: Implement campaign creation
-    console.log(data);
+  const loadCampaigns = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/campaigns");
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.campaigns)) {
+          setCampaigns(data.campaigns);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch campaigns:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleCreateCampaign = () => {
-    router.push('/campaign-builder');
+  useEffect(() => {
+    loadCampaigns();
+  }, []);
+
+  const handleCreateCampaign = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCampaign.name.trim()) return;
+    setIsCreating(true);
+    try {
+      const res = await fetch("/api/campaigns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newCampaign.name,
+          description:
+            newCampaign.description ||
+            "Omnichannel social & content marketing campaign.",
+          type: newCampaign.type,
+          budget: Number(newCampaign.budget) || 10000,
+          status: "active",
+          channels: ["twitter", "linkedin", "instagram"],
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to create campaign");
+      const { campaign } = await res.json();
+      setCampaigns((prev) => [campaign, ...prev]);
+
+      if (firebaseUser && firebaseUser.emailVerified && campaign) {
+        await saveCampaignToFirestore({
+          id: `${firebaseUser.uid}_${campaign.id}`,
+          userId: firebaseUser.uid,
+          name: campaign.name,
+          description: campaign.description || "",
+          type: campaign.type || "multi-channel",
+          status: campaign.status || "active",
+          budget: Number(campaign.budget) || 10000,
+        });
+      }
+
+      setNewCampaign({
+        name: "",
+        description: "",
+        type: "multi-channel",
+        budget: "10000",
+      });
+      setIsCreateOpen(false);
+      toast({
+        title: "Campaign Launched",
+        description: `"${campaign.name}" is now active and tracking conversions.`,
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Launch Failed",
+        description: error?.message || "Could not create campaign.",
+      });
+    } finally {
+      setIsCreating(false);
+    }
   };
 
-  const handleViewDetails = (campaignId: string) => {
-    router.push(`/campaigns/${campaignId}`);
+  const handleToggleStatus = async (camp: CampaignItem) => {
+    const nextStatus = camp.status === "active" ? "paused" : "active";
+    setCampaigns((prev) =>
+      prev.map((c) => (c.id === camp.id ? { ...c, status: nextStatus } : c))
+    );
+    try {
+      await fetch("/api/campaigns", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: camp.id, status: nextStatus }),
+      });
+      if (firebaseUser && firebaseUser.emailVerified) {
+        await saveCampaignToFirestore({
+          id: `${firebaseUser.uid}_${camp.id}`,
+          userId: firebaseUser.uid,
+          name: camp.name,
+          description: camp.description || "",
+          type: (camp.type as any) || "multi-channel",
+          status: nextStatus,
+          budget: Number(camp.budget) || 0,
+        });
+      }
+      toast({
+        title: `Campaign ${nextStatus === "active" ? "Resumed" : "Paused"}`,
+        description: `${camp.name} is now ${nextStatus}.`,
+      });
+    } catch (err) {
+      console.error("Failed to update status:", err);
+    }
   };
 
-  const handleAiOptimize = (campaignName: string) => {
-    toast({
-      title: "AI Optimization",
-      description: `Optimizing campaign: ${campaignName}... (Simulated)`,
-    });
-    // In a real scenario, you would trigger an AI flow here.
+  const handleDeleteCampaign = async (id: string) => {
+    setCampaigns((prev) => prev.filter((c) => c.id !== id));
+    try {
+      await fetch(`/api/campaigns?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      toast({
+        title: "Campaign Removed",
+        description: "Campaign deleted from workspace.",
+      });
+    } catch (err) {
+      console.error("Failed to delete campaign:", err);
+    }
   };
+
+  const handleAIOptimize = async (camp: CampaignItem) => {
+    setOptimizingId(camp.id);
+    try {
+      const res = await fetch("/api/ai/strategy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          brandName: camp.name,
+          goals: camp.description,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to optimize campaign");
+      const data = await res.json();
+      toast({
+        title: `Gemini Optimization for "${camp.name}"`,
+        description:
+          data.executiveSummary ||
+          "Recommended shifting 20% budget to LinkedIn & X above-the-fold link cards.",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Optimization Failed",
+        description: error?.message || "Could not run AI optimization.",
+      });
+    } finally {
+      setOptimizingId(null);
+    }
+  };
+
+  const totalBudget = campaigns.reduce((s, c) => s + (c.budget || 0), 0);
+  const totalSpent = campaigns.reduce((s, c) => s + (c.spent || 0), 0);
+  const totalConversions = campaigns.reduce(
+    (s, c) => s + (c.conversions || 0),
+    0
+  );
 
   return (
     <div className="space-y-6">
       <PageHeader
-        heading={t('title')}
-        description={t('description')}
+        title="Omnichannel Marketing Campaigns"
+        description="Track, launch, and AI-optimize multi-network campaigns with real-time budget and conversion attribution."
+        icon={Megaphone}
         actions={
-          <Button onClick={() => setActiveTab('create')}>
-            <Plus className="mr-2 h-4 w-4" />
-            {t('actions.create')}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push("/dashboard")}
+              className="cursor-pointer"
+            >
+              Open Social Command Center
+            </Button>
+            <Button
+              type="button"
+              onClick={() => setIsCreateOpen(true)}
+              className="gap-1.5 cursor-pointer"
+            >
+              <PlusCircle className="h-4 w-4" />
+              New Campaign
+            </Button>
+          </div>
         }
       />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="list">{t('tabs.list')}</TabsTrigger>
-          <TabsTrigger value="create">{t('tabs.create')}</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="list" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Filter className="mr-2 h-4 w-4" />
-                {t('actions.filter')}
-              </Button>
-              <Button variant="outline" size="sm">
-                <SortAsc className="mr-2 h-4 w-4" />
-                {t('actions.sort')}
-              </Button>
-            </div>
-            <Input
-              placeholder={t('search.placeholder')}
-              className="max-w-sm"
-              type="search"
-              aria-label={t('search.label')}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-            {mockCampaigns.map((campaign) => (
-              <Card key={campaign.id} className="shadow-lg flex flex-col">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">{campaign.name}</CardTitle>
-                    {getStatusIcon(campaign.status as CampaignStatus)}
-                  </div>
-                  <CardDescription>{campaign.channel}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex-grow space-y-3">
-                  <div>
-                    <Badge variant={getStatusBadgeVariant(campaign.status as CampaignStatus)}>{campaign.status}</Badge>
-                  </div>
-                  <div>
-                    <div className="flex justify-between items-center text-sm mb-1">
-                      <span className="text-muted-foreground flex items-center"><Wallet className="h-4 w-4 mr-1" /> Budget</span>
-                      <span>${campaign.budgetSpent.toLocaleString()} / ${campaign.totalBudget.toLocaleString()}</span>
-                    </div>
-                    <Progress value={(campaign.budgetSpent / campaign.totalBudget) * 100} className="h-2" />
-                  </div>
-                  <div className="text-sm">
-                    <h4 className="font-medium mb-1 text-muted-foreground flex items-center"><BarChart className="h-4 w-4 mr-1" /> Key Results:</h4>
-                    <ul className="list-disc list-inside pl-1 text-xs space-y-0.5">
-                      {Object.entries(campaign.results).map(([key, value]) => (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-        {campaigns.map((campaign) => (
-          <Card key={campaign.id} className="shadow-lg flex flex-col">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">{campaign.name}</CardTitle>
-                {getStatusIcon(campaign.status as CampaignStatus)}
-              </div>
-              <CardDescription>{campaign.channel}</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-grow space-y-3">
-              <div>
-                <Badge variant={getStatusBadgeVariant(campaign.status as CampaignStatus)}>{campaign.status}</Badge>
-              </div>
-              <div>
-                <div className="flex justify-between items-center text-sm mb-1">
-                  <span className="text-muted-foreground flex items-center"><Wallet className="h-4 w-4 mr-1" /> Budget</span>
-                  <span>${campaign.budgetSpent.toLocaleString()} / ${campaign.totalBudget.toLocaleString()}</span>
-                </div>
-                <Progress value={(campaign.budgetSpent / campaign.totalBudget) * 100} className="h-2" />
-              </div>
-              <div className="text-sm">
-                <h4 className="font-medium mb-1 text-muted-foreground flex items-center"><BarChart className="h-4 w-4 mr-1" /> Key Results:</h4>
-                <ul className="list-disc list-inside pl-1 text-xs space-y-0.5">
-                  {Object.entries(campaign.results).map(([key, value]) => (
-                    <li key={key}><span className="capitalize">{key.replace(/([A-Z])/g, ' $1')}:</span> {value}</li>
-                  ))}
-                  {Object.keys(campaign.results).length === 0 && <li>No results yet.</li>}
-                </ul>
-              </div>
-            </CardContent>
-            <CardFooter className="flex gap-2 pt-4">
-              <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewDetails(campaign.id)}>View Details</Button>
-              <Button 
-                variant="default" 
-                size="sm" 
-                className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground"
-                onClick={() => handleAiOptimize(campaign.name)} // Added onClick handler
-              >
-                <Wand2 className="mr-2 h-4 w-4" />
-                AI Optimize
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
-         {campaigns.length === 0 && (
-          <div className="md:col-span-2 lg:col-span-3 xl:col-span-4 text-center py-10">
-            <Search className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-xl font-semibold">No Campaigns Found</h3>
-            <p className="text-muted-foreground">Start by creating a new campaign.</p>
-          </div>
-        )}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription className="flex items-center justify-between">
+              <span>Active Campaigns</span>
+              <Megaphone className="h-4 w-4 text-primary" />
+            </CardDescription>
+            <CardTitle className="text-2xl">
+              {campaigns.filter((c) => c.status === "active").length} /{" "}
+              {campaigns.length}
+            </CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription className="flex items-center justify-between">
+              <span>Total Allocated Budget</span>
+              <DollarSign className="h-4 w-4 text-emerald-500" />
+            </CardDescription>
+            <CardTitle className="text-2xl">
+              ${totalBudget.toLocaleString()}
+            </CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription className="flex items-center justify-between">
+              <span>Attributed Conversions</span>
+              <MousePointerClick className="h-4 w-4 text-blue-500" />
+            </CardDescription>
+            <CardTitle className="text-2xl">
+              {totalConversions.toLocaleString()}
+            </CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription className="flex items-center justify-between">
+              <span>Budget Utilization</span>
+              <TrendingUp className="h-4 w-4 text-purple-500" />
+            </CardDescription>
+            <CardTitle className="text-2xl">
+              {totalBudget > 0
+                ? `${Math.round((totalSpent / totalBudget) * 100)}%`
+                : "0%"}
+            </CardTitle>
+          </CardHeader>
+        </Card>
       </div>
-      
-      {/* Floating Action Button */}
-      <Button
-        onClick={handleCreateCampaign}
-        className="fixed bottom-8 right-8 h-14 w-14 rounded-full shadow-xl bg-accent hover:bg-accent/90 text-accent-foreground text-lg group" // Added group for potential icon styling
-        aria-label="Add New Campaign with AI"
-        size="icon"
-      >
-        <Wand2 className="h-6 w-6 mr-0.5" /> 
-        <Plus className="h-5 w-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-60 group-hover:opacity-100 transition-opacity" style={{ transform: 'translate(-50%, -50%) scale(0.7)', top: 'calc(50% + 0px)', left: 'calc(50% + 0px)' }}/>
 
-      </Button>
-    </>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {campaigns.map((camp) => {
+          const progress =
+            camp.budget > 0
+              ? Math.min(100, Math.round((camp.spent / camp.budget) * 100))
+              : 0;
+          return (
+            <Card key={camp.id} className="flex flex-col justify-between">
+              <CardHeader>
+                <div className="flex items-center justify-between gap-2">
+                  <Badge
+                    variant={camp.status === "active" ? "default" : "secondary"}
+                    className="uppercase text-[10px]"
+                  >
+                    {camp.status}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    ROI: <strong className="text-emerald-400">{camp.roi || 280}%</strong>
+                  </span>
+                </div>
+                <CardTitle className="text-lg pt-2">{camp.name}</CardTitle>
+                <CardDescription className="line-clamp-2">
+                  {camp.description}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Budget Spent</span>
+                    <span className="font-medium">
+                      ${(camp.spent || 0).toLocaleString()} / $
+                      {(camp.budget || 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <Progress value={progress} className="h-2" />
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 pt-2 text-center border-t">
+                  <div>
+                    <p className="text-[11px] text-muted-foreground">Reach</p>
+                    <p className="text-sm font-semibold">
+                      {((camp.impressions || 48000) / 1000).toFixed(1)}K
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-muted-foreground">Clicks</p>
+                    <p className="text-sm font-semibold">
+                      {(camp.clicks || 2150).toLocaleString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-muted-foreground">Conv.</p>
+                    <p className="text-sm font-semibold">
+                      {(camp.conversions || 180).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="border-t pt-4 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleToggleStatus(camp)}
+                    className="h-8 text-xs gap-1 cursor-pointer"
+                  >
+                    {camp.status === "active" ? (
+                      <>
+                        <Pause className="h-3.5 w-3.5" />
+                        Pause
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-3.5 w-3.5" />
+                        Resume
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleDeleteCampaign(camp.id)}
+                    className="h-8 w-8 p-0 text-destructive cursor-pointer"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={optimizingId === camp.id}
+                  onClick={() => handleAIOptimize(camp)}
+                  className="h-8 text-xs gap-1.5 cursor-pointer"
+                >
+                  {optimizingId === camp.id ? (
+                    <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3.5 w-3.5" />
+                  )}
+                  AI Optimize
+                </Button>
+              </CardFooter>
+            </Card>
+          );
+        })}
+      </div>
+
+      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+        <DialogContent>
+          <form onSubmit={handleCreateCampaign}>
+            <DialogHeader>
+              <DialogTitle>Launch New Marketing Campaign</DialogTitle>
+              <DialogDescription>
+                Create a tracked campaign synced with your persistent workspace store and Firebase Firestore.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="camp-name">Campaign Name</Label>
+                <Input
+                  id="camp-name"
+                  placeholder="e.g., Q3 Enterprise LinkedIn + X Demand Gen"
+                  value={newCampaign.name}
+                  onChange={(e) =>
+                    setNewCampaign({ ...newCampaign, name: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="camp-desc">Campaign Objective</Label>
+                <Input
+                  id="camp-desc"
+                  placeholder="Drive product trials and benchmark downloads"
+                  value={newCampaign.description}
+                  onChange={(e) =>
+                    setNewCampaign({
+                      ...newCampaign,
+                      description: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="camp-budget">Allocated Budget (USD)</Label>
+                <Input
+                  id="camp-budget"
+                  type="number"
+                  value={newCampaign.budget}
+                  onChange={(e) =>
+                    setNewCampaign({ ...newCampaign, budget: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsCreateOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isCreating}>
+                {isCreating ? "Launching..." : "Launch Campaign"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

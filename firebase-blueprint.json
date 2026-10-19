@@ -1,0 +1,397 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Public workspace profile information for an authenticated VisionAI user.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the profile owner.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Public display name in the workspace.",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "avatarUrl": {
+          "type": "string",
+          "description": "Optional avatar URL for the user.",
+          "minLength": 0,
+          "maxLength": 500
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the profile was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the profile was last updated."
+        }
+      },
+      "required": ["uid", "displayName", "createdAt", "updatedAt"]
+    },
+    "UserPrivateInfo": {
+      "title": "UserPrivateInfo",
+      "description": "Isolated PII and private workspace preferences for a VisionAI user.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the owner.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Private email address of the user.",
+          "minLength": 3,
+          "maxLength": 254
+        },
+        "timezone": {
+          "type": "string",
+          "description": "Preferred workspace timezone.",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "language": {
+          "type": "string",
+          "description": "Preferred interface language code.",
+          "minLength": 2,
+          "maxLength": 10
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when private settings were created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when private settings were last updated."
+        }
+      },
+      "required": ["uid", "email", "timezone", "language", "createdAt", "updatedAt"]
+    },
+    "SocialPost": {
+      "title": "SocialPost",
+      "description": "Scheduled, draft, or published social media post.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the post creator.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "network": {
+          "type": "string",
+          "description": "Primary social network target.",
+          "enum": ["twitter", "linkedin", "instagram", "facebook", "youtube"],
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "handle": {
+          "type": "string",
+          "description": "Account handle or page name.",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "content": {
+          "type": "string",
+          "description": "Post body copy including hashtags and links.",
+          "minLength": 1,
+          "maxLength": 5000
+        },
+        "status": {
+          "type": "string",
+          "description": "Lifecycle status of the social post.",
+          "enum": ["draft", "scheduled", "published"],
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "scheduledTime": {
+          "type": "string",
+          "description": "Scheduled time label or ISO string.",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the post was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the post was last updated."
+        }
+      },
+      "required": ["userId", "network", "handle", "content", "status", "scheduledTime", "createdAt", "updatedAt"]
+    },
+    "SocialAccount": {
+      "title": "SocialAccount",
+      "description": "Connected social media account metadata for a user workspace.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the account owner.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "provider": {
+          "type": "string",
+          "description": "Social platform identifier.",
+          "enum": ["twitter", "linkedin", "instagram", "facebook", "youtube"],
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "accountName": {
+          "type": "string",
+          "description": "Display name of the connected social profile.",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "handle": {
+          "type": "string",
+          "description": "Social handle or username.",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "status": {
+          "type": "string",
+          "description": "Connection health status.",
+          "enum": ["connected", "disconnected"],
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when connected."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when last updated."
+        }
+      },
+      "required": ["userId", "provider", "accountName", "handle", "status", "createdAt", "updatedAt"]
+    },
+    "Campaign": {
+      "title": "Campaign",
+      "description": "Multi-channel marketing campaign tracked in VisionAI.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the campaign owner.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Campaign title.",
+          "minLength": 1,
+          "maxLength": 150
+        },
+        "description": {
+          "type": "string",
+          "description": "Campaign summary and objectives.",
+          "minLength": 0,
+          "maxLength": 2000
+        },
+        "type": {
+          "type": "string",
+          "description": "Channel type of the campaign.",
+          "enum": ["social", "email", "seo", "multi-channel", "content"],
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "status": {
+          "type": "string",
+          "description": "Lifecycle state of the campaign.",
+          "enum": ["draft", "active", "paused", "completed"],
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "budget": {
+          "type": "number",
+          "description": "Allocated campaign budget in USD."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when last updated."
+        }
+      },
+      "required": ["userId", "name", "description", "type", "status", "budget", "createdAt", "updatedAt"]
+    },
+    "BrandVoice": {
+      "title": "BrandVoice",
+      "description": "Persistent AI Brand Voice Memory profile injected into all Gemini content generation workflows.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the brand voice owner.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "brandName": {
+          "type": "string",
+          "description": "Official brand or company name.",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "tone": {
+          "type": "string",
+          "description": "Signature brand voice tone descriptor.",
+          "minLength": 1,
+          "maxLength": 150
+        },
+        "targetAudience": {
+          "type": "string",
+          "description": "Primary ICP and target audience description.",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "keyPillars": {
+          "type": "string",
+          "description": "Core messaging pillars and value propositions.",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "bannedWords": {
+          "type": "string",
+          "description": "Comma-separated words or phrases never to use.",
+          "minLength": 0,
+          "maxLength": 500
+        },
+        "ctaStyle": {
+          "type": "string",
+          "description": "Preferred call-to-action pattern.",
+          "minLength": 1,
+          "maxLength": 250
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when last updated."
+        }
+      },
+      "required": ["userId", "brandName", "tone", "targetAudience", "keyPillars", "bannedWords", "ctaStyle", "createdAt", "updatedAt"]
+    },
+    "WorkspaceItem": {
+      "title": "WorkspaceItem",
+      "description": "Unified persistent entity for Content Management items, CRO Experiments, CRM Contacts, and Audience Segments.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the item owner.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "suite": {
+          "type": "string",
+          "description": "Suite category identifier.",
+          "enum": ["content", "cro", "crm", "segment", "project", "inbox"],
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "title": {
+          "type": "string",
+          "description": "Primary title or name of the record.",
+          "minLength": 1,
+          "maxLength": 150
+        },
+        "status": {
+          "type": "string",
+          "description": "Lifecycle or segment status.",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "summary": {
+          "type": "string",
+          "description": "Detailed description, variant breakdown, or criteria.",
+          "minLength": 0,
+          "maxLength": 2000
+        },
+        "primaryMetric": {
+          "type": "number",
+          "description": "Primary numeric metric (views, conversion rate, LTV, or audience size)."
+        },
+        "secondaryMetric": {
+          "type": "number",
+          "description": "Secondary numeric metric (engagement, confidence, or growth rate)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when last updated."
+        }
+      },
+      "required": ["userId", "suite", "title", "status", "summary", "primaryMetric", "secondaryMetric", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Public workspace profile documents keyed by Firebase Auth UID."
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": { "$ref": "#/entities/UserPrivateInfo" },
+      "description": "Isolated PII and private user preferences accessible strictly to the document owner."
+    },
+    "/posts/{postId}": {
+      "schema": { "$ref": "#/entities/SocialPost" },
+      "description": "Scheduled and published social media posts owned by individual users."
+    },
+    "/socialAccounts/{accountId}": {
+      "schema": { "$ref": "#/entities/SocialAccount" },
+      "description": "Connected social media accounts owned by individual users."
+    },
+    "/campaigns/{campaignId}": {
+      "schema": { "$ref": "#/entities/Campaign" },
+      "description": "Marketing campaigns owned by individual users."
+    },
+    "/brandVoices/{userId}": {
+      "schema": { "$ref": "#/entities/BrandVoice" },
+      "description": "Persistent AI Brand Voice Memory profile keyed by Firebase Auth UID."
+    },
+    "/workspaceItems/{itemId}": {
+      "schema": { "$ref": "#/entities/WorkspaceItem" },
+      "description": "Persistent records across Content Management, CRO Experiments, CRM Contacts, and Audience Segments."
+    }
+  }
+}

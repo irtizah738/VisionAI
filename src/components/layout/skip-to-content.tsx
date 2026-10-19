@@ -1,3 +1,5 @@
+"use client";
+
 import { useAccessibility } from '@/hooks/use-accessibility';
 
 export function SkipToContent() {
@@ -12,4 +14,6 @@ export function SkipToContent() {
       {ariaLabels.skipToContent}
     </a>
   );
-} 
+}
+
+export default SkipToContent;

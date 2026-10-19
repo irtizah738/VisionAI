@@ -1,15 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { SocialAccount } from '@/services/social';
 
-async function fetchSocialAccounts() {
+async function fetchSocialAccounts(): Promise<SocialAccount[]> {
   const response = await fetch('/api/social-accounts');
   if (!response.ok) {
     throw new Error('Failed to fetch social accounts');
   }
-  return response.json();
+  const data = await response.json();
+  return Array.isArray(data) ? data : data.accounts || [];
 }
 
-async function createSocialAccount(account: Omit<SocialAccount, 'id'>) {
+async function createSocialAccount(account: Partial<SocialAccount> & { platform: string }) {
   const response = await fetch('/api/social-accounts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -31,10 +32,15 @@ async function deleteSocialAccount(accountId: string) {
 }
 
 export function useSocialAccounts() {
-  return useQuery({
+  const query = useQuery({
     queryKey: ['socialAccounts'],
     queryFn: fetchSocialAccounts,
   });
+
+  return {
+    ...query,
+    mutate: query.refetch,
+  };
 }
 
 export function useCreateSocialAccount() {
@@ -62,4 +68,4 @@ export function useDeleteSocialAccount() {
 export function useSocialAccountsByPlatform(platform: string) {
   const { data: accounts } = useSocialAccounts();
   return accounts?.filter((account: SocialAccount) => account.platform === platform) || [];
-} 
+}

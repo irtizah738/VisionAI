@@ -1,0 +1,451 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // 1. GLOBAL SAFETY NET (Default-Deny Catch-All)
+    // =========================================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // =========================================================================
+    // 2. HARDENED PRIMITIVE HELPERS
+    // =========================================================================
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function userProfileExists(userId) {
+      return exists(/databases/$(database)/documents/users/$(userId));
+    }
+
+    // =========================================================================
+    // 3. ENTITY VALIDATION BLUEPRINTS (Anti-Update-Gap)
+    // =========================================================================
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['uid', 'displayName', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'displayName', 'avatarUrl', 'createdAt', 'updatedAt'])
+        && data.uid is string
+        && data.uid.size() >= 1
+        && data.uid.size() <= 128
+        && data.uid.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.uid == request.auth.uid
+        && data.displayName is string
+        && data.displayName.size() >= 1
+        && data.displayName.size() <= 100
+        && (!('avatarUrl' in data) || (data.avatarUrl is string && data.avatarUrl.size() <= 500))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidUserPrivateInfo(data) {
+      return data.keys().hasAll(['uid', 'email', 'timezone', 'language', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'email', 'timezone', 'language', 'createdAt', 'updatedAt'])
+        && data.uid is string
+        && data.uid.size() >= 1
+        && data.uid.size() <= 128
+        && data.uid.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.uid == request.auth.uid
+        && data.email is string
+        && data.email.size() >= 3
+        && data.email.size() <= 254
+        && data.timezone is string
+        && data.timezone.size() >= 1
+        && data.timezone.size() <= 64
+        && data.language is string
+        && data.language.size() >= 2
+        && data.language.size() <= 10
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidSocialPost(data) {
+      return data.keys().hasAll(['userId', 'network', 'handle', 'content', 'status', 'scheduledTime', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['userId', 'network', 'handle', 'content', 'status', 'scheduledTime', 'createdAt', 'updatedAt'])
+        && data.userId is string
+        && data.userId.size() >= 1
+        && data.userId.size() <= 128
+        && data.userId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.userId == request.auth.uid
+        && data.network is string
+        && data.network.size() >= 1
+        && data.network.size() <= 32
+        && data.network in ['twitter', 'linkedin', 'instagram', 'facebook', 'youtube']
+        && data.handle is string
+        && data.handle.size() >= 1
+        && data.handle.size() <= 100
+        && data.content is string
+        && data.content.size() >= 1
+        && data.content.size() <= 5000
+        && data.status is string
+        && data.status.size() >= 1
+        && data.status.size() <= 32
+        && data.status in ['draft', 'scheduled', 'published']
+        && data.scheduledTime is string
+        && data.scheduledTime.size() >= 1
+        && data.scheduledTime.size() <= 100
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidSocialAccount(data) {
+      return data.keys().hasAll(['userId', 'provider', 'accountName', 'handle', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['userId', 'provider', 'accountName', 'handle', 'status', 'createdAt', 'updatedAt'])
+        && data.userId is string
+        && data.userId.size() >= 1
+        && data.userId.size() <= 128
+        && data.userId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.userId == request.auth.uid
+        && data.provider is string
+        && data.provider.size() >= 1
+        && data.provider.size() <= 32
+        && data.provider in ['twitter', 'linkedin', 'instagram', 'facebook', 'youtube']
+        && data.accountName is string
+        && data.accountName.size() >= 1
+        && data.accountName.size() <= 100
+        && data.handle is string
+        && data.handle.size() >= 1
+        && data.handle.size() <= 100
+        && data.status is string
+        && data.status.size() >= 1
+        && data.status.size() <= 32
+        && data.status in ['connected', 'disconnected']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidCampaign(data) {
+      return data.keys().hasAll(['userId', 'name', 'description', 'type', 'status', 'budget', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['userId', 'name', 'description', 'type', 'status', 'budget', 'createdAt', 'updatedAt'])
+        && data.userId is string
+        && data.userId.size() >= 1
+        && data.userId.size() <= 128
+        && data.userId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.userId == request.auth.uid
+        && data.name is string
+        && data.name.size() >= 1
+        && data.name.size() <= 150
+        && data.description is string
+        && data.description.size() <= 2000
+        && data.type is string
+        && data.type.size() >= 1
+        && data.type.size() <= 32
+        && data.type in ['social', 'email', 'seo', 'multi-channel', 'content']
+        && data.status is string
+        && data.status.size() >= 1
+        && data.status.size() <= 32
+        && data.status in ['draft', 'active', 'paused', 'completed']
+        && data.budget is number
+        && data.budget >= 0
+        && data.budget <= 100000000
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidBrandVoice(data) {
+      return data.keys().hasAll(['userId', 'brandName', 'tone', 'targetAudience', 'keyPillars', 'bannedWords', 'ctaStyle', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['userId', 'brandName', 'tone', 'targetAudience', 'keyPillars', 'bannedWords', 'ctaStyle', 'createdAt', 'updatedAt'])
+        && data.userId is string
+        && data.userId.size() >= 1
+        && data.userId.size() <= 128
+        && data.userId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.userId == request.auth.uid
+        && data.brandName is string
+        && data.brandName.size() >= 1
+        && data.brandName.size() <= 100
+        && data.tone is string
+        && data.tone.size() >= 1
+        && data.tone.size() <= 150
+        && data.targetAudience is string
+        && data.targetAudience.size() >= 1
+        && data.targetAudience.size() <= 500
+        && data.keyPillars is string
+        && data.keyPillars.size() >= 1
+        && data.keyPillars.size() <= 1000
+        && data.bannedWords is string
+        && data.bannedWords.size() <= 500
+        && data.ctaStyle is string
+        && data.ctaStyle.size() >= 1
+        && data.ctaStyle.size() <= 250
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidWorkspaceItem(data) {
+      return data.keys().hasAll(['userId', 'suite', 'title', 'status', 'summary', 'primaryMetric', 'secondaryMetric', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['userId', 'suite', 'title', 'status', 'summary', 'primaryMetric', 'secondaryMetric', 'createdAt', 'updatedAt'])
+        && data.userId is string
+        && data.userId.size() >= 1
+        && data.userId.size() <= 128
+        && data.userId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.userId == request.auth.uid
+        && data.suite is string
+        && data.suite.size() >= 1
+        && data.suite.size() <= 32
+        && data.suite in ['content', 'cro', 'crm', 'segment', 'project', 'inbox']
+        && data.title is string
+        && data.title.size() >= 1
+        && data.title.size() <= 150
+        && data.status is string
+        && data.status.size() >= 1
+        && data.status.size() <= 64
+        && data.summary is string
+        && data.summary.size() <= 2000
+        && data.primaryMetric is number
+        && data.primaryMetric >= 0
+        && data.primaryMetric <= 1000000000
+        && data.secondaryMetric is number
+        && data.secondaryMetric >= -1000000
+        && data.secondaryMetric <= 1000000000
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // =========================================================================
+    // 4. COLLECTION MATCH BLOCKS
+    // =========================================================================
+
+    // Public User Profile (/users/{userId})
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if isSignedIn() && existing().uid == request.auth.uid;
+
+      allow create: if isVerifiedUser()
+        && isValidId(userId)
+        && isOwner(userId)
+        && isValidUserProfile(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isVerifiedUser()
+        && isValidId(userId)
+        && isOwner(userId)
+        && isValidUserProfile(incoming())
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          // Action: UpdateProfileDetails
+          incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'avatarUrl', 'updatedAt'])
+        );
+
+      allow delete: if false;
+
+      // Isolated PII Subcollection (/users/{userId}/private/{docId})
+      match /private/{docId} {
+        allow get: if isOwner(userId) && isValidId(userId) && isValidId(docId) && userProfileExists(userId);
+        allow list: if false;
+
+        allow create: if isVerifiedUser()
+          && isValidId(userId)
+          && isValidId(docId)
+          && isOwner(userId)
+          && isValidUserPrivateInfo(incoming())
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && userProfileExists(userId);
+
+        allow update: if isVerifiedUser()
+          && isValidId(userId)
+          && isValidId(docId)
+          && isOwner(userId)
+          && isValidUserPrivateInfo(incoming())
+          && incoming().uid == existing().uid
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && userProfileExists(userId)
+          && (
+            // Action: UpdatePrivatePreferences
+            incoming().diff(existing()).affectedKeys().hasOnly(['email', 'timezone', 'language', 'updatedAt'])
+          );
+
+        allow delete: if false;
+      }
+    }
+
+    // Social Media Posts (/posts/{postId})
+    match /posts/{postId} {
+      allow get: if isSignedIn() && isValidId(postId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+
+      allow create: if isVerifiedUser()
+        && isValidId(postId)
+        && isValidSocialPost(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && userProfileExists(request.auth.uid);
+
+      allow update: if isVerifiedUser()
+        && isValidId(postId)
+        && isValidSocialPost(incoming())
+        && existing().userId == request.auth.uid
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && existing().status != 'published'
+        && userProfileExists(request.auth.uid)
+        && (
+          // Action: EditDraftOrScheduledPost
+          (incoming().diff(existing()).affectedKeys().hasOnly(['network', 'handle', 'content', 'scheduledTime', 'status', 'updatedAt'])) ||
+          // Action: PublishPostTransition
+          (incoming().status == 'published' && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'scheduledTime', 'updatedAt']))
+        );
+
+      allow delete: if isVerifiedUser()
+        && isValidId(postId)
+        && existing().userId == request.auth.uid
+        && userProfileExists(request.auth.uid);
+    }
+
+    // Connected Social Accounts (/socialAccounts/{accountId})
+    match /socialAccounts/{accountId} {
+      allow get: if isSignedIn() && isValidId(accountId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+
+      allow create: if isVerifiedUser()
+        && isValidId(accountId)
+        && isValidSocialAccount(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && userProfileExists(request.auth.uid);
+
+      allow update: if isVerifiedUser()
+        && isValidId(accountId)
+        && isValidSocialAccount(incoming())
+        && existing().userId == request.auth.uid
+        && incoming().userId == existing().userId
+        && incoming().provider == existing().provider
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && userProfileExists(request.auth.uid)
+        && (
+          // Action: UpdateSocialAccountStatusOrHandle
+          incoming().diff(existing()).affectedKeys().hasOnly(['accountName', 'handle', 'status', 'updatedAt'])
+        );
+
+      allow delete: if isVerifiedUser()
+        && isValidId(accountId)
+        && existing().userId == request.auth.uid
+        && userProfileExists(request.auth.uid);
+    }
+
+    // Marketing Campaigns (/campaigns/{campaignId})
+    match /campaigns/{campaignId} {
+      allow get: if isSignedIn() && isValidId(campaignId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+
+      allow create: if isVerifiedUser()
+        && isValidId(campaignId)
+        && isValidCampaign(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && userProfileExists(request.auth.uid);
+
+      allow update: if isVerifiedUser()
+        && isValidId(campaignId)
+        && isValidCampaign(incoming())
+        && existing().userId == request.auth.uid
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && existing().status != 'completed'
+        && userProfileExists(request.auth.uid)
+        && (
+          // Action: EditCampaignDetails
+          (incoming().diff(existing()).affectedKeys().hasOnly(['name', 'description', 'type', 'budget', 'status', 'updatedAt'])) ||
+          // Action: CompleteCampaignTransition
+          (incoming().status == 'completed' && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']))
+        );
+
+      allow delete: if isVerifiedUser()
+        && isValidId(campaignId)
+        && existing().userId == request.auth.uid
+        && userProfileExists(request.auth.uid);
+    }
+
+    // Persistent AI Brand Voice Memory (/brandVoices/{userId})
+    match /brandVoices/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+
+      allow create: if isVerifiedUser()
+        && isValidId(userId)
+        && isOwner(userId)
+        && isValidBrandVoice(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && userProfileExists(request.auth.uid);
+
+      allow update: if isVerifiedUser()
+        && isValidId(userId)
+        && isOwner(userId)
+        && isValidBrandVoice(incoming())
+        && existing().userId == request.auth.uid
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && userProfileExists(request.auth.uid)
+        && (
+          // Action: UpdateBrandVoiceMemory
+          incoming().diff(existing()).affectedKeys().hasOnly(['brandName', 'tone', 'targetAudience', 'keyPillars', 'bannedWords', 'ctaStyle', 'updatedAt'])
+        );
+
+      allow delete: if false;
+    }
+
+    // Unified Workspace Suite Items (/workspaceItems/{itemId})
+    match /workspaceItems/{itemId} {
+      allow get: if isSignedIn() && isValidId(itemId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+
+      allow create: if isVerifiedUser()
+        && isValidId(itemId)
+        && isValidWorkspaceItem(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && userProfileExists(request.auth.uid);
+
+      allow update: if isVerifiedUser()
+        && isValidId(itemId)
+        && isValidWorkspaceItem(incoming())
+        && existing().userId == request.auth.uid
+        && incoming().userId == existing().userId
+        && incoming().suite == existing().suite
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && userProfileExists(request.auth.uid)
+        && (
+          // Action: UpdateWorkspaceSuiteRecord
+          incoming().diff(existing()).affectedKeys().hasOnly(['title', 'status', 'summary', 'primaryMetric', 'secondaryMetric', 'updatedAt'])
+        );
+
+      allow delete: if isVerifiedUser()
+        && isValidId(itemId)
+        && existing().userId == request.auth.uid
+        && userProfileExists(request.auth.uid);
+    }
+  }
+}

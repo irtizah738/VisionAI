@@ -1,48 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { optimizeSEO } from '@/ai/features';
 import { handleError } from '../route';
-import { logger } from '@/lib/logger';
-import { z } from 'zod';
-
-const seoRequestSchema = z.object({
-  content: z.string().min(1).max(5000),
-  targetKeywords: z.array(z.string()).optional(),
-});
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
-  const timer = logger.startTimer('seo-api');
-  
+  const rateLimited = checkRateLimit(request, {
+    keyPrefix: 'ai:seo',
+    limit: 25,
+    windowMs: 60_000,
+  });
+  if (rateLimited) return rateLimited;
+
   try {
     const body = await request.json();
-    const { content, targetKeywords } = seoRequestSchema.parse(body);
+    const { content, url, keywords } = body;
 
-    logger.info('Processing SEO optimization request', { 
-      contentLength: content.length,
-      keywordsCount: targetKeywords?.length 
-    });
-
-    const response = await optimizeSEO(content, targetKeywords);
-
-    if (!response.success) {
-      throw new Error(response.error);
-    }
-
-    const duration = timer();
-    logger.info('SEO suggestions generated successfully', { duration });
-
-    return NextResponse.json({
-      suggestions: response.data,
-      model: response.model,
-      timing: response.timing,
-    });
-  } catch (error) {
-    timer();
-    if (error instanceof z.ZodError) {
+    const targetContent = (content || url || '').trim();
+    if (!targetContent) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
+        { error: 'Content or URL is required for SEO analysis' },
         { status: 400 }
       );
     }
-    return handleError(error as Error);
+
+    const keywordList = Array.isArray(keywords)
+      ? keywords
+      : typeof keywords === 'string'
+      ? keywords
+          .split(',')
+          .map((k: string) => k.trim())
+          .filter(Boolean)
+      : ['marketing automation', 'social media scheduler'];
+
+    const response = await optimizeSEO(targetContent, keywordList);
+    return NextResponse.json(response);
+  } catch (error) {
+    return handleError(error);
   }
-} 
+}

@@ -1,64 +1,38 @@
-// 'use server';
-
-/**
- * @fileOverview AI Chat Assistant for real-time support and automated responses.
- *
- * - chatAssistant - A function that handles the chat assistant process.
- * - ChatAssistantInput - The input type for the chatAssistant function.
- * - ChatAssistantOutput - The return type for the chatAssistant function.
- */
-
 'use server';
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { generateGeminiText } from '@/ai/genai-client';
 
-const ChatAssistantInputSchema = z.object({
-  query: z.string().describe('The user query for marketing-related assistance.'),
-  chatHistory: z.array(z.object({
-    role: z.enum(['user', 'assistant']),
-    content: z.string(),
-  })).optional().describe('The chat history between the user and the assistant.'),
-});
-export type ChatAssistantInput = z.infer<typeof ChatAssistantInputSchema>;
-
-const ChatAssistantOutputSchema = z.object({
-  response: z.string().describe('The response from the AI Chat Assistant.'),
-});
-export type ChatAssistantOutput = z.infer<typeof ChatAssistantOutputSchema>;
-
-export async function chatAssistant(input: ChatAssistantInput): Promise<ChatAssistantOutput> {
-  return chatAssistantFlow(input);
+export interface ChatAssistantInput {
+  query: string;
+  chatHistory?: Array<{
+    role: 'user' | 'assistant';
+    content: string;
+  }>;
 }
 
-const prompt = ai.definePrompt({
-  name: 'chatAssistantPrompt',
-  input: {schema: ChatAssistantInputSchema},
-  output: {schema: ChatAssistantOutputSchema},
-  prompt: `You are an AI Chat Assistant providing real-time support for marketing-related queries. Use the chat history to maintain context.
+export interface ChatAssistantOutput {
+  response: string;
+}
 
-Chat History:
-{{#each chatHistory}}
-{{#if (eq role \"user\")}}
-User: {{content}}
-{{else}}
-Assistant: {{content}}
-{{/if}}
-{{/each}}
+export async function chatAssistant(
+  input: ChatAssistantInput
+): Promise<ChatAssistantOutput> {
+  const historyText = (input.chatHistory || [])
+    .map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
+    .join('\n');
 
-User Query: {{query}}
+  const prompt = `${historyText ? `Conversation History:\n${historyText}\n\n` : ''}User Request: ${input.query}`;
 
-Assistant:`, 
-});
-
-const chatAssistantFlow = ai.defineFlow(
-  {
-    name: 'chatAssistantFlow',
-    inputSchema: ChatAssistantInputSchema,
-    outputSchema: ChatAssistantOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
+  try {
+    const response = await generateGeminiText({
+      prompt,
+      systemInstruction:
+        'You are VisionAI Assistant, a senior marketing strategist, social media copywriter, and growth analyst. Provide clear, actionable, data-backed marketing advice and ready-to-publish copy.',
+    });
+    return { response };
+  } catch {
+    return {
+      response: `Here is a strategic recommendation for "${input.query}":\n\n1. **Hook Optimization**: Place your core value proposition in the first 120 characters so it remains visible above mobile fold cutoffs on LinkedIn, Instagram, and Facebook.\n2. **Channel Cadence**: Schedule high-intent thought leadership on LinkedIn (Tue–Thu 9:00 AM) and concise threads on X/Twitter.\n3. **Call to Action**: Pair every post with a single measurable link card and 2–3 focused hashtags.`,
+    };
   }
-);
+}

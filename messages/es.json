@@ -32,11 +32,45 @@
     "settings": "Configuración"
   },
   "social": {
+    "settings": {
+      "title": "Canales Sociales Conectados",
+      "description": "Administra tus redes sociales conectadas y permisos de publicación"
+    },
     "platforms": {
       "facebook": "Facebook",
       "twitter": "Twitter",
       "instagram": "Instagram",
-      "linkedin": "LinkedIn"
+      "linkedin": "LinkedIn",
+      "youtube": "YouTube"
+    },
+    "platformConnected": "Conectado y sincronizado",
+    "platformNotConnected": "No conectado",
+    "connect": "Conectar",
+    "connecting": "Conectando...",
+    "reconnect": "Reconectar",
+    "connectedAccounts": "Cuentas Conectadas",
+    "lastSync": "Última sincronización",
+    "connectSuccess": {
+      "title": "Canal Conectado",
+      "description": "Se conectó tu cuenta de {platform} exitosamente."
+    },
+    "connectError": {
+      "title": "Error de Conexión",
+      "description": "No se pudo conectar la cuenta social. Inténtalo de nuevo."
+    },
+    "disconnectSuccess": {
+      "title": "Canal Desconectado",
+      "description": "La cuenta social ha sido eliminada de tu espacio de trabajo."
+    },
+    "disconnectError": {
+      "title": "Error al Desconectar",
+      "description": "No se pudo desconectar la cuenta social."
+    },
+    "disconnectConfirm": {
+      "title": "Desconectar Cuenta Social",
+      "description": "¿Estás seguro de que deseas desconectar {username} en {platform}?",
+      "cancel": "Cancelar",
+      "confirm": "Desconectar"
     },
     "actions": {
       "post": "Publicar",
@@ -54,9 +88,16 @@
   "campaigns": {
     "title": "Gestión de Campañas",
     "description": "Crea, gestiona y optimiza tus campañas de marketing",
+    "noCampaignDescription": "No hay descripción para esta campaña.",
+    "error": {
+      "title": "Error de Campaña",
+      "description": "No se pudo cargar la información de la campaña. Por favor intenta de nuevo."
+    },
     "tabs": {
       "list": "Todas las Campañas",
-      "create": "Crear Campaña"
+      "create": "Crear Campaña",
+      "details": "Detalles de la Campaña",
+      "insights": "Perspectivas de IA"
     },
     "actions": {
       "create": "Crear Campaña",
@@ -65,13 +106,21 @@
       "filter": "Filtrar",
       "sort": "Ordenar",
       "schedule": "Programar",
-      "duplicate": "Duplicar"
+      "duplicate": "Duplicar",
+      "cancel": "Cancelar",
+      "save": "Guardar"
     },
     "search": {
       "label": "Buscar campañas",
       "placeholder": "Buscar por nombre, tipo o estado..."
     },
     "form": {
+      "title": "Crear Campaña",
+      "description": "Ingresa los detalles para crear una nueva campaña",
+      "actions": {
+        "submit": "Crear Campaña",
+        "cancel": "Cancelar"
+      },
       "basicInfo": {
         "title": "Información Básica",
         "description": "Ingresa los detalles básicos de tu campaña"

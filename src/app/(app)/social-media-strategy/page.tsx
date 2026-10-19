@@ -1,189 +1,395 @@
-
 "use client";
 
+import React, { useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Lightbulb, Search, TrendingUp, BarChart3, Users, Zap, Palette } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Lightbulb,
+  Sparkles,
+  Calendar,
+  Target,
+  Send,
+  RefreshCw,
+  Layers,
+} from "lucide-react";
 
 export default function SocialMediaStrategyPage() {
+  const { toast } = useToast();
+  const [brandName, setBrandName] = useState("VisionAI Studio");
+  const [industry, setIndustry] = useState("B2B Marketing & Social Suite SaaS");
+  const [goals, setGoals] = useState(
+    "Grow qualified demo pipeline by 35% and increase multi-network engagement across X, LinkedIn, Instagram, Facebook & YouTube"
+  );
+  const [audience, setAudience] = useState(
+    "VP of Marketing, Growth Directors, and Social Media Managers"
+  );
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [queuingDay, setQueuingDay] = useState<string | null>(null);
+
+  const [strategy, setStrategy] = useState({
+    executiveSummary:
+      "Focus on high-retention native formats that front-load value above platform truncation cutoffs across LinkedIn, X, Instagram, Facebook, and YouTube. Pair executive thought leadership on LinkedIn with rapid visual proof points on X and Instagram.",
+    contentPillars: [
+      {
+        title: "Data-Backed Fold & Truncation Teardowns",
+        description:
+          "Show side-by-side comparisons of posts that lose CTAs below '...more' vs. fold-optimized hooks.",
+        channels: ["LinkedIn", "X / Twitter"],
+        cadence: "3x / week",
+      },
+      {
+        title: "60-Second Command Center Walkthroughs",
+        description:
+          "Short visual reels and YouTube explainers demonstrating unified stream monitoring and instant scheduling.",
+        channels: ["Instagram", "YouTube"],
+        cadence: "2x / week",
+      },
+      {
+        title: "Customer ROI & Pipeline Case Studies",
+        description:
+          "Quantified customer stories with direct OG link cards driving traffic to benchmark reports.",
+        channels: ["LinkedIn", "Facebook", "X / Twitter"],
+        cadence: "2x / week",
+      },
+    ],
+    weeklySchedule: [
+      {
+        day: "Monday",
+        network: "linkedin",
+        format: "Executive Carousel",
+        hookIdea:
+          "We audited 500 B2B social posts. 68% buried their primary link below the 210-character LinkedIn cutoff. Here is the fix:",
+        bestTime: "9:00 AM EST",
+      },
+      {
+        day: "Tuesday",
+        network: "twitter",
+        format: "Insight Thread",
+        hookIdea:
+          "Why previewing X, LinkedIn, Instagram, Facebook & YouTube side-by-side before scheduling saves 6+ hours every week:",
+        bestTime: "11:30 AM EST",
+      },
+      {
+        day: "Wednesday",
+        network: "instagram",
+        format: "4:5 Visual Cheat Sheet",
+        hookIdea:
+          "The 2026 Character Truncation Cheat Sheet for Every Social Network ✨ Save this before your next launch!",
+        bestTime: "1:00 PM EST",
+      },
+      {
+        day: "Thursday",
+        network: "youtube",
+        format: "16:9 Product Deep-Dive",
+        hookIdea:
+          "Full Walkthrough: Building a High-Velocity Social Command Center in 2026",
+        bestTime: "3:00 PM EST",
+      },
+      {
+        day: "Friday",
+        network: "facebook",
+        format: "Link Card + Community Poll",
+        hookIdea:
+          "Which social channel drove your highest conversion rate this quarter? See our latest benchmark report:",
+        bestTime: "10:30 AM EST",
+      },
+    ],
+    kpis: [
+      {
+        metric: "Above-the-Fold Hook CTR",
+        target: "+35% Lift",
+        rationale: "Prevents key links from hiding behind '...more'.",
+      },
+      {
+        metric: "Multi-Network Engagement Rate",
+        target: "4.8% Avg.",
+        rationale: "Native aspect ratios outperform generic cross-posting.",
+      },
+      {
+        metric: "Social-Attributed Demos",
+        target: "+28% QoQ",
+        rationale: "Direct OG link cards on LinkedIn & X drive high-intent clicks.",
+      },
+      {
+        metric: "Unified Inbox Response Time",
+        target: "< 30 mins",
+        rationale: "Fast mention replies amplify algorithmic distribution.",
+      },
+    ],
+  });
+
+  const handleGenerateStrategy = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsGenerating(true);
+    try {
+      const res = await fetch("/api/ai/strategy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          brandName,
+          industry,
+          goals,
+          audience,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to generate strategy");
+      const data = await res.json();
+      setStrategy(data);
+      toast({
+        title: "Omnichannel Strategy Generated",
+        description:
+          "Updated content pillars, 5-day publishing cadence, and KPI targets with Gemini AI.",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Strategy Error",
+        description: error?.message || "Could not generate strategy.",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleQueueScheduleSlot = async (slot: {
+    day: string;
+    network: string;
+    hookIdea: string;
+    bestTime: string;
+  }) => {
+    setQueuingDay(slot.day);
+    try {
+      const netLower = slot.network.toLowerCase();
+      const mappedNet = netLower.includes("linkedin")
+        ? "linkedin"
+        : netLower.includes("instagram")
+        ? "instagram"
+        : netLower.includes("facebook")
+        ? "facebook"
+        : netLower.includes("youtube")
+        ? "youtube"
+        : "twitter";
+
+      const res = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: `${slot.hookIdea} https://visionai.studio/strategy #SocialStrategy #MarketingAI`,
+          network: mappedNet,
+          platforms: [mappedNet],
+          status: "scheduled",
+          scheduledTime: `${slot.day}, ${slot.bestTime}`,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to queue post");
+      toast({
+        title: `Queued for ${slot.day} (${slot.bestTime})`,
+        description: `Added "${slot.hookIdea.slice(0, 48)}..." to your Streams & Planner queue.`,
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Queue Failed",
+        description: error?.message || "Could not schedule slot.",
+      });
+    } finally {
+      setQueuingDay(null);
+    }
+  };
+
   return (
-    <>
+    <div className="space-y-6">
       <PageHeader
-        title="Social Media Strategy Development"
-        description="Develop and refine your social media marketing strategies, identify profitable channels, and explore native advertising solutions."
+        title="AI Social Media Strategy & Cadence Architect"
+        description="Generate data-backed content pillars, channel-specific hook ideas, and 1-click queue your weekly calendar."
+        icon={Lightbulb}
       />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Profitable Channel Identifier Card */}
-        <Card className="shadow-lg lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Search className="h-6 w-6 text-primary" />
-              Profitable Channel Identifier
-            </CardTitle>
-            <CardDescription>
-              Let AI analyze your audience and industry to recommend the most effective social platforms.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="targetAudience">Target Audience Description</Label>
-              <Textarea id="targetAudience" placeholder="e.g., Young professionals, 25-35, interested in sustainable tech..." className="min-h-[80px]" />
-            </div>
-            <div>
-              <Label htmlFor="industry">Industry</Label>
-              <Select>
-                <SelectTrigger id="industry">
-                  <SelectValue placeholder="Select industry" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="b2c-ecommerce">B2C E-commerce</SelectItem>
-                  <SelectItem value="b2b-services">B2B Services</SelectItem>
-                  <SelectItem value="saas">SaaS</SelectItem>
-                  <SelectItem value="local-business">Local Business</SelectItem>
-                  <SelectItem value="non-profit">Non-profit</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="pt-2">
-              <h4 className="font-semibold text-sm mb-2">AI Analysis (Simulated):</h4>
-              <div className="p-3 bg-muted/50 rounded-md space-y-1 text-sm">
-                <p><strong>Recommended Channels:</strong></p>
-                <ul className="list-disc list-inside pl-2">
-                  <li>Instagram (High visual engagement for your demographic)</li>
-                  <li>LinkedIn (Effective for B2B outreach in your industry)</li>
-                </ul>
-                <p className="text-xs text-muted-foreground pt-1">Based on provided inputs, focus on platforms with strong visual content and professional networking capabilities.</p>
+
+      <div className="grid gap-6 lg:grid-cols-12">
+        <Card className="lg:col-span-4 h-fit">
+          <form onSubmit={handleGenerateStrategy}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Sparkles className="h-5 w-5 text-primary" />
+                Strategy Brief
+              </CardTitle>
+              <CardDescription>
+                Powered by server-side Gemini 3.8 Flash.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="brand">Brand / Product Name</Label>
+                <Input
+                  id="brand"
+                  value={brandName}
+                  onChange={(e) => setBrandName(e.target.value)}
+                />
               </div>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full">
-              <Lightbulb className="mr-2 h-4 w-4" /> Analyze Channels (AI Simulated)
-            </Button>
-          </CardFooter>
+              <div className="space-y-2">
+                <Label htmlFor="industry">Industry / Category</Label>
+                <Input
+                  id="industry"
+                  value={industry}
+                  onChange={(e) => setIndustry(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="audience">Target Audience</Label>
+                <Input
+                  id="audience"
+                  value={audience}
+                  onChange={(e) => setAudience(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="goals">Primary Quarterly Goals</Label>
+                <Textarea
+                  id="goals"
+                  rows={3}
+                  value={goals}
+                  onChange={(e) => setGoals(e.target.value)}
+                />
+              </div>
+            </CardContent>
+            <CardFooter className="border-t pt-4">
+              <Button
+                type="submit"
+                disabled={isGenerating}
+                className="w-full gap-2 cursor-pointer"
+              >
+                {isGenerating ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Building Strategy...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    Generate Omnichannel Playbook
+                  </>
+                )}
+              </Button>
+            </CardFooter>
+          </form>
         </Card>
 
-        {/* Native Advertising Planner Card */}
-        <Card className="shadow-lg lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Palette className="h-6 w-6 text-primary" />
-              Native Advertising Planner
-            </CardTitle>
-            <CardDescription>
-              Explore and plan native advertising campaigns that seamlessly integrate with platform content.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="learn">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="learn">Learn Native Ads</TabsTrigger>
-                <TabsTrigger value="plan">Plan Campaign (AI Assisted)</TabsTrigger>
-              </TabsList>
-              <TabsContent value="learn" className="pt-4">
-                <h4 className="font-semibold mb-2">What are Native Ads?</h4>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Native advertising is paid content that matches the look, feel, and function of the media format in which it appears.
-                  They are often found in social media feeds, or as recommended content on a web page.
-                </p>
-                <h5 className="font-medium text-sm mb-1">Examples:</h5>
-                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 pl-2">
-                  <li>Sponsored posts on Facebook or Instagram.</li>
-                  <li>Promoted Tweets on X (Twitter).</li>
-                  <li>Sponsored content on LinkedIn.</li>
-                  <li>"Recommended for You" articles on news sites.</li>
-                </ul>
-              </TabsContent>
-              <TabsContent value="plan" className="pt-4 space-y-4">
-                <div>
-                  <Label htmlFor="nativePlatform">Target Platform</Label>
-                  <Select>
-                    <SelectTrigger id="nativePlatform">
-                      <SelectValue placeholder="Select platform" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="facebook">Facebook / Instagram</SelectItem>
-                      <SelectItem value="twitter">X (Twitter)</SelectItem>
-                      <SelectItem value="linkedin">LinkedIn</SelectItem>
-                      <SelectItem value="content-network">Content Discovery Networks</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="campaignGoal">Campaign Goal</Label>
-                  <Input id="campaignGoal" placeholder="e.g., Increase brand awareness, Drive website traffic" />
-                </div>
-                <div>
-                  <Label htmlFor="adConcept">Ad Concept / Key Message</Label>
-                  <Textarea id="adConcept" placeholder="Briefly describe your product/service and the core message for the native ad." className="min-h-[80px]" />
-                </div>
-                <div className="pt-2">
-                  <h4 className="font-semibold text-sm mb-2">AI Generated Ad Ideas (Simulated):</h4>
-                  <div className="p-3 bg-muted/50 rounded-md space-y-2 text-sm">
-                    <p><strong>Idea 1:</strong> "How [Your Product] Helps [Target Audience Pain Point] - A Success Story"</p>
-                    <p><strong>Idea 2:</strong> "Top 3 Trends in [Your Industry] and How We're Leading the Way"</p>
-                     <p className="text-xs text-muted-foreground pt-1">Consider visuals like user testimonials or short demo videos.</p>
+        <div className="lg:col-span-8 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Executive Strategy Summary</CardTitle>
+              <CardDescription>{strategy.executiveSummary}</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 sm:grid-cols-3">
+              {strategy.contentPillars.map((pillar, idx) => (
+                <div
+                  key={idx}
+                  className="rounded-lg border bg-muted/20 p-4 space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <Badge variant="outline" className="text-[11px]">
+                      Pillar {idx + 1}
+                    </Badge>
+                    <span className="text-xs font-medium text-primary">
+                      {pillar.cadence}
+                    </span>
+                  </div>
+                  <h4 className="font-semibold text-sm">{pillar.title}</h4>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {pillar.description}
+                  </p>
+                  <div className="flex flex-wrap gap-1 pt-1">
+                    {pillar.channels.map((ch, i) => (
+                      <Badge key={i} variant="secondary" className="text-[10px]">
+                        {ch}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
-                <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-                  <Zap className="mr-2 h-4 w-4" /> Generate Native Ad Ideas (AI Simulated)
-                </Button>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+              ))}
+            </CardContent>
+          </Card>
 
-        {/* AI Strategy Advisor Card */}
-        <Card className="shadow-lg md:col-span-2 lg:col-span-3">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-6 w-6 text-primary" />
-              AI Social Strategy Advisor
-            </CardTitle>
-            <CardDescription>
-              Get personalized AI recommendations to enhance your overall social media strategy. (Simulated)
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-4 border border-dashed rounded-md bg-muted/30">
-              <h4 className="font-semibold mb-2">Overall Strategy Insights (Simulated):</h4>
-              <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                <li>
-                  <strong>Content Mix:</strong> Current data suggests increasing video content on Instagram could boost engagement by up to 25%.
-                  Consider short-form videos (Reels) showcasing user experiences.
-                </li>
-                <li>
-                  <strong>Engagement Tactics:</strong> Your LinkedIn posts show good reach but lower interaction.
-                  Try incorporating questions or polls to encourage comments and discussions.
-                </li>
-                <li>
-                  <strong>Posting Frequency:</strong> For Facebook, analysis indicates 3-4 high-quality posts per week is optimal for your audience.
-                  Current frequency is slightly lower.
-                </li>
-                <li>
-                  <strong>Competitor Benchmark:</strong> Top competitors in your space are leveraging influencer collaborations.
-                  Exploring micro-influencers could be a cost-effective strategy.
-                </li>
-              </ul>
-            </div>
-            <div>
-              <Label htmlFor="currentStrategy">Briefly Describe Your Current Social Media Goals/Challenges</Label>
-              <Textarea id="currentStrategy" placeholder="e.g., Goal: Increase leads from social. Challenge: Low engagement on Twitter..." className="min-h-[100px]" />
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full md:w-auto">
-              <Lightbulb className="mr-2 h-4 w-4" /> Get AI Strategy Review (Simulated)
-            </Button>
-          </CardFooter>
-        </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Calendar className="h-5 w-5 text-primary" />
+                Recommended Weekly Publishing Cadence
+              </CardTitle>
+              <CardDescription>
+                Click &ldquo;Queue Slot&rdquo; on any day to send the hook directly into your Streams &amp; Planner Command Center.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {strategy.weeklySchedule.map((slot, idx) => (
+                <div
+                  key={idx}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border p-3.5"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Badge>{slot.day}</Badge>
+                      <Badge variant="outline">{slot.network}</Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {slot.format} • {slot.bestTime}
+                      </span>
+                    </div>
+                    <p className="text-sm font-medium pt-1">{slot.hookIdea}</p>
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={queuingDay === slot.day}
+                    onClick={() => handleQueueScheduleSlot(slot)}
+                    className="shrink-0 gap-1.5 text-xs cursor-pointer"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                    {queuingDay === slot.day ? "Queuing..." : "Queue Slot"}
+                  </Button>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Target className="h-5 w-5 text-primary" />
+                Target KPIs &amp; Benchmarks
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-3 sm:grid-cols-2">
+              {strategy.kpis.map((kpi, idx) => (
+                <div key={idx} className="rounded-lg border p-3.5 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {kpi.metric}
+                    </span>
+                    <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30">
+                      {kpi.target}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{kpi.rationale}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

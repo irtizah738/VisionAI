@@ -1,107 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* White */
-    --foreground: 220 25% 15%; /* Very Dark Desaturated Blue (almost Black) */
+    --background: 210 40% 98%; /* Soft Clean Slate Light */
+    --foreground: 222.2 84% 4.9%;
 
-    --card: 0 0% 100%; /* White */
-    --card-foreground: 220 25% 15%; /* Very Dark Desaturated Blue */
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
 
-    --popover: 0 0% 100%; /* White */
-    --popover-foreground: 220 25% 15%; /* Very Dark Desaturated Blue */
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 260 60% 50%; /* Deep Purple */
-    --primary-foreground: 0 0% 100%; /* White */
+    --primary: 238.7 83.5% 66.7%; /* Clean Electric Indigo */
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 220 40% 30%; /* Dark Navy Blue */
-    --secondary-foreground: 0 0% 95%; /* Off-White (for contrast on Dark Navy) */
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 220 20% 96%; /* Very Light Cool Gray */
-    --muted-foreground: 220 15% 55%; /* Mid Cool Gray */
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 44%;
 
-    --accent: 0 0% 13%; /* Near Black (for "Black & White" accent) */
-    --accent-foreground: 0 0% 98%; /* Near White */
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
-    --destructive: 0 84.2% 60.2%; /* Red */
-    --destructive-foreground: 0 0% 98%; /* Light text on red */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 220 20% 90%; /* Light Cool Gray Border */
-    --input: 220 20% 94%; /* Slightly darker light gray for input background */
-    --ring: 260 60% 55%; /* Brighter Deep Purple for focus ring */
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 238.7 83.5% 66.7%;
 
     --radius: 0.75rem;
 
     /* Chart colors */
-    --chart-1: 260 60% 50%; /* Deep Purple */
-    --chart-2: 220 40% 45%; /* Medium Navy/Blue */
-    --chart-3: 260 50% 65%; /* Lighter Purple */
-    --chart-4: 220 30% 60%; /* Desaturated Blue/Grey */
-    --chart-5: 270 70% 55%; /* Another Purple shade */
+    --chart-1: 238.7 83.5% 66.7%;
+    --chart-2: 160 84% 39%;
+    --chart-3: 199 89% 48%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
 
     /* Sidebar colors */
-    --sidebar-background: 260 50% 20%; /* Very Dark Purple */
-    --sidebar-foreground: 0 0% 95%; /* Off-White */
-    --sidebar-primary: 260 55% 40%; /* Mid-Dark Purple (active item bg) */
-    --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 260 55% 35%; /* Darker Purple (hover item bg) */
-    --sidebar-accent-foreground: 0 0% 100%; /* White */
-    --sidebar-border: 260 40% 15%; /* Even Darker Purple (internal sidebar borders) */
-    --sidebar-ring: 0 0% 100%; /* White focus ring */
+    --sidebar-background: 222.2 47.4% 11.2%; /* Deep Navy Slate */
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 238.7 83.5% 66.7%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217.2 32.6% 17.5%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-ring: 238.7 83.5% 66.7%;
   }
 
   .dark {
-    --background: 220 15% 10%; /* Very Dark Blue-Gray */
-    --foreground: 220 20% 88%; /* Light Gray-Blue */
+    --background: 222.2 84% 4.9%; /* Rich Dark Slate */
+    --foreground: 210 40% 98%;
 
-    --card: 220 15% 15%; /* Darker Blue-Gray */
-    --card-foreground: 220 20% 88%; 
+    --card: 222 47% 7%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 220 15% 12%; /* Darker Blue-Gray */
-    --popover-foreground: 220 20% 88%; 
+    --popover: 222 47% 7%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 260 60% 65%; /* Lighter Deep Purple */
-    --primary-foreground: 0 0% 100%;
+    --primary: 238.7 83.5% 66.7%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 220 40% 45%; /* Lighter Dark Navy Blue */
-    --secondary-foreground: 0 0% 95%; 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 220 15% 25%; /* Dark Gray-Blue */
-    --muted-foreground: 220 20% 70%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 0 0% 93%; /* Near White (for "Black & White" accent) */
-    --accent-foreground: 0 0% 13%; /* Near Black */
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 70% 55%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 220 15% 30%; 
-    --input: 220 15% 28%; 
-    --ring: 260 60% 70%; 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 238.7 83.5% 66.7%;
 
-    /* Chart colors */
-    --chart-1: 260 60% 65%;
-    --chart-2: 220 40% 55%;
-    --chart-3: 260 50% 75%;
-    --chart-4: 220 30% 70%;
-    --chart-5: 270 70% 65%;
-
-    /* Sidebar colors */
-    --sidebar-background: 260 50% 15%; /* Very Very Dark Purple */
-    --sidebar-foreground: 0 0% 90%; /* Off-White */
-    --sidebar-primary: 260 55% 35%; /* Dark Purple (active item bg) */
-    --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 260 55% 30%; /* Darker Purple (hover item bg) */
-    --sidebar-accent-foreground: 0 0% 100%; /* White */
-    --sidebar-border: 260 40% 10%; /* Extremely Dark Purple (internal sidebar borders) */
-    --sidebar-ring: 0 0% 95%; /* Off-White focus ring */
+    /* Sidebar colors in dark mode */
+    --sidebar-background: 222.2 84% 4.9%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 238.7 83.5% 66.7%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217.2 32.6% 17.5%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-ring: 238.7 83.5% 66.7%;
   }
 }
 
@@ -110,17 +104,22 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-background text-foreground antialiased selection:bg-indigo-500/20 selection:text-indigo-200;
   }
 }
 
-@layer utilities {
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-  }
+/* Custom minimal scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(150, 150, 150, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(150, 150, 150, 0.35);
 }
