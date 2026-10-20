@@ -63,7 +63,7 @@ export function AccountManager({
     <div className="space-y-6">
       <PlatformConnect
         onConnect={onConnect}
-        connectedPlatforms={connectedPlatforms}
+        connectedPlatforms={connectedPlatforms as any}
       />
 
       {accounts.length > 0 && (
@@ -131,8 +131,8 @@ export function AccountManager({
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-sm text-muted-foreground">
-                    {t('lastSync')}: {new Date().toLocaleDateString()}
+                  <div className="text-sm text-muted-foreground" suppressHydrationWarning>
+                    {t('lastSync')}: {new Date().toISOString().split('T')[0]}
                   </div>
                 </CardContent>
               </Card>

@@ -11,23 +11,25 @@ interface TabsContextValue {
 const TabsContext = React.createContext<TabsContextValue | null>(null)
 
 export interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
-  value?: string
   defaultValue?: string
+  value?: string
   onValueChange?: (value: string) => void
 }
 
 const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
-  ({ className, value, defaultValue = "", onValueChange, children, ...props }, ref) => {
-    const [internalValue, setInternalValue] = React.useState<string>(value ?? defaultValue)
-
-    const currentValue = value !== undefined ? value : internalValue
+  ({ className, defaultValue = "", value: controlledValue, onValueChange, children, ...props }, ref) => {
+    const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue)
+    const isControlled = controlledValue !== undefined
+    const currentValue = isControlled ? controlledValue : uncontrolledValue
 
     const handleValueChange = React.useCallback(
       (nextVal: string) => {
-        setInternalValue(nextVal)
+        if (!isControlled) {
+          setUncontrolledValue(nextVal)
+        }
         onValueChange?.(nextVal)
       },
-      [onValueChange]
+      [isControlled, onValueChange]
     )
 
     return (
@@ -49,7 +51,7 @@ const TabsList = React.forwardRef<
     ref={ref}
     role="tablist"
     className={cn(
-      "inline-flex h-10 items-center justify-center rounded-xl bg-card/80 border border-border/60 p-1 text-muted-foreground backdrop-blur-md shadow-xs",
+      "inline-flex h-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-1 text-slate-600 dark:text-slate-400 shadow-xs",
       className
     )}
     {...props}
@@ -78,10 +80,10 @@ const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(
           onClick?.(e)
         }}
         className={cn(
-          "inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3.5 py-1.5 text-xs font-bold ring-offset-background transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+          "inline-flex items-center justify-center whitespace-nowrap shrink-0 rounded-lg px-3.5 py-1.5 text-xs font-semibold ring-offset-background transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
           isActive
-            ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-950/30 border border-indigo-400/40 scale-[1.02]"
-            : "text-muted-foreground hover:text-foreground hover:bg-muted/40",
+            ? "bg-indigo-600 text-white shadow-2xs"
+            : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-white/70 dark:hover:bg-slate-800/60",
           className
         )}
         {...props}
@@ -98,9 +100,7 @@ export interface TabsContentProps extends React.HTMLAttributes<HTMLDivElement> {
 const TabsContent = React.forwardRef<HTMLDivElement, TabsContentProps>(
   ({ className, value, children, ...props }, ref) => {
     const context = React.useContext(TabsContext)
-    if (context && context.value !== value) {
-      return null
-    }
+    if (context?.value !== value) return null
 
     return (
       <div

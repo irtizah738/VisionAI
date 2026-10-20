@@ -1,0 +1,802 @@
+{
+  "users": [
+    {
+      "id": "usr_visionai_admin",
+      "name": "Alex Morgan",
+      "email": "admin@vision.ai",
+      "role": "VP of Growth & Social",
+      "company": "VisionAI Technologies",
+      "timezone": "America/New_York",
+      "language": "en",
+      "bio": "Leading multi-channel social strategy, AI content velocity, and brand engagement across 5 global channels.",
+      "avatarUrl": "https://placehold.co/100x100.png",
+      "notifications": {
+        "emailDigest": true,
+        "publishAlerts": true,
+        "mentionAlerts": true,
+        "weeklyReports": true
+      },
+      "createdAt": "2026-09-20T00:09:28.510Z",
+      "updatedAt": "2026-10-20T00:09:28.510Z"
+    }
+  ],
+  "posts": [],
+  "mentions": [],
+  "socialAccounts": [
+    {
+      "id": "acc_twitter_1792460488864",
+      "provider": "twitter",
+      "accountName": "VisionAI Official",
+      "handle": "@VisionAI_HQ",
+      "followers": "48.2K",
+      "status": "connected",
+      "lastSynced": "Refreshed just now (OAuth 2.0 Token Rotation)",
+      "tokenExpiresAt": "2026-11-19T01:41:28.945Z",
+      "refreshTokenAvailable": true,
+      "tokenStatus": "valid",
+      "scopes": [
+        "tweet.read",
+        "tweet.write",
+        "users.read",
+        "offline.access"
+      ],
+      "userId": "usr_visionai_admin",
+      "createdAt": "2026-10-20T01:41:28.864Z",
+      "updatedAt": "2026-10-20T01:41:28.945Z"
+    }
+  ],
+  "campaigns": [],
+  "streamColumns": [
+    {
+      "id": "col-scheduled",
+      "title": "Scheduled Queue (All Networks)",
+      "network": "all",
+      "type": "scheduled",
+      "position": 0
+    },
+    {
+      "id": "col-mentions",
+      "title": "Unified Mentions & Inbox",
+      "network": "all",
+      "type": "mentions",
+      "position": 1
+    },
+    {
+      "id": "col-published",
+      "title": "Published & Live Metrics",
+      "network": "all",
+      "type": "published",
+      "position": 2
+    }
+  ],
+  "brandVoice": {
+    "id": "bv_default",
+    "userId": "usr_visionai_admin",
+    "brandName": "VisionAI Technologies",
+    "tone": "Authoritative, Data-Driven & Executive",
+    "targetAudience": "B2B SaaS CMOs, VPs of Growth, and Social Media Directors",
+    "keyPillars": "1. Fold-Aware Native Previews above the mobile cutoff\n2. Quantifiable Multi-Network Pipeline Attribution (4.2x ROI)\n3. Zero-Slop Executive Clarity & High-Contrast Visuals",
+    "bannedWords": "synergy, delve, game-changer, revolutionary, unleash",
+    "ctaStyle": "Include a direct benchmark URL (https://visionai.studio/launch) with concrete ROI metrics before the fold.",
+    "enabled": true,
+    "updatedAt": "2026-10-20T00:09:28.510Z"
+  },
+  "workspaceItems": [
+    {
+      "id": "ws_cro_1792460489763_fxb8",
+      "userId": "usr_visionai_admin",
+      "suite": "cro",
+      "title": "HubSpot Deal Event #771829",
+      "status": "Pipeline Deal",
+      "summary": "Deal dealstage updated to closedwon ($18,500 attributed).",
+      "primaryMetric": 18500,
+      "secondaryMetric": 100,
+      "meta": {
+        "event": {
+          "subscriptionType": "deal.propertyChange",
+          "objectId": 771829,
+          "propertyName": "dealstage",
+          "propertyValue": "closedwon",
+          "amount": 18500
+        },
+        "hubspotObjectId": 771829
+      },
+      "createdAt": "2026-10-20T01:41:29.763Z",
+      "updatedAt": "2026-10-20T01:41:29.763Z"
+    },
+    {
+      "id": "ws_cro_1792460489758_ded8",
+      "userId": "usr_visionai_admin",
+      "suite": "cro",
+      "title": "HubSpot Deal Event #771829",
+      "status": "Pipeline Deal",
+      "summary": "Deal dealstage updated to closedwon ($18,500 attributed).",
+      "primaryMetric": 18500,
+      "secondaryMetric": 100,
+      "meta": {
+        "event": {
+          "subscriptionType": "deal.propertyChange",
+          "objectId": 771829,
+          "propertyName": "dealstage",
+          "propertyValue": "closedwon",
+          "amount": 18500
+        },
+        "hubspotObjectId": 771829
+      },
+      "createdAt": "2026-10-20T01:41:29.758Z",
+      "updatedAt": "2026-10-20T01:41:29.758Z"
+    },
+    {
+      "id": "ws_cro_1792460489751_ynv3",
+      "userId": "usr_visionai_admin",
+      "suite": "cro",
+      "title": "HubSpot Deal Event #771829",
+      "status": "Pipeline Deal",
+      "summary": "Deal dealstage updated to closedwon ($18,500 attributed).",
+      "primaryMetric": 18500,
+      "secondaryMetric": 100,
+      "meta": {
+        "event": {
+          "subscriptionType": "deal.propertyChange",
+          "objectId": 771829,
+          "propertyName": "dealstage",
+          "propertyValue": "closedwon",
+          "amount": 18500
+        },
+        "hubspotObjectId": 771829
+      },
+      "createdAt": "2026-10-20T01:41:29.751Z",
+      "updatedAt": "2026-10-20T01:41:29.751Z"
+    },
+    {
+      "id": "ws_cro_1792460489742_fp1n",
+      "userId": "usr_visionai_admin",
+      "suite": "cro",
+      "title": "HubSpot Deal Event #771829",
+      "status": "Pipeline Deal",
+      "summary": "Deal dealstage updated to closedwon ($18,500 attributed).",
+      "primaryMetric": 18500,
+      "secondaryMetric": 100,
+      "meta": {
+        "event": {
+          "subscriptionType": "deal.propertyChange",
+          "objectId": 771829,
+          "propertyName": "dealstage",
+          "propertyValue": "closedwon",
+          "amount": 18500
+        },
+        "hubspotObjectId": 771829
+      },
+      "createdAt": "2026-10-20T01:41:29.742Z",
+      "updatedAt": "2026-10-20T01:41:29.742Z"
+    },
+    {
+      "id": "ws_cro_1792460489733_j5hy",
+      "userId": "usr_visionai_admin",
+      "suite": "cro",
+      "title": "HubSpot Deal Event #771829",
+      "status": "Pipeline Deal",
+      "summary": "Deal dealstage updated to closedwon ($18,500 attributed).",
+      "primaryMetric": 18500,
+      "secondaryMetric": 100,
+      "meta": {
+        "event": {
+          "subscriptionType": "deal.propertyChange",
+          "objectId": 771829,
+          "propertyName": "dealstage",
+          "propertyValue": "closedwon",
+          "amount": 18500
+        },
+        "hubspotObjectId": 771829
+      },
+      "createdAt": "2026-10-20T01:41:29.733Z",
+      "updatedAt": "2026-10-20T01:41:29.733Z"
+    },
+    {
+      "id": "ws_cro_1792460489725_8mu1",
+      "userId": "usr_visionai_admin",
+      "suite": "cro",
+      "title": "HubSpot Deal Event #771829",
+      "status": "Pipeline Deal",
+      "summary": "Deal dealstage updated to closedwon ($18,500 attributed).",
+      "primaryMetric": 18500,
+      "secondaryMetric": 100,
+      "meta": {
+        "event": {
+          "subscriptionType": "deal.propertyChange",
+          "objectId": 771829,
+          "propertyName": "dealstage",
+          "propertyValue": "closedwon",
+          "amount": 18500
+        },
+        "hubspotObjectId": 771829
+      },
+      "createdAt": "2026-10-20T01:41:29.725Z",
+      "updatedAt": "2026-10-20T01:41:29.725Z"
+    },
+    {
+      "id": "ws_cro_1792460489714_au7c",
+      "userId": "usr_visionai_admin",
+      "suite": "cro",
+      "title": "HubSpot Deal Event #771829",
+      "status": "Pipeline Deal",
+      "summary": "Deal dealstage updated to closedwon ($18,500 attributed).",
+      "primaryMetric": 18500,
+      "secondaryMetric": 100,
+      "meta": {
+        "event": {
+          "subscriptionType": "deal.propertyChange",
+          "objectId": 771829,
+          "propertyName": "dealstage",
+          "propertyValue": "closedwon",
+          "amount": 18500
+        },
+        "hubspotObjectId": 771829
+      },
+      "createdAt": "2026-10-20T01:41:29.714Z",
+      "updatedAt": "2026-10-20T01:41:29.714Z"
+    },
+    {
+      "id": "ws_cro_1792460489707_lsik",
+      "userId": "usr_visionai_admin",
+      "suite": "cro",
+      "title": "HubSpot Deal Event #771829",
+      "status": "Pipeline Deal",
+      "summary": "Deal dealstage updated to closedwon ($18,500 attributed).",
+      "primaryMetric": 18500,
+      "secondaryMetric": 100,
+      "meta": {
+        "event": {
+          "subscriptionType": "deal.propertyChange",
+          "objectId": 771829,
+          "propertyName": "dealstage",
+          "propertyValue": "closedwon",
+          "amount": 18500
+        },
+        "hubspotObjectId": 771829
+      },
+      "createdAt": "2026-10-20T01:41:29.707Z",
+      "updatedAt": "2026-10-20T01:41:29.707Z"
+    },
+    {
+      "id": "ws_cro_1792460489699_blqa",
+      "userId": "usr_visionai_admin",
+      "suite": "cro",
+      "title": "HubSpot Deal Event #771829",
+      "status": "Pipeline Deal",
+      "summary": "Deal dealstage updated to closedwon ($18,500 attributed).",
+      "primaryMetric": 18500,
+      "secondaryMetric": 100,
+      "meta": {
+        "event": {
+          "subscriptionType": "deal.propertyChange",
+          "objectId": 771829,
+          "propertyName": "dealstage",
+          "propertyValue": "closedwon",
+          "amount": 18500
+        },
+        "hubspotObjectId": 771829
+      },
+      "createdAt": "2026-10-20T01:41:29.699Z",
+      "updatedAt": "2026-10-20T01:41:29.699Z"
+    },
+    {
+      "id": "ws_cro_1792460489688_tb4b",
+      "userId": "usr_visionai_admin",
+      "suite": "cro",
+      "title": "HubSpot Deal Event #771829",
+      "status": "Pipeline Deal",
+      "summary": "Deal dealstage updated to closedwon ($18,500 attributed).",
+      "primaryMetric": 18500,
+      "secondaryMetric": 100,
+      "meta": {
+        "event": {
+          "subscriptionType": "deal.propertyChange",
+          "objectId": 771829,
+          "propertyName": "dealstage",
+          "propertyValue": "closedwon",
+          "amount": 18500
+        },
+        "hubspotObjectId": 771829
+      },
+      "createdAt": "2026-10-20T01:41:29.688Z",
+      "updatedAt": "2026-10-20T01:41:29.688Z"
+    },
+    {
+      "id": "ws_crm_1792460489386_1pjj",
+      "userId": "usr_visionai_admin",
+      "suite": "crm",
+      "title": "Stripe Checkout Completed: $499.00",
+      "status": "Active Customer",
+      "summary": "Subscribed via Checkout session cs_stress_1. Email: growth-team@visionai.studio",
+      "primaryMetric": 499,
+      "secondaryMetric": 100,
+      "meta": {
+        "eventType": "checkout.session.completed",
+        "session": {
+          "id": "cs_stress_1",
+          "amount_total": 49900
+        }
+      },
+      "createdAt": "2026-10-20T01:41:29.386Z",
+      "updatedAt": "2026-10-20T01:41:29.386Z"
+    },
+    {
+      "id": "ws_crm_1792460489378_fw1n",
+      "userId": "usr_visionai_admin",
+      "suite": "crm",
+      "title": "Stripe Checkout Completed: $499.00",
+      "status": "Active Customer",
+      "summary": "Subscribed via Checkout session cs_stress_1. Email: growth-team@visionai.studio",
+      "primaryMetric": 499,
+      "secondaryMetric": 100,
+      "meta": {
+        "eventType": "checkout.session.completed",
+        "session": {
+          "id": "cs_stress_1",
+          "amount_total": 49900
+        }
+      },
+      "createdAt": "2026-10-20T01:41:29.378Z",
+      "updatedAt": "2026-10-20T01:41:29.378Z"
+    },
+    {
+      "id": "ws_crm_1792460489370_yas4",
+      "userId": "usr_visionai_admin",
+      "suite": "crm",
+      "title": "Stripe Checkout Completed: $499.00",
+      "status": "Active Customer",
+      "summary": "Subscribed via Checkout session cs_stress_1. Email: growth-team@visionai.studio",
+      "primaryMetric": 499,
+      "secondaryMetric": 100,
+      "meta": {
+        "eventType": "checkout.session.completed",
+        "session": {
+          "id": "cs_stress_1",
+          "amount_total": 49900
+        }
+      },
+      "createdAt": "2026-10-20T01:41:29.370Z",
+      "updatedAt": "2026-10-20T01:41:29.370Z"
+    },
+    {
+      "id": "ws_crm_1792460489364_hbcg",
+      "userId": "usr_visionai_admin",
+      "suite": "crm",
+      "title": "Stripe Checkout Completed: $499.00",
+      "status": "Active Customer",
+      "summary": "Subscribed via Checkout session cs_stress_1. Email: growth-team@visionai.studio",
+      "primaryMetric": 499,
+      "secondaryMetric": 100,
+      "meta": {
+        "eventType": "checkout.session.completed",
+        "session": {
+          "id": "cs_stress_1",
+          "amount_total": 49900
+        }
+      },
+      "createdAt": "2026-10-20T01:41:29.364Z",
+      "updatedAt": "2026-10-20T01:41:29.364Z"
+    },
+    {
+      "id": "ws_crm_1792460489356_5oay",
+      "userId": "usr_visionai_admin",
+      "suite": "crm",
+      "title": "Stripe Checkout Completed: $499.00",
+      "status": "Active Customer",
+      "summary": "Subscribed via Checkout session cs_stress_1. Email: growth-team@visionai.studio",
+      "primaryMetric": 499,
+      "secondaryMetric": 100,
+      "meta": {
+        "eventType": "checkout.session.completed",
+        "session": {
+          "id": "cs_stress_1",
+          "amount_total": 49900
+        }
+      },
+      "createdAt": "2026-10-20T01:41:29.356Z",
+      "updatedAt": "2026-10-20T01:41:29.356Z"
+    },
+    {
+      "id": "ws_crm_1792460489347_kk0z",
+      "userId": "usr_visionai_admin",
+      "suite": "crm",
+      "title": "Stripe Checkout Completed: $499.00",
+      "status": "Active Customer",
+      "summary": "Subscribed via Checkout session cs_stress_1. Email: growth-team@visionai.studio",
+      "primaryMetric": 499,
+      "secondaryMetric": 100,
+      "meta": {
+        "eventType": "checkout.session.completed",
+        "session": {
+          "id": "cs_stress_1",
+          "amount_total": 49900
+        }
+      },
+      "createdAt": "2026-10-20T01:41:29.347Z",
+      "updatedAt": "2026-10-20T01:41:29.347Z"
+    },
+    {
+      "id": "ws_crm_1792460489340_k4en",
+      "userId": "usr_visionai_admin",
+      "suite": "crm",
+      "title": "Stripe Checkout Completed: $499.00",
+      "status": "Active Customer",
+      "summary": "Subscribed via Checkout session cs_stress_1. Email: growth-team@visionai.studio",
+      "primaryMetric": 499,
+      "secondaryMetric": 100,
+      "meta": {
+        "eventType": "checkout.session.completed",
+        "session": {
+          "id": "cs_stress_1",
+          "amount_total": 49900
+        }
+      },
+      "createdAt": "2026-10-20T01:41:29.340Z",
+      "updatedAt": "2026-10-20T01:41:29.340Z"
+    },
+    {
+      "id": "ws_crm_1792460489331_uhx1",
+      "userId": "usr_visionai_admin",
+      "suite": "crm",
+      "title": "Stripe Checkout Completed: $499.00",
+      "status": "Active Customer",
+      "summary": "Subscribed via Checkout session cs_stress_1. Email: growth-team@visionai.studio",
+      "primaryMetric": 499,
+      "secondaryMetric": 100,
+      "meta": {
+        "eventType": "checkout.session.completed",
+        "session": {
+          "id": "cs_stress_1",
+          "amount_total": 49900
+        }
+      },
+      "createdAt": "2026-10-20T01:41:29.331Z",
+      "updatedAt": "2026-10-20T01:41:29.331Z"
+    },
+    {
+      "id": "ws_crm_1792460489323_3iqn",
+      "userId": "usr_visionai_admin",
+      "suite": "crm",
+      "title": "Stripe Checkout Completed: $499.00",
+      "status": "Active Customer",
+      "summary": "Subscribed via Checkout session cs_stress_1. Email: growth-team@visionai.studio",
+      "primaryMetric": 499,
+      "secondaryMetric": 100,
+      "meta": {
+        "eventType": "checkout.session.completed",
+        "session": {
+          "id": "cs_stress_1",
+          "amount_total": 49900
+        }
+      },
+      "createdAt": "2026-10-20T01:41:29.323Z",
+      "updatedAt": "2026-10-20T01:41:29.323Z"
+    },
+    {
+      "id": "ws_crm_1792460489311_kpr9",
+      "userId": "usr_visionai_admin",
+      "suite": "crm",
+      "title": "Stripe Checkout Completed: $499.00",
+      "status": "Active Customer",
+      "summary": "Subscribed via Checkout session cs_stress_1. Email: growth-team@visionai.studio",
+      "primaryMetric": 499,
+      "secondaryMetric": 100,
+      "meta": {
+        "eventType": "checkout.session.completed",
+        "session": {
+          "id": "cs_stress_1",
+          "amount_total": 49900
+        }
+      },
+      "createdAt": "2026-10-20T01:41:29.311Z",
+      "updatedAt": "2026-10-20T01:41:29.311Z"
+    }
+  ],
+  "dispatchQueue": [
+    {
+      "id": "job_queued_x_01",
+      "postId": "post_x_q4_bench",
+      "network": "twitter",
+      "handle": "@VisionAI_HQ",
+      "contentPreview": "Q4 Omnichannel Benchmark: Teams using fold-aware social previews see +38% higher CTR above the mobile cutoff. https://visionai.studio/launch",
+      "status": "published",
+      "attempts": 1,
+      "maxAttempts": 3,
+      "idempotencyKey": "idem_tw_8f91a2c4b012",
+      "createdAt": "2026-10-20T00:30:13.266Z",
+      "updatedAt": "2026-10-20T01:41:28.466Z",
+      "externalUrl": "https://x.com/VisionAI_HQ/status/twitter_mvg0p0k2",
+      "latencyMs": 85
+    },
+    {
+      "id": "job_retry_ig_02",
+      "postId": "post_ig_reel_sync",
+      "network": "instagram",
+      "handle": "@visionai.studio",
+      "contentPreview": "Carousel + Reel Hook Preview: Stop losing 42% of mobile engagement to mid-sentence truncation. #GrowthMarketing #B2BSaaS",
+      "status": "published",
+      "attempts": 3,
+      "maxAttempts": 3,
+      "idempotencyKey": "idem_in_3c90e1f455a2",
+      "latencyMs": 84,
+      "createdAt": "2026-10-20T00:50:13.266Z",
+      "updatedAt": "2026-10-20T01:41:28.466Z",
+      "externalUrl": "https://www.instagram.com/p/instagram_mvg0p0k2/"
+    },
+    {
+      "id": "job_dlq_youtube_01",
+      "postId": "post_yt_short_09",
+      "network": "youtube",
+      "handle": "youtube.com/@VisionAI",
+      "contentPreview": "VisionAI Studio 2.5 Walkthrough: Zero-Trust Firestore Persistence & Multi-Channel Attribution in 60 Seconds",
+      "status": "dead_letter",
+      "attempts": 3,
+      "maxAttempts": 3,
+      "idempotencyKey": "idem_yo_1a2b3c4d5e6f",
+      "lastError": "HTTP 503 Upstream Timeout after 3 attempts (1s → 4s → 16s backoff exhausted). Ready for manual DLQ replay.",
+      "latencyMs": 485,
+      "createdAt": "2026-10-20T00:00:13.266Z",
+      "updatedAt": "2026-10-20T01:29:38.266Z"
+    },
+    {
+      "id": "job_pub_li_01",
+      "postId": "post_li_exec_01",
+      "network": "linkedin",
+      "handle": "linkedin.com/company/visionai",
+      "contentPreview": "Why B2B CMOs are replacing fragmented schedulers with unified Brand Voice Memory and deterministic pipeline attribution.",
+      "status": "published",
+      "attempts": 1,
+      "maxAttempts": 3,
+      "idempotencyKey": "idem_li_98234a771c09",
+      "externalUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7253918201",
+      "latencyMs": 162,
+      "createdAt": "2026-10-19T23:30:13.266Z",
+      "updatedAt": "2026-10-20T01:27:13.266Z"
+    }
+  ],
+  "webhookLedger": [
+    {
+      "id": "wh_hubspot_1792460489764_rxu",
+      "provider": "hubspot",
+      "eventType": "deal.propertyChange",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "HubSpot Object #771829 (deal.propertyChange) → closedwon",
+      "status": "processed",
+      "latencyMs": 14,
+      "processedAt": "2026-10-20T01:41:29.764Z"
+    },
+    {
+      "id": "wh_hubspot_1792460489758_byr",
+      "provider": "hubspot",
+      "eventType": "deal.propertyChange",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "HubSpot Object #771829 (deal.propertyChange) → closedwon",
+      "status": "processed",
+      "latencyMs": 14,
+      "processedAt": "2026-10-20T01:41:29.758Z"
+    },
+    {
+      "id": "wh_hubspot_1792460489752_2my",
+      "provider": "hubspot",
+      "eventType": "deal.propertyChange",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "HubSpot Object #771829 (deal.propertyChange) → closedwon",
+      "status": "processed",
+      "latencyMs": 14,
+      "processedAt": "2026-10-20T01:41:29.752Z"
+    },
+    {
+      "id": "wh_hubspot_1792460489743_ozu",
+      "provider": "hubspot",
+      "eventType": "deal.propertyChange",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "HubSpot Object #771829 (deal.propertyChange) → closedwon",
+      "status": "processed",
+      "latencyMs": 14,
+      "processedAt": "2026-10-20T01:41:29.743Z"
+    },
+    {
+      "id": "wh_hubspot_1792460489733_w2d",
+      "provider": "hubspot",
+      "eventType": "deal.propertyChange",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "HubSpot Object #771829 (deal.propertyChange) → closedwon",
+      "status": "processed",
+      "latencyMs": 14,
+      "processedAt": "2026-10-20T01:41:29.733Z"
+    },
+    {
+      "id": "wh_hubspot_1792460489726_ucl",
+      "provider": "hubspot",
+      "eventType": "deal.propertyChange",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "HubSpot Object #771829 (deal.propertyChange) → closedwon",
+      "status": "processed",
+      "latencyMs": 14,
+      "processedAt": "2026-10-20T01:41:29.726Z"
+    },
+    {
+      "id": "wh_hubspot_1792460489714_tpr",
+      "provider": "hubspot",
+      "eventType": "deal.propertyChange",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "HubSpot Object #771829 (deal.propertyChange) → closedwon",
+      "status": "processed",
+      "latencyMs": 14,
+      "processedAt": "2026-10-20T01:41:29.714Z"
+    },
+    {
+      "id": "wh_hubspot_1792460489708_aux",
+      "provider": "hubspot",
+      "eventType": "deal.propertyChange",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "HubSpot Object #771829 (deal.propertyChange) → closedwon",
+      "status": "processed",
+      "latencyMs": 14,
+      "processedAt": "2026-10-20T01:41:29.708Z"
+    },
+    {
+      "id": "wh_hubspot_1792460489699_q6j",
+      "provider": "hubspot",
+      "eventType": "deal.propertyChange",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "HubSpot Object #771829 (deal.propertyChange) → closedwon",
+      "status": "processed",
+      "latencyMs": 14,
+      "processedAt": "2026-10-20T01:41:29.699Z"
+    },
+    {
+      "id": "wh_hubspot_1792460489688_cfz",
+      "provider": "hubspot",
+      "eventType": "deal.propertyChange",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "HubSpot Object #771829 (deal.propertyChange) → closedwon",
+      "status": "processed",
+      "latencyMs": 14,
+      "processedAt": "2026-10-20T01:41:29.688Z"
+    },
+    {
+      "id": "wh_stripe_1792460489386_m3o",
+      "provider": "stripe",
+      "eventType": "checkout.session.completed",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "Stripe Checkout ($499.00) • growth-team@visionai.studio",
+      "status": "processed",
+      "latencyMs": 16,
+      "processedAt": "2026-10-20T01:41:29.386Z"
+    },
+    {
+      "id": "wh_stripe_1792460489378_hmz",
+      "provider": "stripe",
+      "eventType": "checkout.session.completed",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "Stripe Checkout ($499.00) • growth-team@visionai.studio",
+      "status": "processed",
+      "latencyMs": 16,
+      "processedAt": "2026-10-20T01:41:29.378Z"
+    },
+    {
+      "id": "wh_stripe_1792460489371_g3d",
+      "provider": "stripe",
+      "eventType": "checkout.session.completed",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "Stripe Checkout ($499.00) • growth-team@visionai.studio",
+      "status": "processed",
+      "latencyMs": 16,
+      "processedAt": "2026-10-20T01:41:29.371Z"
+    },
+    {
+      "id": "wh_stripe_1792460489364_45j",
+      "provider": "stripe",
+      "eventType": "checkout.session.completed",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "Stripe Checkout ($499.00) • growth-team@visionai.studio",
+      "status": "processed",
+      "latencyMs": 16,
+      "processedAt": "2026-10-20T01:41:29.364Z"
+    },
+    {
+      "id": "wh_stripe_1792460489357_o8p",
+      "provider": "stripe",
+      "eventType": "checkout.session.completed",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "Stripe Checkout ($499.00) • growth-team@visionai.studio",
+      "status": "processed",
+      "latencyMs": 16,
+      "processedAt": "2026-10-20T01:41:29.357Z"
+    },
+    {
+      "id": "wh_stripe_1792460489348_6dy",
+      "provider": "stripe",
+      "eventType": "checkout.session.completed",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "Stripe Checkout ($499.00) • growth-team@visionai.studio",
+      "status": "processed",
+      "latencyMs": 16,
+      "processedAt": "2026-10-20T01:41:29.348Z"
+    },
+    {
+      "id": "wh_stripe_1792460489341_qpl",
+      "provider": "stripe",
+      "eventType": "checkout.session.completed",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "Stripe Checkout ($499.00) • growth-team@visionai.studio",
+      "status": "processed",
+      "latencyMs": 16,
+      "processedAt": "2026-10-20T01:41:29.341Z"
+    },
+    {
+      "id": "wh_stripe_1792460489332_lld",
+      "provider": "stripe",
+      "eventType": "checkout.session.completed",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "Stripe Checkout ($499.00) • growth-team@visionai.studio",
+      "status": "processed",
+      "latencyMs": 16,
+      "processedAt": "2026-10-20T01:41:29.332Z"
+    },
+    {
+      "id": "wh_stripe_1792460489324_p7a",
+      "provider": "stripe",
+      "eventType": "checkout.session.completed",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "Stripe Checkout ($499.00) • growth-team@visionai.studio",
+      "status": "processed",
+      "latencyMs": 16,
+      "processedAt": "2026-10-20T01:41:29.324Z"
+    },
+    {
+      "id": "wh_stripe_1792460489311_ww6",
+      "provider": "stripe",
+      "eventType": "checkout.session.completed",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "Stripe Checkout ($499.00) • growth-team@visionai.studio",
+      "status": "processed",
+      "latencyMs": 16,
+      "processedAt": "2026-10-20T01:41:29.311Z"
+    },
+    {
+      "id": "wh_stripe_01",
+      "provider": "stripe",
+      "eventType": "checkout.session.completed",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "Enterprise Growth Annual Plan ($499.00) • customer@visionai.studio",
+      "status": "processed",
+      "latencyMs": 28,
+      "processedAt": "2026-10-20T01:28:58.266Z"
+    },
+    {
+      "id": "wh_hubspot_01",
+      "provider": "hubspot",
+      "eventType": "deal.propertyChange",
+      "signatureVerified": true,
+      "signatureMode": "hmac-sha256",
+      "payloadSummary": "HubSpot Deal #948210 updated dealstage → closedwon ($18,500 ARR attributed)",
+      "status": "processed",
+      "latencyMs": 34,
+      "processedAt": "2026-10-20T01:26:43.266Z"
+    }
+  ]
+}

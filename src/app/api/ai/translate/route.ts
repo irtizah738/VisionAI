@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       sourceLanguage 
     });
 
-    const response = await translateContent(text, targetLanguage, sourceLanguage);
+    const response = await translateContent(text, targetLanguage, true);
 
     if (!response.success) {
       throw new Error(response.error);

@@ -369,20 +369,81 @@ export default function RealTimeAnalyticsPage() {
         </Card>
       </div>
 
-      {/* Gemini Executive Attribution Callout */}
-      <Card className="bg-muted/20">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            Gemini AI Attribution &amp; Fold Velocity Insight
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {aiInsight}
-          </p>
-        </CardContent>
-      </Card>
+      {/* Gemini Executive Attribution Callout & 7-Day Campaign Performance Mini-Trend */}
+      <div className="grid gap-6 lg:grid-cols-12">
+        <Card className="lg:col-span-5 bg-muted/20">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              Gemini AI Attribution &amp; Fold Velocity Insight
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {aiInsight}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-7 border-indigo-200/80 dark:border-indigo-500/25">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                Campaign Performance
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Last 7 days conversion &amp; click trend (Mon – Sun)
+              </CardDescription>
+            </div>
+            <span className="text-xs font-mono font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+              +18.4% 7d lift
+            </span>
+          </CardHeader>
+          <CardContent className="h-[120px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={[
+                  { day: "Mon", conversions: 42, clicks: 610 },
+                  { day: "Tue", conversions: 51, clicks: 720 },
+                  { day: "Wed", conversions: 49, clicks: 695 },
+                  { day: "Thu", conversions: 64, clicks: 860 },
+                  { day: "Fri", conversions: 72, clicks: 940 },
+                  { day: "Sat", conversions: 68, clicks: 890 },
+                  { day: "Sun", conversions: 84, clicks: 1120 },
+                ]}
+                margin={{ top: 6, right: 10, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
+                <XAxis dataKey="day" tickLine={false} axisLine={false} style={{ fontSize: "11px" }} />
+                <YAxis hide />
+                <RechartsTooltip
+                  contentStyle={{
+                    fontSize: "11px",
+                    borderRadius: "8px",
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="clicks"
+                  name="Link Clicks"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="conversions"
+                  name="Conversions"
+                  stroke="#4f46e5"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Charts Grid */}
       <div className="grid gap-6 lg:grid-cols-2">

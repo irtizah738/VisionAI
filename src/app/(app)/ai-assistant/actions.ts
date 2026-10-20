@@ -1,6 +1,3 @@
-
-// @ts-nocheck
-// TODO: Fix TS errors
 "use server";
 import { chatAssistant, type ChatAssistantInput, type ChatAssistantOutput } from '@/ai/flows/chat-assistant';
 
@@ -10,12 +7,12 @@ export async function chatAssistantAction(input: ChatAssistantInput): Promise<Ch
       return { error: "Query cannot be empty." };
     }
     const result = await chatAssistant(input);
-     if (!result || !result.response) {
-        return { error: "Failed to get a response from the assistant. The AI model might have returned an unexpected response." };
+    if (!result || !result.response) {
+      return { error: "Failed to get a response from the assistant. The AI model might have returned an unexpected response." };
     }
     return result;
-  } catch (e: any)
+  } catch (e: any) {
     console.error("Error in chat assistant:", e);
-    return { error: e.message || "An unexpected error occurred while communicating with the chat assistant." };
+    return { error: e?.message || "An unexpected error occurred while communicating with the chat assistant." };
   }
 }

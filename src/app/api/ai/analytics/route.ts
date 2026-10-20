@@ -14,57 +14,46 @@ const analyticsRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   const timer = logger.startTimer('analytics-api');
-  
+
   try {
     const body = await request.json();
-    const { 
-      content, 
-      includeSentiment, 
-      includeKeywords, 
+    const {
+      content,
+      includeSentiment,
+      includeKeywords,
       includeSummary,
-      maxKeywords 
+      maxKeywords,
     } = analyticsRequestSchema.parse(body);
 
-    logger.info('Processing content analytics request', { 
+    logger.info('Processing content analytics request', {
       contentLength: content.length,
       includeSentiment,
       includeKeywords,
-      includeSummary
+      includeSummary,
     });
 
-    const results: any = {};
-    const timings: any = {};
+    const results: Record<string, any> = {};
+    const timings: Record<string, any> = {};
 
-    // Run requested analyses in parallel
-    const analyses = await Promise.all([
-      includeSentiment && analyzeSentiment(content),
-      includeKeywords && extractKeywords(content, maxKeywords),
-      includeSummary && summarizeContent(content)
-    ].filter(Boolean));
+    const [sentimentResult, keywordsResult, summaryResult] = await Promise.all([
+      includeSentiment ? analyzeSentiment(content) : Promise.resolve(null),
+      includeKeywords ? extractKeywords(content, maxKeywords) : Promise.resolve(null),
+      includeSummary ? summarizeContent(content) : Promise.resolve(null),
+    ]);
 
-    // Combine results
-    if (includeSentiment) {
-      const sentimentResult = analyses.shift();
-      if (sentimentResult?.success) {
-        results.sentiment = sentimentResult.data;
-        timings.sentiment = sentimentResult.timing;
-      }
+    if (sentimentResult && sentimentResult.success) {
+      results.sentiment = sentimentResult.data;
+      timings.sentiment = sentimentResult.timing;
     }
 
-    if (includeKeywords) {
-      const keywordsResult = analyses.shift();
-      if (keywordsResult?.success) {
-        results.keywords = keywordsResult.data;
-        timings.keywords = keywordsResult.timing;
-      }
+    if (keywordsResult && keywordsResult.success) {
+      results.keywords = keywordsResult.data;
+      timings.keywords = keywordsResult.timing;
     }
 
-    if (includeSummary) {
-      const summaryResult = analyses.shift();
-      if (summaryResult?.success) {
-        results.summary = summaryResult.data;
-        timings.summary = summaryResult.timing;
-      }
+    if (summaryResult && summaryResult.success) {
+      results.summary = summaryResult.data;
+      timings.summary = summaryResult.timing;
     }
 
     const duration = timer();
@@ -73,7 +62,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       results,
       timings,
-      totalDuration: duration
+      totalDuration: duration,
     });
   } catch (error) {
     timer();
@@ -85,4 +74,4 @@ export async function POST(request: NextRequest) {
     }
     return handleError(error as Error);
   }
-} 
+}

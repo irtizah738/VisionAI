@@ -59,6 +59,8 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -195,6 +197,57 @@ export default function VisionAIDashboard() {
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>(initialScheduledPosts);
   const [publishedPosts, setPublishedPosts] = useState<PublishedPost[]>(initialPublishedPosts);
   const [mentions, setMentions] = useState<SocialMention[]>(initialMentions);
+  const [connectedAccounts, setConnectedAccounts] = useState<
+    Array<{
+      network: SocialNetwork;
+      name: string;
+      handle: string;
+      followers: string;
+      status: string;
+      connected: boolean;
+    }>
+  >([
+    {
+      network: "twitter",
+      name: "VisionAI Official",
+      handle: "@VisionAI_HQ",
+      followers: "48.2K",
+      status: "Authorized",
+      connected: true,
+    },
+    {
+      network: "linkedin",
+      name: "VisionAI Technologies Inc.",
+      handle: "visionai-corp",
+      followers: "86.4K",
+      status: "Authorized",
+      connected: true,
+    },
+    {
+      network: "instagram",
+      name: "VisionAI Creative Lab",
+      handle: "@visionai_growth",
+      followers: "64.9K",
+      status: "Authorized",
+      connected: true,
+    },
+    {
+      network: "facebook",
+      name: "VisionAI Global",
+      handle: "fb.com/visionai",
+      followers: "32.1K",
+      status: "Authorized",
+      connected: true,
+    },
+    {
+      network: "youtube",
+      name: "VisionAI Media",
+      handle: "youtube.com/@visionai",
+      followers: "18.4K",
+      status: "Authorized",
+      connected: true,
+    },
+  ]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Brand Voice Memory State
@@ -319,6 +372,25 @@ export default function VisionAIDashboard() {
               replied: Boolean(m.replied),
               replyText: m.replyText,
             }))
+          );
+        }
+        if (Array.isArray(data.socialAccounts) && data.socialAccounts.length > 0) {
+          setConnectedAccounts((prev) =>
+            prev.map((item) => {
+              const match = data.socialAccounts.find(
+                (acc: any) => acc.provider === item.network
+              );
+              if (!match) return item;
+              const isConn = match.status === "connected";
+              return {
+                ...item,
+                name: match.accountName || item.name,
+                handle: match.handle || item.handle,
+                followers: match.followers || item.followers,
+                connected: isConn,
+                status: isConn ? "Authorized" : "Not Connected",
+              };
+            })
           );
         }
       }
@@ -1127,20 +1199,201 @@ export default function VisionAIDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Executive Command Center Header & Tabular KPI Strip */}
+      <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-2xs">
+        <div className="p-5 md:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="space-y-1 max-w-2xl">
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+              Command Center
+            </h1>
+            <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+              Manage cross-network publishing queues, live social inbox threads, and omnichannel post previews from a single workspace.
+            </p>
+          </div>
+          <div className="flex items-center gap-2.5 flex-wrap shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => router.push("/automation")}
+              className="h-9 px-3.5 text-xs font-medium whitespace-nowrap cursor-pointer"
+            >
+              Drip Automation
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => router.push("/competitor-intel")}
+              className="h-9 px-3.5 text-xs font-medium whitespace-nowrap cursor-pointer"
+            >
+              Competitor Radar
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => setActiveTab("composer")}
+              className="h-9 px-4 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white whitespace-nowrap cursor-pointer"
+            >
+              <Plus className="h-3.5 w-3.5 mr-1.5" />
+              Compose Post
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 border-t border-slate-200/80 dark:border-slate-800 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/80 dark:divide-slate-800 bg-slate-50/60 dark:bg-slate-950/40">
+          <div className="px-5 py-3.5 flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                Scheduled Queue
+              </p>
+              <p className="text-lg font-bold font-mono tabular-nums text-slate-900 dark:text-slate-100 mt-0.5">
+                {scheduledPosts.length}
+              </p>
+            </div>
+            <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-mono font-semibold tabular-nums">
+              Queued
+            </span>
+          </div>
+
+          <div className="px-5 py-3.5 flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                Published Posts
+              </p>
+              <p className="text-lg font-bold font-mono tabular-nums text-slate-900 dark:text-slate-100 mt-0.5">
+                {publishedPosts.length}
+              </p>
+            </div>
+            <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono font-semibold tabular-nums">
+              Live
+            </span>
+          </div>
+
+          <div className="px-5 py-3.5 flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                Inbox Threads
+              </p>
+              <p className="text-lg font-bold font-mono tabular-nums text-slate-900 dark:text-slate-100 mt-0.5">
+                {mentions.length}
+              </p>
+            </div>
+            <span className="text-[11px] text-sky-600 dark:text-sky-400 font-mono font-semibold tabular-nums">
+              Active
+            </span>
+          </div>
+
+          <div className="px-5 py-3.5 flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                Connected Channels
+              </p>
+              <p className="text-lg font-bold font-mono tabular-nums text-slate-900 dark:text-slate-100 mt-0.5">
+                {connectedAccounts.filter((a) => a.connected).length} / {connectedAccounts.length}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActiveTab("accounts")}
+              className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+            >
+              Manage
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Campaign Performance Card with 7-Day Recharts Mini-Trend Line Chart */}
+      <Card className="border-slate-200/90 dark:border-slate-800 overflow-hidden shadow-2xs">
+        <CardHeader className="p-4 pb-2.5 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-900 dark:text-slate-100">
+              <Zap className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+              Campaign Performance
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Last 7 days omnichannel engagement &amp; link click velocity (Mon – Sun)
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-4 text-xs font-mono tabular-nums">
+            <div>
+              <span className="text-muted-foreground">7d Clicks: </span>
+              <span className="font-bold text-indigo-600 dark:text-indigo-400">7,080</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">7d Engagement: </span>
+              <span className="font-bold text-emerald-600 dark:text-emerald-400">20,300</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => router.push("/campaigns")}
+              className="font-sans font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+            >
+              View All →
+            </button>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="h-[110px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={analyticsData}
+                margin={{ top: 6, right: 12, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
+                <XAxis
+                  dataKey="day"
+                  tickLine={false}
+                  axisLine={false}
+                  style={{ fontSize: "11px" }}
+                />
+                <YAxis hide />
+                <RechartsTooltip
+                  contentStyle={{
+                    fontSize: "11px",
+                    borderRadius: "8px",
+                    border: "1px solid rgba(99, 102, 241, 0.25)",
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="engagement"
+                  name="Engagement"
+                  stroke="#10b981"
+                  strokeWidth={2.25}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 4.5 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="clicks"
+                  name="Link Clicks"
+                  stroke="#4f46e5"
+                  strokeWidth={2.25}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 4.5 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Deterministic Direct-Click Navigation Bar & Filter Controls */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
         <div
           role="tablist"
           aria-label="Workspace Views"
-          className="inline-flex items-center gap-1.5 p-1.5 bg-card/80 border border-border/80 backdrop-blur-md rounded-xl shadow-xs self-start flex-wrap"
+          className="inline-flex items-center gap-1 p-1 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-xl self-start flex-wrap shadow-2xs"
         >
           {(
             [
-              { id: "streams", label: "Streams & Live Inbox", icon: Layers },
-              { id: "composer", label: "Live Preview & Composer", icon: Eye },
-              { id: "calendar", label: "Interactive Planner", icon: CalendarDays },
-              { id: "analytics", label: "Analytics", icon: Zap },
-              { id: "accounts", label: "Channels (5)", icon: Share2 },
+              { id: "streams", label: "Streams & Live Inbox", icon: Layers, iconColor: "text-indigo-600 dark:text-indigo-400" },
+              { id: "composer", label: "Live Preview & Composer", icon: Eye, iconColor: "text-emerald-600 dark:text-emerald-400" },
+              { id: "calendar", label: "Interactive Planner", icon: CalendarDays, iconColor: "text-sky-600 dark:text-sky-400" },
+              { id: "analytics", label: "Analytics", icon: Zap, iconColor: "text-amber-600 dark:text-amber-400" },
+              { id: "accounts", label: "Channels (5)", icon: Share2, iconColor: "text-violet-600 dark:text-violet-400" },
             ] as const
           ).map((tab) => {
             const Icon = tab.icon;
@@ -1152,13 +1405,13 @@ export default function VisionAIDashboard() {
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
                   isActive
-                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-950/30 border border-indigo-400/40 scale-[1.02]"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    ? "bg-indigo-600 text-white shadow-2xs"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/70"
                 }`}
               >
-                <Icon className={`h-4 w-4 ${isActive ? "text-white" : "text-muted-foreground"}`} />
+                <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-white" : tab.iconColor}`} />
                 <span>{tab.label}</span>
               </button>
             );
@@ -1167,14 +1420,14 @@ export default function VisionAIDashboard() {
 
         {(activeTab === "streams" || activeTab === "calendar") && (
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-lg border border-border">
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200/90 dark:border-slate-800">
               <button
                 type="button"
                 onClick={() => setSelectedNetworkFilter("all")}
                 className={`px-2.5 py-1 rounded text-xs font-medium transition-colors cursor-pointer ${
                   selectedNetworkFilter === "all"
-                    ? "bg-foreground text-background"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-2xs"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                 }`}
               >
                 All
@@ -1189,14 +1442,14 @@ export default function VisionAIDashboard() {
                       onClick={() => setSelectedNetworkFilter(net)}
                       className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer ${
                         active
-                          ? "bg-foreground text-background"
-                          : "text-muted-foreground hover:text-foreground"
+                          ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-2xs"
+                          : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                       }`}
                       title={PLATFORM_SPECS[net].name}
                     >
                       {renderPlatformIcon(
                         net,
-                        `h-3.5 w-3.5 ${active ? "text-background" : ""}`
+                        `h-3.5 w-3.5 ${active ? "text-indigo-600 dark:text-indigo-400" : ""}`
                       )}
                       <span className="hidden sm:inline">{PLATFORM_SPECS[net].shortName}</span>
                     </button>
@@ -1211,7 +1464,7 @@ export default function VisionAIDashboard() {
                 placeholder="Filter posts or @handles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 h-8 text-xs"
+                className="pl-8 h-8 text-xs bg-white dark:bg-slate-900"
               />
             </div>
           </div>
@@ -1223,14 +1476,14 @@ export default function VisionAIDashboard() {
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-start">
             {/* COLUMN 1: SCHEDULED QUEUE */}
-            <Card className="flex flex-col h-[680px] border-border">
-              <CardHeader className="p-3.5 pb-2.5 border-b border-border bg-muted/20">
+            <Card className="flex flex-col min-h-[460px] max-h-[640px] border-slate-200/90 dark:border-slate-800 overflow-hidden">
+              <CardHeader className="p-4 pb-3 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-emerald-500" />
-                    <CardTitle className="text-sm font-semibold">Scheduled Queue</CardTitle>
+                    <Calendar className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                    <CardTitle className="text-sm font-semibold text-slate-900 dark:text-slate-100">Scheduled Queue</CardTitle>
                   </div>
-                  <span className="text-xs font-mono tabular-nums text-muted-foreground">
+                  <span className="text-xs font-mono font-semibold tabular-nums text-indigo-600 dark:text-indigo-400">
                     {filteredScheduled.length} queued
                   </span>
                 </div>
@@ -1241,17 +1494,22 @@ export default function VisionAIDashboard() {
 
               <CardContent className="p-3 space-y-3 overflow-y-auto flex-1">
                 {filteredScheduled.length === 0 ? (
-                  <div className="h-48 flex flex-col items-center justify-center text-center p-4 text-muted-foreground">
-                    <Clock className="h-6 w-6 mb-2 opacity-50" />
-                    <p className="text-xs">No scheduled posts match your filter.</p>
+                  <div className="h-64 flex flex-col items-center justify-center text-center p-5 text-muted-foreground">
+                    <Clock className="h-6 w-6 mb-2.5 text-slate-400 dark:text-slate-500" />
+                    <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                      No scheduled dispatches queued
+                    </p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 max-w-[200px]">
+                      Draft once and schedule across X, LinkedIn, Instagram, Facebook, and YouTube.
+                    </p>
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => setActiveTab("composer")}
-                      className="text-xs mt-2"
+                      className="text-xs mt-3 h-8 cursor-pointer"
                     >
-                      Schedule a Post
+                      Schedule First Post
                     </Button>
                   </div>
                 ) : (
@@ -1333,14 +1591,14 @@ export default function VisionAIDashboard() {
             </Card>
 
             {/* COLUMN 2: PUBLISHED POSTS & LIVE METRICS */}
-            <Card className="flex flex-col h-[680px] border-border">
-              <CardHeader className="p-3.5 pb-2.5 border-b border-border bg-muted/20">
+            <Card className="flex flex-col min-h-[460px] max-h-[640px] border-slate-200/90 dark:border-slate-800 overflow-hidden">
+              <CardHeader className="p-4 pb-3 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                    <CardTitle className="text-sm font-semibold">Published Feed</CardTitle>
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    <CardTitle className="text-sm font-semibold text-slate-900 dark:text-slate-100">Published Feed</CardTitle>
                   </div>
-                  <span className="text-xs font-mono tabular-nums text-muted-foreground">
+                  <span className="text-xs font-mono font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
                     {filteredPublished.length} live
                   </span>
                 </div>
@@ -1350,107 +1608,128 @@ export default function VisionAIDashboard() {
               </CardHeader>
 
               <CardContent className="p-3 space-y-3 overflow-y-auto flex-1">
-                {filteredPublished.map((post) => (
-                  <div
-                    key={post.id}
-                    className="p-3 rounded-lg border border-border bg-card text-card-foreground hover:border-foreground/30 transition-colors space-y-2.5 text-xs"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        {renderPlatformIcon(post.network)}
-                        <span className="font-semibold text-xs truncate max-w-[120px]">
-                          {post.handle}
+                {filteredPublished.length === 0 ? (
+                  <div className="h-64 flex flex-col items-center justify-center text-center p-5 text-muted-foreground">
+                    <CheckCircle2 className="h-6 w-6 mb-2.5 text-slate-400 dark:text-slate-500" />
+                    <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                      No published posts yet
+                    </p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 max-w-[200px]">
+                      Published posts and engagement metrics will appear here once dispatched.
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setActiveTab("composer")}
+                      className="text-xs mt-3 h-8 cursor-pointer"
+                    >
+                      Compose &amp; Publish
+                    </Button>
+                  </div>
+                ) : (
+                  filteredPublished.map((post) => (
+                    <div
+                      key={post.id}
+                      className="p-3 rounded-lg border border-border bg-card text-card-foreground hover:border-foreground/30 transition-colors space-y-2.5 text-xs"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          {renderPlatformIcon(post.network)}
+                          <span className="font-semibold text-xs truncate max-w-[120px]">
+                            {post.handle}
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-mono tabular-nums text-muted-foreground">
+                          {post.publishedTime}
                         </span>
                       </div>
-                      <span className="text-[11px] font-mono tabular-nums text-muted-foreground">
-                        {post.publishedTime}
-                      </span>
-                    </div>
 
-                    {post.mediaUrl && (
-                      <div className="relative h-24 w-full rounded overflow-hidden border border-border bg-slate-950">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={post.mediaUrl}
-                          alt="Published AI Visual"
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
-
-                    <p className="line-clamp-3 text-muted-foreground leading-relaxed">
-                      {post.content}
-                    </p>
-
-                    <div className="grid grid-cols-4 gap-1 p-2 rounded bg-muted/40 text-center text-[10px] border border-border font-mono tabular-nums">
-                      <div>
-                        <div className="font-bold text-foreground">
-                          {post.metrics.impressions.toLocaleString()}
+                      {post.mediaUrl && (
+                        <div className="relative h-24 w-full rounded overflow-hidden border border-border bg-slate-950">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={post.mediaUrl}
+                            alt="Published AI Visual"
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover"
+                          />
                         </div>
-                        <div className="text-muted-foreground text-[9px] font-sans">Views</div>
-                      </div>
-                      <div>
-                        <div className="font-bold text-emerald-600">{post.metrics.likes}</div>
-                        <div className="text-muted-foreground text-[9px] font-sans">Likes</div>
-                      </div>
-                      <div>
-                        <div className="font-bold text-sky-600">{post.metrics.comments}</div>
-                        <div className="text-muted-foreground text-[9px] font-sans">Replies</div>
-                      </div>
-                      <div>
-                        <div className="font-bold text-foreground">{post.metrics.clicks}</div>
-                        <div className="text-muted-foreground text-[9px] font-sans">Clicks</div>
-                      </div>
-                    </div>
+                      )}
 
-                    <div className="flex items-center justify-between pt-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 text-[11px] text-primary gap-1 px-1.5 cursor-pointer"
-                        onClick={() => {
-                          toast({
-                            title: "Loaded into Campaign Builder",
-                            description: "Post metrics attached for paid amplification.",
-                          });
-                          router.push("/campaign-builder");
-                        }}
-                      >
-                        <Flame className="h-3 w-3 text-amber-500" />
-                        Boost Post
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 text-[11px] text-muted-foreground gap-1 px-1.5 cursor-pointer"
-                        onClick={() => {
-                          setComposerText(post.content);
-                          setPreviewPlatform(post.network);
-                          setComposerCustomMediaUrl(post.mediaUrl || null);
-                          setActiveTab("composer");
-                        }}
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                        Inspect Preview
-                      </Button>
+                      <p className="line-clamp-3 text-muted-foreground leading-relaxed">
+                        {post.content}
+                      </p>
+
+                      <div className="grid grid-cols-4 gap-1 p-2 rounded bg-muted/40 text-center text-[10px] border border-border font-mono tabular-nums">
+                        <div>
+                          <div className="font-bold text-foreground">
+                            {post.metrics.impressions.toLocaleString()}
+                          </div>
+                          <div className="text-muted-foreground text-[9px] font-sans">Views</div>
+                        </div>
+                        <div>
+                          <div className="font-bold text-emerald-600">{post.metrics.likes}</div>
+                          <div className="text-muted-foreground text-[9px] font-sans">Likes</div>
+                        </div>
+                        <div>
+                          <div className="font-bold text-sky-600">{post.metrics.comments}</div>
+                          <div className="text-muted-foreground text-[9px] font-sans">Replies</div>
+                        </div>
+                        <div>
+                          <div className="font-bold text-foreground">{post.metrics.clicks}</div>
+                          <div className="text-muted-foreground text-[9px] font-sans">Clicks</div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 text-[11px] text-primary gap-1 px-1.5 cursor-pointer"
+                          onClick={() => {
+                            toast({
+                              title: "Loaded into Campaign Builder",
+                              description: "Post metrics attached for paid amplification.",
+                            });
+                            router.push("/campaign-builder");
+                          }}
+                        >
+                          <Flame className="h-3 w-3 text-amber-500" />
+                          Boost Post
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 text-[11px] text-muted-foreground gap-1 px-1.5 cursor-pointer"
+                          onClick={() => {
+                            setComposerText(post.content);
+                            setPreviewPlatform(post.network);
+                            setComposerCustomMediaUrl(post.mediaUrl || null);
+                            setActiveTab("composer");
+                          }}
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          Inspect Preview
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </CardContent>
             </Card>
 
             {/* COLUMN 3: MENTIONS & SOCIAL INBOX */}
-            <Card className="flex flex-col h-[680px] border-border">
-              <CardHeader className="p-3.5 pb-2.5 border-b border-border bg-muted/20">
+            <Card className="flex flex-col min-h-[460px] max-h-[640px] border-slate-200/90 dark:border-slate-800 overflow-hidden">
+              <CardHeader className="p-4 pb-3 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-sky-500" />
-                    <CardTitle className="text-sm font-semibold">Mentions &amp; Inbox</CardTitle>
+                    <MessageSquare className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                    <CardTitle className="text-sm font-semibold text-slate-900 dark:text-slate-100">Mentions &amp; Inbox</CardTitle>
                   </div>
-                  <span className="text-xs font-mono tabular-nums text-muted-foreground">
+                  <span className="text-xs font-mono font-semibold tabular-nums text-sky-600 dark:text-sky-400">
                     {filteredMentions.length} threads
                   </span>
                 </div>
@@ -1460,136 +1739,157 @@ export default function VisionAIDashboard() {
               </CardHeader>
 
               <CardContent className="p-3 space-y-3 overflow-y-auto flex-1">
-                {filteredMentions.map((mention) => (
-                  <div
-                    key={mention.id}
-                    className="p-3 rounded-lg border border-border bg-card text-card-foreground space-y-2 text-xs"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="h-7 w-7 rounded-full bg-muted text-foreground font-bold flex items-center justify-center text-[10px]">
-                          {mention.avatarText}
-                        </div>
-                        <div>
-                          <div className="font-semibold text-xs leading-none">
-                            {mention.authorName}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">
-                            {mention.authorHandle}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        {renderPlatformIcon(mention.network)}
-                        <span className="text-[10px] font-mono tabular-nums text-muted-foreground">
-                          {mention.timeAgo}
-                        </span>
-                      </div>
-                    </div>
-
-                    <p className="text-muted-foreground leading-relaxed text-xs">
-                      {mention.content}
+                {filteredMentions.length === 0 ? (
+                  <div className="h-64 flex flex-col items-center justify-center text-center p-5 text-muted-foreground">
+                    <MessageSquare className="h-6 w-6 mb-2.5 text-slate-400 dark:text-slate-500" />
+                    <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                      Inbox is clear
                     </p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 max-w-[200px]">
+                      Incoming @mentions, comments, and direct thread replies will stream here.
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setActiveTab("accounts")}
+                      className="text-xs mt-3 h-8 cursor-pointer"
+                    >
+                      Verify Channel Webhooks
+                    </Button>
+                  </div>
+                ) : (
+                  filteredMentions.map((mention) => (
+                    <div
+                      key={mention.id}
+                      className="p-3 rounded-lg border border-border bg-card text-card-foreground space-y-2 text-xs"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="h-7 w-7 rounded-full bg-muted text-foreground font-bold flex items-center justify-center text-[10px]">
+                            {mention.avatarText}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-xs leading-none">
+                              {mention.authorName}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground">
+                              {mention.authorHandle}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          {renderPlatformIcon(mention.network)}
+                          <span className="text-[10px] font-mono tabular-nums text-muted-foreground">
+                            {mention.timeAgo}
+                          </span>
+                        </div>
+                      </div>
 
-                    <div className="flex items-center justify-between pt-1 text-[11px]">
-                      <span className="text-muted-foreground capitalize">
-                        {mention.sentiment} sentiment
-                      </span>
+                      <p className="text-muted-foreground leading-relaxed text-xs">
+                        {mention.content}
+                      </p>
 
-                      {mention.replied ? (
-                        <span className="inline-flex items-center gap-1 text-emerald-600 font-medium">
-                          <Check className="h-3 w-3" /> Replied
+                      <div className="flex items-center justify-between pt-1 text-[11px]">
+                        <span className="text-muted-foreground capitalize">
+                          {mention.sentiment} sentiment
                         </span>
-                      ) : (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="h-6 text-[11px] px-2 cursor-pointer"
-                          onClick={() => {
-                            setActiveReplyId(activeReplyId === mention.id ? null : mention.id);
-                            setReplyInputText("");
-                          }}
-                        >
-                          <Repeat className="h-3 w-3 mr-1" /> Reply
-                        </Button>
+
+                        {mention.replied ? (
+                          <span className="inline-flex items-center gap-1 text-emerald-600 font-medium">
+                            <Check className="h-3 w-3" /> Replied
+                          </span>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-6 text-[11px] px-2 cursor-pointer"
+                            onClick={() => {
+                              setActiveReplyId(activeReplyId === mention.id ? null : mention.id);
+                              setReplyInputText("");
+                            }}
+                          >
+                            <Repeat className="h-3 w-3 mr-1" /> Reply
+                          </Button>
+                        )}
+                      </div>
+
+                      {activeReplyId === mention.id && (
+                        <div className="pt-2 border-t border-border space-y-2 bg-muted/30 p-2 rounded">
+                          <div className="flex flex-wrap gap-1">
+                            <button
+                              type="button"
+                              className="text-[10px] px-2 py-0.5 rounded bg-background border border-border hover:border-foreground text-foreground cursor-pointer"
+                              onClick={() =>
+                                setReplyInputText(
+                                  "Thanks so much for the feedback! Glad the multi-platform preview is streamlining your workflow."
+                                )
+                              }
+                            >
+                              Say Thanks
+                            </button>
+                            <button
+                              type="button"
+                              className="text-[10px] px-2 py-0.5 rounded bg-background border border-border hover:border-foreground text-foreground cursor-pointer"
+                              onClick={() =>
+                                setReplyInputText(
+                                  "Yes! You can preview X, LinkedIn, Instagram, Facebook, and YouTube side-by-side in the Composer."
+                                )
+                              }
+                            >
+                              Confirm Feature
+                            </button>
+                          </div>
+                          <Textarea
+                            className="h-16 text-xs bg-background"
+                            placeholder="Type your response..."
+                            value={replyInputText}
+                            onChange={(e) => setReplyInputText(e.target.value)}
+                          />
+                          <div className="flex justify-end gap-1.5">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 text-[10px]"
+                              onClick={() => setActiveReplyId(null)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              className="h-6 text-[10px] px-2.5"
+                              onClick={() => handleSendReply(mention.id)}
+                            >
+                              Send Reply
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+
+                      {mention.replied && mention.replyText && (
+                        <div className="p-2 rounded bg-muted/50 border border-border text-[11px] text-muted-foreground">
+                          <span className="font-semibold text-foreground">You replied:</span>{" "}
+                          {mention.replyText}
+                        </div>
                       )}
                     </div>
-
-                    {activeReplyId === mention.id && (
-                      <div className="pt-2 border-t border-border space-y-2 bg-muted/30 p-2 rounded">
-                        <div className="flex flex-wrap gap-1">
-                          <button
-                            type="button"
-                            className="text-[10px] px-2 py-0.5 rounded bg-background border border-border hover:border-foreground text-foreground cursor-pointer"
-                            onClick={() =>
-                              setReplyInputText(
-                                "Thanks so much for the feedback! Glad the multi-platform preview is streamlining your workflow."
-                              )
-                            }
-                          >
-                            Say Thanks
-                          </button>
-                          <button
-                            type="button"
-                            className="text-[10px] px-2 py-0.5 rounded bg-background border border-border hover:border-foreground text-foreground cursor-pointer"
-                            onClick={() =>
-                              setReplyInputText(
-                                "Yes! You can preview X, LinkedIn, Instagram, Facebook, and YouTube side-by-side in the Composer."
-                              )
-                            }
-                          >
-                            Confirm Feature
-                          </button>
-                        </div>
-                        <Textarea
-                          className="h-16 text-xs bg-background"
-                          placeholder="Type your response..."
-                          value={replyInputText}
-                          onChange={(e) => setReplyInputText(e.target.value)}
-                        />
-                        <div className="flex justify-end gap-1.5">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 text-[10px]"
-                            onClick={() => setActiveReplyId(null)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            className="h-6 text-[10px] px-2.5"
-                            onClick={() => handleSendReply(mention.id)}
-                          >
-                            Send Reply
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
-                    {mention.replied && mention.replyText && (
-                      <div className="p-2 rounded bg-muted/50 border border-border text-[11px] text-muted-foreground">
-                        <span className="font-semibold text-foreground">You replied:</span>{" "}
-                        {mention.replyText}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  ))
+                )}
               </CardContent>
             </Card>
 
             {/* COLUMN 4: TREND RADAR & HOOK TEMPLATES */}
-            <Card className="flex flex-col h-[680px] border-border">
-              <CardHeader className="p-3.5 pb-2.5 border-b border-border bg-muted/20">
+            <Card className="flex flex-col min-h-[460px] max-h-[640px] border-slate-200/90 dark:border-slate-800 overflow-hidden">
+              <CardHeader className="p-4 pb-3 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-emerald-600" />
-                    <CardTitle className="text-sm font-semibold">Content Radar</CardTitle>
+                    <Sparkles className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                    <CardTitle className="text-sm font-semibold text-slate-900 dark:text-slate-100">Content Radar</CardTitle>
                   </div>
-                  <span className="text-xs text-muted-foreground">Live Hooks</span>
+                  <span className="text-xs font-semibold text-violet-600 dark:text-violet-400">Live Hooks</span>
                 </div>
                 <CardDescription className="text-xs">
                   High-performing themes &amp; instant drafts
@@ -2077,43 +2377,7 @@ export default function VisionAIDashboard() {
             </Button>
           </CardHeader>
           <CardContent className="p-4 space-y-3">
-            {[
-              {
-                network: "twitter" as SocialNetwork,
-                name: "VisionAI Official",
-                handle: "@VisionAI_HQ",
-                followers: "48.2K",
-                status: "Authorized",
-              },
-              {
-                network: "linkedin" as SocialNetwork,
-                name: "VisionAI Technologies Inc.",
-                handle: "visionai-corp",
-                followers: "86.4K",
-                status: "Authorized",
-              },
-              {
-                network: "instagram" as SocialNetwork,
-                name: "VisionAI Creative Lab",
-                handle: "@visionai_growth",
-                followers: "64.9K",
-                status: "Authorized",
-              },
-              {
-                network: "facebook" as SocialNetwork,
-                name: "VisionAI Global",
-                handle: "fb.com/visionai",
-                followers: "32.1K",
-                status: "Authorized",
-              },
-              {
-                network: "youtube" as SocialNetwork,
-                name: "VisionAI Media",
-                handle: "youtube.com/@visionai",
-                followers: "18.4K",
-                status: "Authorized",
-              },
-            ].map((acc, i) => (
+            {connectedAccounts.map((acc, i) => (
               <div
                 key={i}
                 className="flex items-center justify-between p-3.5 rounded-lg border border-border bg-card text-xs"

@@ -63,7 +63,10 @@ export class MetaService {
         postData.url = media.url;
       } else if (media.type === 'video') {
         // For video, we need to use a different endpoint
-        return this.postVideoToFacebookPage(pageId, pageAccessToken, content);
+        return this.postVideoToFacebookPage(pageId, pageAccessToken, {
+          ...content,
+          media: content.media,
+        });
       }
     }
 

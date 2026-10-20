@@ -145,6 +145,10 @@ export function CompetitorRadar() {
   const [newCompName, setNewCompName] = useState("");
   const [newCompHandle, setNewCompHandle] = useState("");
   const [isScanningRadar, setIsScanningRadar] = useState(false);
+  const [groundedSummary, setGroundedSummary] = useState<string>("");
+  const [groundedSources, setGroundedSources] = useState<
+    Array<{ uri: string; title: string }>
+  >([]);
 
   // Generate Counter-Brief with Gemini
   const handleGenerateBrief = async (gap: ContentGap) => {
@@ -232,6 +236,12 @@ export function CompetitorRadar() {
       if (data.gaps) {
         setContentGaps(data.gaps);
       }
+      if (data.groundedSummary) {
+        setGroundedSummary(data.groundedSummary);
+      }
+      if (Array.isArray(data.sources)) {
+        setGroundedSources(data.sources);
+      }
 
       // Slightly update engagement / post numbers for live feel
       setCompetitors((prev) =>
@@ -294,9 +304,6 @@ export function CompetitorRadar() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight">Competitive Intelligence & Share-of-Voice Radar</h1>
-              <Badge variant="outline" className="bg-cyan-500/10 text-cyan-400 border-cyan-500/30 text-xs">
-                Gemini Strategy Radar
-              </Badge>
             </div>
             <p className="text-sm text-muted-foreground mt-0.5">
               Track competitor social publishing velocity, top-performing hook styles, channel mix, and exploit blind spots with AI counter-briefs.
@@ -366,9 +373,6 @@ export function CompetitorRadar() {
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sm text-foreground">{comp.name}</span>
-                        {comp.isUserBrand && (
-                          <Badge className="bg-cyan-500 text-black text-[10px] font-semibold">Your Brand</Badge>
-                        )}
                       </div>
                       <span className="text-muted-foreground">{comp.handle} • {comp.domain}</span>
                     </div>
@@ -477,7 +481,34 @@ export function CompetitorRadar() {
           </div>
         </CardHeader>
 
-        <CardContent className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <CardContent className="p-5 space-y-4">
+          {groundedSummary && (
+            <div className="p-3.5 rounded-xl border border-cyan-500/30 bg-cyan-500/5 text-xs space-y-2">
+              <div className="font-semibold text-cyan-600 dark:text-cyan-400">
+                Live Google Search Grounding Intelligence (gemini-3.8-flash):
+              </div>
+              <p className="text-muted-foreground leading-relaxed">
+                {groundedSummary}
+              </p>
+              {groundedSources.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {groundedSources.map((src, i) => (
+                    <a
+                      key={i}
+                      href={src.uri}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-border bg-card text-[11px] text-cyan-600 dark:text-cyan-400 hover:underline max-w-[240px] truncate"
+                    >
+                      <span className="truncate">{src.title}</span>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {contentGaps.map((gap, idx) => (
             <div
               key={idx}
@@ -488,7 +519,6 @@ export function CompetitorRadar() {
                   <Badge variant="outline" className="text-[10px] bg-cyan-500/10 text-cyan-400 border-cyan-500/30 font-mono">
                     Opportunity Score: {gap.opportunityScore}/100
                   </Badge>
-                  <Sparkles className="h-4 w-4 text-cyan-400 opacity-60 group-hover:opacity-100 transition-opacity" />
                 </div>
 
                 <h3 className="text-sm font-bold text-foreground line-clamp-2">{gap.topic}</h3>
@@ -510,6 +540,7 @@ export function CompetitorRadar() {
               </div>
             </div>
           ))}
+          </div>
         </CardContent>
       </Card>
 

@@ -92,10 +92,7 @@ export default function CampaignDetailPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <PageHeader>
-          <Skeleton className="h-8 w-1/3" />
-          <Skeleton className="h-4 w-1/4" />
-        </PageHeader>
+        <PageHeader title="Loading Campaign..." description="Fetching omnichannel campaign metrics" />
         <div className="space-y-4">
           <Skeleton className="h-[400px]" />
         </div>
@@ -121,7 +118,7 @@ export default function CampaignDetailPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        heading={campaign.name}
+        title={campaign.name}
         description={campaign.description || t('noCampaignDescription')}
         actions={
           <div className="flex items-center gap-2">
@@ -147,12 +144,11 @@ export default function CampaignDetailPage() {
             </Button>
           </div>
         }
-      >
-        <div className="flex items-center gap-4 mt-4">
-          <Badge variant="outline">{t(`types.${campaign.type}`)}</Badge>
-          <Badge>{t(`status.${campaign.status}`)}</Badge>
-        </div>
-      </PageHeader>
+      />
+      <div className="flex items-center gap-4">
+        <Badge variant="outline">{t(`types.${campaign.type}`)}</Badge>
+        <Badge>{t(`status.${campaign.status}`)}</Badge>
+      </div>
 
       <Tabs defaultValue="details" className="space-y-6">
         <TabsList>

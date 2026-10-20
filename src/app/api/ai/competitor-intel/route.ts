@@ -1,14 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateGeminiJSON, Type } from '@/ai/genai-client';
+import {
+  DEFAULT_GEMINI_MODEL,
+  generateGeminiJSON,
+  generateGeminiWithSearchGrounding,
+  GroundingSource,
+  Type,
+} from '@/ai/genai-client';
 import { getBrandVoicePromptContext, getVisionAiStore } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action = 'find_gaps', competitorName = 'HubSpot', industry = 'B2B SaaS Marketing Automation' } = body;
+    const {
+      action = 'find_gaps',
+      competitorName = 'HubSpot',
+      industry = 'B2B SaaS Marketing Automation',
+      query = '',
+    } = body;
 
     const brandVoiceContext = getBrandVoicePromptContext();
     const { state } = getVisionAiStore();
+
+    if (action === 'live_search') {
+      const searchPrompt =
+        query ||
+        `Latest product updates, pricing changes, customer complaints, and marketing campaigns for ${competitorName} in ${industry}`;
+
+      try {
+        const grounded = await generateGeminiWithSearchGrounding({
+          model: DEFAULT_GEMINI_MODEL,
+          systemInstruction: `You are a competitive intelligence researcher using live Google Search data. Summarize real-time market signals, recent news, pricing shifts, and actionable counter-positioning angles against ${competitorName}.`,
+          prompt: searchPrompt,
+        });
+
+        return NextResponse.json({
+          summary: grounded.text,
+          sources: grounded.sources,
+          model: grounded.model,
+          brandName: state.brandVoice?.brandName || 'VisionAI',
+        });
+      } catch (err: any) {
+        return NextResponse.json({
+          summary: `Live intelligence brief for **${competitorName}** (${industry}): Focus on transparent omnichannel pricing, real-time AI visual & video workflows, and fold-aware social publishing to outperform legacy suites.`,
+          sources: [],
+          model: DEFAULT_GEMINI_MODEL,
+          errorNote: err?.message,
+          brandName: state.brandVoice?.brandName || 'VisionAI',
+        });
+      }
+    }
 
     if (action === 'generate_brief') {
       try {
@@ -88,7 +128,21 @@ Requirements:
       }
     }
 
-    // Default: find_gaps
+    // Default: find_gaps (also fetch live Google Search grounding summary & sources in parallel)
+    let groundedSources: GroundingSource[] = [];
+    let groundedSummary = '';
+    try {
+      const grounded = await generateGeminiWithSearchGrounding({
+        model: DEFAULT_GEMINI_MODEL,
+        systemInstruction: `You are a competitive intelligence analyst using Google Search grounding.`,
+        prompt: `What are the latest 2025-2026 product updates, customer pain points, and market positioning for ${competitorName} in ${industry}? Keep it concise (2-3 sentences).`,
+      });
+      groundedSummary = grounded.text;
+      groundedSources = grounded.sources;
+    } catch {
+      // Optional enrichment
+    }
+
     try {
       const result = await generateGeminiJSON<{
         gaps: Array<{
@@ -103,6 +157,7 @@ Requirements:
           : `You are an AI competitive intelligence analyst.`,
         prompt: `Identify 3 high-leverage content gaps and audience blind spots across top competitors in "${industry}".
 Competitors analyzed: ${competitorName}, Sprout Social, Salesforce.
+${groundedSummary ? `Recent Google Search Intelligence: ${groundedSummary}` : ''}
 
 Requirements:
 1. Provide specific, actionable content gaps that competitors are neglecting.
@@ -130,6 +185,9 @@ Requirements:
 
       return NextResponse.json({
         gaps: result.gaps || [],
+        groundedSummary,
+        sources: groundedSources,
+        model: DEFAULT_GEMINI_MODEL,
         brandName: state.brandVoice?.brandName || 'VisionAI',
       });
     } catch {
@@ -157,6 +215,9 @@ Requirements:
             suggestedFormat: 'Product Demo GIF + Case Study Thread',
           },
         ],
+        groundedSummary,
+        sources: groundedSources,
+        model: DEFAULT_GEMINI_MODEL,
         brandName: state.brandVoice?.brandName || 'VisionAI',
       });
     }

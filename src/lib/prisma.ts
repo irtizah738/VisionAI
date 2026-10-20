@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 
@@ -45,6 +46,10 @@ export interface StoredSocialAccount {
   followers: string;
   status: 'connected' | 'disconnected';
   lastSynced: string;
+  tokenExpiresAt?: string;
+  refreshTokenAvailable?: boolean;
+  tokenStatus?: 'valid' | 'expiring_soon' | 'expired';
+  scopes?: string[];
   userId: string;
   createdAt: string;
   updatedAt: string;
@@ -125,7 +130,37 @@ export interface StoredStreamColumn {
   position: number;
 }
 
-interface VisionAiStoreData {
+export interface StoredDispatchJob {
+  id: string;
+  postId: string;
+  network: 'twitter' | 'linkedin' | 'instagram' | 'facebook' | 'youtube';
+  handle: string;
+  contentPreview: string;
+  status: 'queued' | 'processing' | 'published' | 'retrying' | 'dead_letter';
+  attempts: number;
+  maxAttempts: number;
+  nextRetryAt?: string;
+  idempotencyKey: string;
+  lastError?: string;
+  externalUrl?: string;
+  latencyMs?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StoredWebhookEvent {
+  id: string;
+  provider: 'hubspot' | 'stripe';
+  eventType: string;
+  signatureVerified: boolean;
+  signatureMode: 'hmac-sha256' | 'sandbox-signed';
+  payloadSummary: string;
+  status: 'processed' | 'rejected';
+  latencyMs: number;
+  processedAt: string;
+}
+
+export interface VisionAiStoreData {
   users: StoredUser[];
   posts: StoredPost[];
   mentions: StoredMention[];
@@ -134,9 +169,112 @@ interface VisionAiStoreData {
   streamColumns: StoredStreamColumn[];
   brandVoice: StoredBrandVoice;
   workspaceItems: StoredWorkspaceItem[];
+  dispatchQueue: StoredDispatchJob[];
+  webhookLedger: StoredWebhookEvent[];
 }
 
 const DEFAULT_USER_ID = 'usr_visionai_admin';
+
+export function computeIdempotencyKey(
+  userId: string,
+  network: string,
+  content: string,
+  scheduledTime: string
+): string {
+  const hash = crypto
+    .createHash('sha256')
+    .update(`${userId}|${network}|${content.trim()}|${scheduledTime}`)
+    .digest('hex')
+    .slice(0, 12);
+  return `idem_${network.slice(0, 2)}_${hash}`;
+}
+
+const INITIAL_DISPATCH_QUEUE: StoredDispatchJob[] = [
+  {
+    id: 'job_queued_x_01',
+    postId: 'post_x_q4_bench',
+    network: 'twitter',
+    handle: '@VisionAI_HQ',
+    contentPreview: 'Q4 Omnichannel Benchmark: Teams using fold-aware social previews see +38% higher CTR above the mobile cutoff. https://visionai.studio/launch',
+    status: 'queued',
+    attempts: 0,
+    maxAttempts: 3,
+    idempotencyKey: 'idem_tw_8f91a2c4b012',
+    createdAt: new Date(Date.now() - 3600_000).toISOString(),
+    updatedAt: new Date(Date.now() - 1800_000).toISOString(),
+  },
+  {
+    id: 'job_retry_ig_02',
+    postId: 'post_ig_reel_sync',
+    network: 'instagram',
+    handle: '@visionai.studio',
+    contentPreview: 'Carousel + Reel Hook Preview: Stop losing 42% of mobile engagement to mid-sentence truncation. #GrowthMarketing #B2BSaaS',
+    status: 'retrying',
+    attempts: 2,
+    maxAttempts: 3,
+    nextRetryAt: new Date(Date.now() + 4_000).toISOString(),
+    idempotencyKey: 'idem_in_3c90e1f455a2',
+    lastError: 'HTTP 429 Too Many Requests (Instagram Graph API container rate limit) — Exponential Backoff 4s',
+    latencyMs: 310,
+    createdAt: new Date(Date.now() - 2400_000).toISOString(),
+    updatedAt: new Date(Date.now() - 120_000).toISOString(),
+  },
+  {
+    id: 'job_dlq_youtube_01',
+    postId: 'post_yt_short_09',
+    network: 'youtube',
+    handle: 'youtube.com/@VisionAI',
+    contentPreview: 'VisionAI Studio 2.5 Walkthrough: Zero-Trust Firestore Persistence & Multi-Channel Attribution in 60 Seconds',
+    status: 'dead_letter',
+    attempts: 3,
+    maxAttempts: 3,
+    idempotencyKey: 'idem_yo_1a2b3c4d5e6f',
+    lastError: 'HTTP 503 Upstream Timeout after 3 attempts (1s → 4s → 16s backoff exhausted). Ready for manual DLQ replay.',
+    latencyMs: 485,
+    createdAt: new Date(Date.now() - 5400_000).toISOString(),
+    updatedAt: new Date(Date.now() - 35_000).toISOString(),
+  },
+  {
+    id: 'job_pub_li_01',
+    postId: 'post_li_exec_01',
+    network: 'linkedin',
+    handle: 'linkedin.com/company/visionai',
+    contentPreview: 'Why B2B CMOs are replacing fragmented schedulers with unified Brand Voice Memory and deterministic pipeline attribution.',
+    status: 'published',
+    attempts: 1,
+    maxAttempts: 3,
+    idempotencyKey: 'idem_li_98234a771c09',
+    externalUrl: 'https://www.linkedin.com/feed/update/urn:li:activity:7253918201',
+    latencyMs: 162,
+    createdAt: new Date(Date.now() - 7200_000).toISOString(),
+    updatedAt: new Date(Date.now() - 180_000).toISOString(),
+  },
+];
+
+const INITIAL_WEBHOOK_LEDGER: StoredWebhookEvent[] = [
+  {
+    id: 'wh_stripe_01',
+    provider: 'stripe',
+    eventType: 'checkout.session.completed',
+    signatureVerified: true,
+    signatureMode: 'hmac-sha256',
+    payloadSummary: 'Enterprise Growth Annual Plan ($499.00) • customer@visionai.studio',
+    status: 'processed',
+    latencyMs: 28,
+    processedAt: new Date(Date.now() - 75_000).toISOString(),
+  },
+  {
+    id: 'wh_hubspot_01',
+    provider: 'hubspot',
+    eventType: 'deal.propertyChange',
+    signatureVerified: true,
+    signatureMode: 'hmac-sha256',
+    payloadSummary: 'HubSpot Deal #948210 updated dealstage → closedwon ($18,500 ARR attributed)',
+    status: 'processed',
+    latencyMs: 34,
+    processedAt: new Date(Date.now() - 210_000).toISOString(),
+  },
+];
 
 const INITIAL_STORE_DATA: VisionAiStoreData = {
   users: [
@@ -173,565 +311,11 @@ const INITIAL_STORE_DATA: VisionAiStoreData = {
     enabled: true,
     updatedAt: new Date().toISOString(),
   },
-  workspaceItems: [
-    // Content Management Suite items
-    {
-      id: 'ws_content_1',
-      userId: DEFAULT_USER_ID,
-      suite: 'content',
-      title: '2026 Omnichannel Attribution Benchmark Playbook',
-      status: 'published',
-      summary: 'Long-form executive guide + 5 social cutdowns analyzing fold truncation across LinkedIn, X, and Instagram.',
-      primaryMetric: 28450,
-      secondaryMetric: 6.8,
-      meta: { type: 'blog', author: 'Alex Morgan', channel: 'LinkedIn & Blog' },
-      createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'ws_content_2',
-      userId: DEFAULT_USER_ID,
-      suite: 'content',
-      title: 'Q4 Product Keynote: Autonomous Social Dispatcher',
-      status: 'scheduled',
-      summary: 'Video walkthrough and carousel asset pack for YouTube, Instagram Reels, and X native video.',
-      primaryMetric: 14200,
-      secondaryMetric: 5.4,
-      meta: { type: 'video', author: 'Elena Rostova', channel: 'YouTube & Instagram' },
-      createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    // CRO Experiments Suite items
-    {
-      id: 'ws_cro_1',
-      userId: DEFAULT_USER_ID,
-      suite: 'cro',
-      title: 'Above-the-Fold Hook Length (115 chars vs 240 chars)',
-      status: 'running',
-      summary: 'Testing compact ROI-first hook above mobile cutoff against storytelling paragraph on LinkedIn & X.',
-      primaryMetric: 4.8,
-      secondaryMetric: 96,
-      meta: { variantA: '2.9% CTR (240 chars)', variantB: '4.8% CTR (115 chars)', visitors: 18400 },
-      createdAt: new Date(Date.now() - 86400000 * 7).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'ws_cro_2',
-      userId: DEFAULT_USER_ID,
-      suite: 'cro',
-      title: 'Interactive ROI Calculator vs Static Case Study Card',
-      status: 'completed',
-      summary: 'Comparing interactive benchmark link cards against static PDF downloads on enterprise landing pages.',
-      primaryMetric: 6.2,
-      secondaryMetric: 99,
-      meta: { variantA: '3.1% Conv', variantB: '6.2% Conv', visitors: 31200 },
-      createdAt: new Date(Date.now() - 86400000 * 14).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    // CRM Integration Contacts & Pipeline items
-    {
-      id: 'ws_crm_1',
-      userId: DEFAULT_USER_ID,
-      suite: 'crm',
-      title: 'FinScale Enterprise (Marcus Vance - VP Marketing)',
-      status: 'qualified',
-      summary: 'Engaged with LinkedIn fold preview benchmark; requested multi-workspace OAuth demo for 18 regional pages.',
-      primaryMetric: 48000,
-      secondaryMetric: 92,
-      meta: { email: 'm.vance@finscale.io', segment: 'enterprise', source: 'LinkedIn Organic' },
-      createdAt: new Date(Date.now() - 86400000 * 4).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'ws_crm_2',
-      userId: DEFAULT_USER_ID,
-      suite: 'crm',
-      title: 'OmniRetail Group (David Chen - Growth Lead)',
-      status: 'customer',
-      summary: 'Expanded annual seat license after Q3 Instagram + YouTube Shorts automation sprint delivered 3.4x ROAS.',
-      primaryMetric: 84000,
-      secondaryMetric: 98,
-      meta: { email: 'dchen@omniretail.com', segment: 'vip', source: 'Multi-Channel Attribution' },
-      createdAt: new Date(Date.now() - 86400000 * 12).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    // Customer Segmentation items
-    {
-      id: 'ws_seg_1',
-      userId: DEFAULT_USER_ID,
-      suite: 'segment',
-      title: 'High-Velocity B2B SaaS Marketing Leaders',
-      status: 'active',
-      summary: 'CMOs and VPs of Growth at 50–500 person SaaS companies posting 4+ times/week across LinkedIn & X.',
-      primaryMetric: 14800,
-      secondaryMetric: 24.5,
-      meta: { criteria: 'Role: CMO/VP Growth · Channels: LinkedIn + X · LTV > $25k', primaryChannel: 'LinkedIn' },
-      createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'ws_seg_2',
-      userId: DEFAULT_USER_ID,
-      suite: 'segment',
-      title: 'Omnichannel D2C Creative Studio Teams',
-      status: 'active',
-      summary: 'Consumer brand social directors managing daily visual drops across Instagram, YouTube Shorts, and Facebook.',
-      primaryMetric: 29400,
-      secondaryMetric: 31.2,
-      meta: { criteria: 'Format: 1:1 & 9:16 Visuals · Frequency: Daily', primaryChannel: 'Instagram' },
-      createdAt: new Date(Date.now() - 86400000 * 8).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    // Project Management Kanban Deliverables
-    {
-      id: 'ws_proj_1',
-      userId: DEFAULT_USER_ID,
-      suite: 'project',
-      title: 'Q4 Omnichannel Social Preview Launch',
-      status: 'In Progress',
-      summary: 'Coordinate multi-network launch thread and LinkedIn carousel showcasing live fold truncation previews.',
-      primaryMetric: 85,
-      secondaryMetric: 1,
-      meta: { owner: 'Alex Morgan', deadline: '2026-10-24', channel: 'LinkedIn & X', priority: 'High' },
-      createdAt: new Date(Date.now() - 86400000 * 6).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'ws_proj_2',
-      userId: DEFAULT_USER_ID,
-      suite: 'project',
-      title: 'Technical SEO & Schema.org JSON-LD Rollout',
-      status: 'Review',
-      summary: 'Audit structured data markup and meta descriptions across all high-intent landing pages.',
-      primaryMetric: 92,
-      secondaryMetric: 2,
-      meta: { owner: 'Elena Rostova', deadline: '2026-10-28', channel: 'SEO Suite', priority: 'Medium' },
-      createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'ws_proj_3',
-      userId: DEFAULT_USER_ID,
-      suite: 'project',
-      title: 'YouTube 16:9 Product Walkthrough Video',
-      status: 'To Do',
-      summary: 'Record 4K walkthrough demonstrating 1-click omnichannel repurposing from blog to 5 social channels.',
-      primaryMetric: 40,
-      secondaryMetric: 3,
-      meta: { owner: 'Marcus Vance', deadline: '2026-11-02', channel: 'YouTube', priority: 'High' },
-      createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'ws_proj_4',
-      userId: DEFAULT_USER_ID,
-      suite: 'project',
-      title: 'Firebase Firestore Zero-Trust Security Audit',
-      status: 'Done',
-      summary: 'Verify all 12 Dirty-Dozen red-team payloads and enforce Brand Voice Memory persistence.',
-      primaryMetric: 100,
-      secondaryMetric: 4,
-      meta: { owner: 'Alex Morgan', deadline: '2026-10-18', channel: 'Platform Core', priority: 'Critical' },
-      createdAt: new Date(Date.now() - 86400000 * 9).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    // AI Social Inbox & CX Triage items
-    {
-      id: 'ws_inbox_1',
-      userId: DEFAULT_USER_ID,
-      suite: 'inbox',
-      title: 'Marcus Vance (VP Marketing @ FinScale) — Enterprise Multi-Page UTM Inquiry',
-      status: 'Question',
-      summary: 'Does VisionAI Studio support bulk scheduling across 18 regional LinkedIn company pages with custom UTM tagging and role-based approval?',
-      primaryMetric: 94,
-      secondaryMetric: 48000,
-      meta: {
-        network: 'linkedin',
-        author: 'Marcus Vance',
-        handle: 'VP Marketing @ FinScale',
-        sentiment: 'Question',
-        replied: false,
-        escalatedToCrm: true,
-        time: '38m ago',
-      },
-      createdAt: new Date(Date.now() - 3600000).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'ws_inbox_2',
-      userId: DEFAULT_USER_ID,
-      suite: 'inbox',
-      title: 'Sarah Jenkins (@sarahj_growth) — Launch Thread Fold Cutoff Praise',
-      status: 'Positive',
-      summary: '@VisionAI_HQ The side-by-side LinkedIn + X truncation preview just saved our product launch thread from cutting off the signup link! Huge fan of the command center.',
-      primaryMetric: 98,
-      secondaryMetric: 18500,
-      meta: {
-        network: 'twitter',
-        author: 'Sarah Jenkins',
-        handle: '@sarahj_growth',
-        sentiment: 'Positive',
-        replied: false,
-        escalatedToCrm: false,
-        time: '12m ago',
-      },
-      createdAt: new Date(Date.now() - 1800000).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'ws_inbox_3',
-      userId: DEFAULT_USER_ID,
-      suite: 'inbox',
-      title: 'David Chen (Growth Lead @ OmniRetail) — Q4 Benchmark PDF Request',
-      status: 'Urgent',
-      summary: 'Our executive team is finalizing Q1 social budget allocation today—can you send the Q4 social engagement & fold benchmark PDF mentioned in your post?',
-      primaryMetric: 91,
-      secondaryMetric: 84000,
-      meta: {
-        network: 'facebook',
-        author: 'David Chen',
-        handle: 'Growth Lead @ OmniRetail',
-        sentiment: 'Urgent',
-        replied: false,
-        escalatedToCrm: false,
-        time: '2h ago',
-      },
-      createdAt: new Date(Date.now() - 7200000).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'ws_inbox_4',
-      userId: DEFAULT_USER_ID,
-      suite: 'inbox',
-      title: 'Elena Rostova (@elena.creates) — 4:5 Instagram & YouTube 16:9 Workflow Feedback',
-      status: 'Positive',
-      summary: 'Tested the new 4:5 Instagram feed preview alongside YouTube 16:9 cards—super clean workflow for cross-posting!',
-      primaryMetric: 96,
-      secondaryMetric: 12000,
-      meta: {
-        network: 'instagram',
-        author: 'Elena Rostova',
-        handle: '@elena.creates',
-        sentiment: 'Positive',
-        replied: true,
-        replyText: 'Thank you Elena! Thrilled to hear the 4:5 preview is speeding up your cross-channel workflow.',
-        escalatedToCrm: false,
-        time: '1h ago',
-      },
-      createdAt: new Date(Date.now() - 5400000).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-  ],
-  posts: [
-    {
-      id: 'sp-1',
-      network: 'twitter',
-      platforms: ['twitter', 'linkedin'],
-      handle: '@VisionAI_HQ',
-      content:
-        'We just shipped native multi-platform fold & truncation previews inside VisionAI Studio! Preview X, LinkedIn, Instagram, Facebook & YouTube side-by-side before scheduling. https://visionai.studio/launch #SocialMedia #ProductLaunch #MarketingAI',
-      scheduledTime: 'Mon, Oct 19 at 2:30 PM',
-      dateKey: '2026-10-19',
-      presetId: 'preset-analytics',
-      scheduledAt: new Date(Date.now() + 3600000 * 3).toISOString(),
-      status: 'scheduled',
-      likes: 142,
-      comments: 28,
-      shares: 39,
-      reach: '18.4K',
-      userId: DEFAULT_USER_ID,
-      createdAt: new Date(Date.now() - 3600000 * 6).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'sp-2',
-      network: 'linkedin',
-      platforms: ['linkedin'],
-      handle: 'VisionAI Technologies',
-      content:
-        'Why do 68% of B2B social posts lose engagement at the fold? Because critical CTAs get buried below the "...more" cutoff.\n\nOur latest benchmark report breaks down optimal hook lengths across LinkedIn, X, and Instagram for Q4. https://visionai.studio/benchmarks #B2BMarketing #ContentStrategy #Growth',
-      scheduledTime: 'Tue, Oct 20 at 9:00 AM',
-      dateKey: '2026-10-20',
-      presetId: 'preset-playbook',
-      scheduledAt: new Date(Date.now() + 3600000 * 6).toISOString(),
-      status: 'scheduled',
-      likes: 318,
-      comments: 64,
-      shares: 82,
-      reach: '42.1K',
-      userId: DEFAULT_USER_ID,
-      createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'sp-3',
-      network: 'instagram',
-      platforms: ['instagram', 'facebook'],
-      handle: '@visionai.studio',
-      content:
-        'Behind the scenes of our Q4 Creative Automation workflow ✨ From single brief to 5 channel-native assets in 30 seconds. Link in bio! #CreatorEconomy #DesignSystems #SocialSuite',
-      scheduledTime: 'Wed, Oct 21 at 1:15 PM',
-      dateKey: '2026-10-21',
-      presetId: 'preset-launch',
-      scheduledAt: new Date(Date.now() + 3600000 * 20).toISOString(),
-      status: 'scheduled',
-      likes: 894,
-      comments: 91,
-      shares: 120,
-      reach: '64.8K',
-      userId: DEFAULT_USER_ID,
-      createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'sp-4',
-      network: 'youtube',
-      platforms: ['youtube'],
-      handle: 'VisionAI Official',
-      content:
-        'Full Walkthrough: Building a High-Velocity Social Command Center for 2026 | See how modern marketing teams cut scheduling time by 74% with real-time stream monitoring and native card validation.',
-      scheduledTime: 'Thu, Oct 22 at 11:30 AM',
-      dateKey: '2026-10-22',
-      presetId: 'preset-launch',
-      scheduledAt: new Date(Date.now() + 3600000 * 24).toISOString(),
-      status: 'scheduled',
-      likes: 512,
-      comments: 73,
-      shares: 95,
-      reach: '51.2K',
-      userId: DEFAULT_USER_ID,
-      createdAt: new Date(Date.now() - 3600000 * 3).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'sp-5',
-      network: 'facebook',
-      platforms: ['facebook'],
-      handle: 'VisionAI Official Page',
-      content:
-        'Join our live executive workshop this Friday: Mastering Multi-Channel Social Growth with Real-Time Telemetry & Brand Voice Memory. Reserve your seat at https://visionai.io/events #DigitalMarketing #VisionAI',
-      scheduledTime: 'Fri, Oct 23 at 4:00 PM',
-      dateKey: '2026-10-23',
-      presetId: 'preset-analytics',
-      scheduledAt: new Date(Date.now() + 3600000 * 36).toISOString(),
-      status: 'scheduled',
-      likes: 275,
-      comments: 34,
-      shares: 51,
-      reach: '29.4K',
-      userId: DEFAULT_USER_ID,
-      createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'pub-1',
-      network: 'linkedin',
-      platforms: ['linkedin', 'twitter'],
-      handle: 'VisionAI Technologies',
-      content:
-        'Customer Story: How Acme Cloud scaled organic pipeline by 3.4x using unified social streams and AI-assisted hook optimization. Read the full breakdown: https://visionai.studio/cases/acme #SaaS #CustomerSuccess',
-      scheduledTime: 'Published 3h ago',
-      publishedAt: new Date(Date.now() - 3600000 * 3).toISOString(),
-      status: 'published',
-      likes: 642,
-      comments: 87,
-      shares: 134,
-      reach: '78.9K',
-      userId: DEFAULT_USER_ID,
-      createdAt: new Date(Date.now() - 3600000 * 12).toISOString(),
-      updatedAt: new Date(Date.now() - 3600000 * 3).toISOString(),
-    },
-    {
-      id: 'pub-2',
-      network: 'twitter',
-      platforms: ['twitter'],
-      handle: '@VisionAI_HQ',
-      content:
-        'Hot take: Scheduling posts without checking mobile fold truncation first is like shipping code without running tests. Always inspect the cutoff line! #MarketingOps #SocialMediaManager',
-      scheduledTime: 'Published Yesterday',
-      publishedAt: new Date(Date.now() - 3600000 * 24).toISOString(),
-      status: 'published',
-      likes: 489,
-      comments: 53,
-      shares: 112,
-      reach: '54.3K',
-      userId: DEFAULT_USER_ID,
-      createdAt: new Date(Date.now() - 3600000 * 28).toISOString(),
-      updatedAt: new Date(Date.now() - 3600000 * 24).toISOString(),
-    },
-  ],
-  mentions: [
-    {
-      id: 'm-1',
-      network: 'twitter',
-      author: 'Sarah Jenkins',
-      handle: '@sarahj_growth',
-      avatar: 'SJ',
-      content:
-        '@VisionAI_HQ The side-by-side LinkedIn + X truncation preview just saved our product launch thread from cutting off the signup link! Huge fan of the new command center.',
-      time: '12m ago',
-      sentiment: 'Positive',
-      replied: false,
-    },
-    {
-      id: 'm-2',
-      network: 'linkedin',
-      author: 'Marcus Vance',
-      handle: 'VP Marketing @ FinScale',
-      avatar: 'MV',
-      content:
-        'Does VisionAI Studio support bulk scheduling across multiple regional LinkedIn company pages with custom UTM tagging?',
-      time: '38m ago',
-      sentiment: 'Question',
-      replied: false,
-    },
-    {
-      id: 'm-3',
-      network: 'instagram',
-      author: 'Elena Rostova',
-      handle: '@elena.creates',
-      avatar: 'ER',
-      content:
-        'Tested the new 4:5 Instagram feed preview alongside YouTube 16:9 cards—super clean workflow for cross-posting!',
-      time: '1h ago',
-      sentiment: 'Positive',
-      replied: true,
-      replyText: 'Thank you Elena! Thrilled to hear the 4:5 preview is speeding up your workflow.',
-    },
-    {
-      id: 'm-4',
-      network: 'facebook',
-      author: 'David Chen',
-      handle: 'Growth Lead @ OmniRetail',
-      avatar: 'DC',
-      content:
-        'Can your team share the Q4 social engagement benchmark PDF mentioned in today’s post?',
-      time: '2h ago',
-      sentiment: 'Question',
-      replied: false,
-    },
-  ],
-  socialAccounts: [
-    {
-      id: 'acc_twitter',
-      provider: 'twitter',
-      accountName: 'VisionAI Official',
-      handle: '@VisionAI_HQ',
-      followers: '48.2K',
-      status: 'connected',
-      lastSynced: '2 mins ago',
-      userId: DEFAULT_USER_ID,
-      createdAt: new Date(Date.now() - 86400000 * 20).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'acc_linkedin',
-      provider: 'linkedin',
-      accountName: 'VisionAI Technologies',
-      handle: 'linkedin.com/company/visionai',
-      followers: '112.5K',
-      status: 'connected',
-      lastSynced: '4 mins ago',
-      userId: DEFAULT_USER_ID,
-      createdAt: new Date(Date.now() - 86400000 * 20).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'acc_instagram',
-      provider: 'instagram',
-      accountName: 'VisionAI Studio',
-      handle: '@visionai.studio',
-      followers: '84.9K',
-      status: 'connected',
-      lastSynced: '5 mins ago',
-      userId: DEFAULT_USER_ID,
-      createdAt: new Date(Date.now() - 86400000 * 15).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'acc_facebook',
-      provider: 'facebook',
-      accountName: 'VisionAI Official Page',
-      handle: 'fb.com/VisionAIStudio',
-      followers: '63.1K',
-      status: 'connected',
-      lastSynced: '10 mins ago',
-      userId: DEFAULT_USER_ID,
-      createdAt: new Date(Date.now() - 86400000 * 12).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'acc_youtube',
-      provider: 'youtube',
-      accountName: 'VisionAI Official Channel',
-      handle: 'youtube.com/@VisionAI',
-      followers: '95.4K',
-      status: 'connected',
-      lastSynced: '8 mins ago',
-      userId: DEFAULT_USER_ID,
-      createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-  ],
-  campaigns: [
-    {
-      id: 'camp_1',
-      name: 'Q4 Product Launch — Multi-Network Social Blitz',
-      description: 'Coordinated launch campaign across X, LinkedIn, Instagram, and YouTube showcasing live native post previews.',
-      type: 'multi-channel',
-      status: 'active',
-      budget: 18500,
-      spent: 11240,
-      impressions: 428900,
-      clicks: 19450,
-      conversions: 1420,
-      roi: 340,
-      channels: ['twitter', 'linkedin', 'instagram', 'youtube'],
-      startDate: '2026-10-01',
-      endDate: '2026-12-31',
-      userId: DEFAULT_USER_ID,
-      createdAt: new Date(Date.now() - 86400000 * 14).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'camp_2',
-      name: 'Enterprise B2B Thought Leadership Series',
-      description: 'Executive LinkedIn & Email sequence targeting Marketing VPs and Growth Directors.',
-      type: 'social',
-      status: 'active',
-      budget: 12000,
-      spent: 6850,
-      impressions: 215400,
-      clicks: 11280,
-      conversions: 890,
-      roi: 295,
-      channels: ['linkedin', 'email'],
-      startDate: '2026-10-10',
-      endDate: '2026-11-30',
-      userId: DEFAULT_USER_ID,
-      createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: 'camp_3',
-      name: 'Creator Economy Instagram & YouTube Shorts Push',
-      description: 'Visual storytelling and short-form video series highlighting 1-click AI content adaptation.',
-      type: 'content',
-      status: 'paused',
-      budget: 8500,
-      spent: 4100,
-      impressions: 189000,
-      clicks: 8400,
-      conversions: 540,
-      roi: 215,
-      channels: ['instagram', 'youtube', 'facebook'],
-      startDate: '2026-09-15',
-      endDate: '2026-11-15',
-      userId: DEFAULT_USER_ID,
-      createdAt: new Date(Date.now() - 86400000 * 21).toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-  ],
+  workspaceItems: [],
+  posts: [],
+  mentions: [],
+  socialAccounts: [],
+  campaigns: [],
   streamColumns: [
     {
       id: 'col-scheduled',
@@ -755,7 +339,21 @@ const INITIAL_STORE_DATA: VisionAiStoreData = {
       position: 2,
     },
   ],
+  dispatchQueue: INITIAL_DISPATCH_QUEUE,
+  webhookLedger: INITIAL_WEBHOOK_LEDGER,
 };
+
+const LEGACY_SEED_POST_IDS = new Set(['sp-1', 'sp-2', 'sp-3', 'sp-4', 'sp-5', 'pub-1', 'pub-2', 'pub-3']);
+const LEGACY_SEED_MENTION_IDS = new Set(['m-1', 'm-2', 'm-3', 'm-4', 'men-1', 'men-2', 'men-3']);
+const LEGACY_SEED_CAMPAIGN_IDS = new Set(['camp_1', 'camp_2', 'camp_3']);
+const LEGACY_SEED_WORKSPACE_IDS = new Set([
+  'ws_content_1', 'ws_content_2',
+  'ws_cro_1', 'ws_cro_2',
+  'ws_crm_1', 'ws_crm_2',
+  'ws_seg_1', 'ws_seg_2',
+  'ws_proj_1', 'ws_proj_2', 'ws_proj_3', 'ws_proj_4',
+  'ws_inbox_1', 'ws_inbox_2', 'ws_inbox_3', 'ws_inbox_4',
+]);
 
 const STORE_DIR = path.join(process.cwd(), '.data');
 const STORE_FILE = path.join(STORE_DIR, 'visionai-store.json');
@@ -775,31 +373,37 @@ function loadStoreFromDisk(): VisionAiStoreData {
       const parsed = JSON.parse(raw) as Partial<VisionAiStoreData>;
       global.__visionAiStore = {
         users: parsed.users?.length ? parsed.users : INITIAL_STORE_DATA.users,
-        posts: parsed.posts?.length ? parsed.posts : INITIAL_STORE_DATA.posts,
-        mentions: parsed.mentions?.length ? parsed.mentions : INITIAL_STORE_DATA.mentions,
-        socialAccounts: parsed.socialAccounts?.length
+        posts: Array.isArray(parsed.posts)
+          ? parsed.posts.filter((p) => !LEGACY_SEED_POST_IDS.has(p.id))
+          : [],
+        mentions: Array.isArray(parsed.mentions)
+          ? parsed.mentions.filter((m) => !LEGACY_SEED_MENTION_IDS.has(m.id))
+          : [],
+        socialAccounts: Array.isArray(parsed.socialAccounts)
           ? parsed.socialAccounts
-          : INITIAL_STORE_DATA.socialAccounts,
-        campaigns: parsed.campaigns?.length ? parsed.campaigns : INITIAL_STORE_DATA.campaigns,
+          : [],
+        campaigns: Array.isArray(parsed.campaigns)
+          ? parsed.campaigns.filter((c) => !LEGACY_SEED_CAMPAIGN_IDS.has(c.id))
+          : [],
         streamColumns: parsed.streamColumns?.length
           ? parsed.streamColumns
           : INITIAL_STORE_DATA.streamColumns,
         brandVoice: parsed.brandVoice?.brandName
           ? parsed.brandVoice
           : INITIAL_STORE_DATA.brandVoice,
-        workspaceItems: (() => {
-          const existing = parsed.workspaceItems?.length
-            ? [...parsed.workspaceItems]
-            : [...INITIAL_STORE_DATA.workspaceItems];
-          const existingIds = new Set(existing.map((i) => i.id));
-          for (const seedItem of INITIAL_STORE_DATA.workspaceItems) {
-            if (!existingIds.has(seedItem.id)) {
-              existing.push(seedItem);
-            }
-          }
-          return existing;
-        })(),
+        workspaceItems: Array.isArray(parsed.workspaceItems)
+          ? parsed.workspaceItems.filter((w) => !LEGACY_SEED_WORKSPACE_IDS.has(w.id))
+          : [],
+        dispatchQueue:
+          Array.isArray(parsed.dispatchQueue) && parsed.dispatchQueue.length > 0
+            ? parsed.dispatchQueue
+            : INITIAL_DISPATCH_QUEUE,
+        webhookLedger:
+          Array.isArray(parsed.webhookLedger) && parsed.webhookLedger.length > 0
+            ? parsed.webhookLedger
+            : INITIAL_WEBHOOK_LEDGER,
       };
+      saveStoreToDisk(global.__visionAiStore);
       return global.__visionAiStore;
     }
   } catch (err) {
@@ -825,9 +429,114 @@ function saveStoreToDisk(data: VisionAiStoreData) {
 
 export function getVisionAiStore() {
   const state = loadStoreFromDisk();
+
+  const addItem = (
+    item: Omit<StoredWorkspaceItem, 'id' | 'userId' | 'createdAt' | 'updatedAt'> & {
+      id?: string;
+      userId?: string;
+    }
+  ) => {
+    const now = new Date().toISOString();
+    const record: StoredWorkspaceItem = {
+      id: item.id || `ws_${item.suite}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      userId: item.userId || DEFAULT_USER_ID,
+      suite: item.suite,
+      title: item.title,
+      status: item.status,
+      summary: item.summary,
+      primaryMetric: Number(item.primaryMetric) || 0,
+      secondaryMetric: Number(item.secondaryMetric) || 0,
+      meta: item.meta,
+      createdAt: now,
+      updatedAt: now,
+    };
+    state.workspaceItems.unshift(record);
+    saveStoreToDisk(state);
+    return record;
+  };
+
+  const enqueueDispatchJob = (params: {
+    postId: string;
+    network: StoredDispatchJob['network'];
+    handle: string;
+    content: string;
+    scheduledTime?: string;
+    status?: StoredDispatchJob['status'];
+    attempts?: number;
+    externalUrl?: string;
+    latencyMs?: number;
+    lastError?: string;
+  }) => {
+    const now = new Date().toISOString();
+    const idemKey = computeIdempotencyKey(
+      DEFAULT_USER_ID,
+      params.network,
+      params.content,
+      params.scheduledTime || now
+    );
+
+    const existing = state.dispatchQueue.find((j) => j.idempotencyKey === idemKey);
+    if (existing) {
+      existing.status = params.status || existing.status;
+      existing.attempts = params.attempts ?? existing.attempts;
+      existing.externalUrl = params.externalUrl ?? existing.externalUrl;
+      existing.latencyMs = params.latencyMs ?? existing.latencyMs;
+      existing.lastError = params.lastError ?? existing.lastError;
+      existing.updatedAt = now;
+      saveStoreToDisk(state);
+      return existing;
+    }
+
+    const job: StoredDispatchJob = {
+      id: `job_${params.network}_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
+      postId: params.postId,
+      network: params.network,
+      handle: params.handle,
+      contentPreview: params.content.slice(0, 180),
+      status: params.status || 'queued',
+      attempts: params.attempts ?? 0,
+      maxAttempts: 3,
+      idempotencyKey: idemKey,
+      externalUrl: params.externalUrl,
+      latencyMs: params.latencyMs,
+      lastError: params.lastError,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    state.dispatchQueue.unshift(job);
+    saveStoreToDisk(state);
+    return job;
+  };
+
+  const recordWebhookEvent = (
+    evt: Omit<StoredWebhookEvent, 'id' | 'processedAt'> & { id?: string }
+  ) => {
+    const entry: StoredWebhookEvent = {
+      id: evt.id || `wh_${evt.provider}_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
+      provider: evt.provider,
+      eventType: evt.eventType,
+      signatureVerified: evt.signatureVerified,
+      signatureMode: evt.signatureMode,
+      payloadSummary: evt.payloadSummary,
+      status: evt.status,
+      latencyMs: evt.latencyMs,
+      processedAt: new Date().toISOString(),
+    };
+    state.webhookLedger.unshift(entry);
+    if (state.webhookLedger.length > 50) {
+      state.webhookLedger.length = 50;
+    }
+    saveStoreToDisk(state);
+    return entry;
+  };
+
   return {
     state,
     save: () => saveStoreToDisk(state),
+    addItem,
+    enqueueDispatchJob,
+    recordWebhookEvent,
   };
 }
 
@@ -971,6 +680,8 @@ const modelMap: Record<string, keyof VisionAiStoreData> = {
   campaign: 'campaigns',
   streamColumn: 'streamColumns',
   workspaceItem: 'workspaceItems',
+  dispatchJob: 'dispatchQueue',
+  webhookEvent: 'webhookLedger',
 };
 
 const prismaProxy = new Proxy({} as any, {
