@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { useFirebase } from "@/components/firebase/firebase-provider";
 import { useToast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 import {
   Sidebar,
@@ -276,42 +277,43 @@ export function SidebarNav() {
       </SidebarContent>
 
       <SidebarFooter className="p-2.5 border-t border-slate-200/80 dark:border-slate-800/80">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="flex items-center justify-start gap-2.5 w-full p-2 h-auto text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 cursor-pointer"
+        <div className="flex items-center gap-1.5 w-full">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="flex items-center justify-start gap-2.5 flex-1 p-2 h-auto text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 cursor-pointer overflow-hidden min-w-0"
+              >
+                <Avatar className="h-7 w-7 shrink-0">
+                  {avatarSrc ? (
+                    <AvatarImage
+                      src={avatarSrc}
+                      alt="User Avatar"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : null}
+                  <AvatarFallback className="bg-indigo-600 text-white text-[11px] font-bold">
+                    {displayName.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                {!isCollapsed && (
+                  <div className="text-left overflow-hidden flex-1">
+                    <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 leading-tight truncate">
+                      {displayName}
+                    </p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                      {displayEmail}
+                    </p>
+                  </div>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              side="top"
+              align="start"
+              sideOffset={8}
+              className="w-60 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-slate-200 dark:border-slate-800 shadow-2xl z-[100] opacity-100 p-2"
             >
-              <Avatar className="h-7 w-7 shrink-0">
-                {avatarSrc ? (
-                  <AvatarImage
-                    src={avatarSrc}
-                    alt="User Avatar"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : null}
-                <AvatarFallback className="bg-indigo-600 text-white text-[11px] font-bold">
-                  {displayName.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              {!isCollapsed && (
-                <div className="text-left overflow-hidden flex-1">
-                  <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 leading-tight truncate">
-                    {displayName}
-                  </p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                    {displayEmail}
-                  </p>
-                </div>
-              )}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            side="top"
-            align="start"
-            sideOffset={8}
-            className="w-60 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-slate-200 dark:border-slate-800 shadow-2xl z-[100] opacity-100 p-2"
-          >
             <DropdownMenuLabel className="text-xs font-semibold text-slate-900 dark:text-slate-100">
               Workspace Account
             </DropdownMenuLabel>
@@ -391,6 +393,10 @@ export function SidebarNav() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        {!isCollapsed && (
+          <ThemeToggle size="sm" />
+        )}
+        </div>
       </SidebarFooter>
     </Sidebar>
   );

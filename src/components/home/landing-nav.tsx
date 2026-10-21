@@ -6,6 +6,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Menu, X } from "lucide-react";
 
+import { ThemeToggle } from "@/components/theme-toggle";
+
 export function LandingNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -63,8 +65,9 @@ export function LandingNav() {
         </a>
       </nav>
 
-      {/* Zone 3: 1 single primary action */}
-      <div className="flex items-center gap-3 shrink-0">
+      {/* Zone 3: Day/Night Mode Switch & Primary Action */}
+      <div className="flex items-center gap-2.5 shrink-0">
+        <ThemeToggle size="sm" />
         <Link href="/login" className="hidden sm:inline-flex">
           <Button
             size="sm"
@@ -87,6 +90,10 @@ export function LandingNav() {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="absolute top-16 left-0 right-0 bg-white dark:bg-[#070913] border-b border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-4 md:hidden shadow-2xl">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Appearance</span>
+            <ThemeToggle size="sm" showLabel />
+          </div>
           <a
             href="#synthesizer"
             onClick={() => setMobileMenuOpen(false)}

@@ -20,6 +20,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Search, ArrowRight } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const TOP_NAV_LINKS = [
   { href: "/dashboard", label: "Command Center" },
@@ -129,12 +130,12 @@ function AppHeaderBar() {
           })}
         </nav>
 
-        {/* Zone 3: Quick Command & Module Search (⌘K) */}
-        <div className="flex items-center justify-end shrink-0">
+        {/* Zone 3: Quick Command & Module Search (⌘K) & Day/Night Mode Switch */}
+        <div className="flex items-center justify-end gap-2.5 shrink-0">
           <button
             type="button"
             onClick={() => setCommandOpen(true)}
-            className="flex items-center justify-between gap-3 w-44 sm:w-64 px-3 py-1.5 rounded-lg bg-slate-100/90 dark:bg-slate-900 hover:bg-slate-200/70 dark:hover:bg-slate-800/90 border border-slate-200/90 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 transition-colors cursor-pointer"
+            className="flex items-center justify-between gap-3 w-40 sm:w-60 px-3 py-1.5 rounded-lg bg-slate-100/90 dark:bg-slate-900 hover:bg-slate-200/70 dark:hover:bg-slate-800/90 border border-slate-200/90 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 transition-colors cursor-pointer"
           >
             <span className="flex items-center gap-2 truncate">
               <Search className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
@@ -144,6 +145,7 @@ function AppHeaderBar() {
               ⌘K
             </kbd>
           </button>
+          <ThemeToggle size="sm" />
         </div>
       </header>
 
