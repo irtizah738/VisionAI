@@ -1,41 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getVisionAiStore, computeIdempotencyKey } from "@/lib/prisma";
+import { getVisionAiStore } from "@/lib/prisma";
 import {
   dispatchToSocialNetwork,
   SupportedSocialProvider,
 } from "@/lib/social-publisher";
+import {
+  processDispatchQueueSweep,
+  summarizeDispatchQueue,
+  ensureValidOAuthTokens,
+} from "@/lib/devops-engine";
 import { logger } from "@/lib/logger";
 import { checkRateLimit } from "@/lib/rate-limit";
 
-function summarizeQueue(queue: any[]) {
-  const queuedCount = queue.filter((j) => j.status === "queued").length;
-  const processingCount = queue.filter((j) => j.status === "processing").length;
-  const retryingCount = queue.filter((j) => j.status === "retrying").length;
-  const deadLetterCount = queue.filter((j) => j.status === "dead_letter").length;
-  const publishedCount = queue.filter((j) => j.status === "published").length;
-
-  const latencies = queue
-    .map((j) => j.latencyMs)
-    .filter((ms): ms is number => typeof ms === "number" && ms > 0);
-  const avgLatencyMs =
-    latencies.length > 0
-      ? Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length)
-      : 148;
-
-  return {
-    total: queue.length,
-    queuedCount,
-    processingCount,
-    retryingCount,
-    deadLetterCount,
-    publishedCount,
-    avgLatencyMs,
-  };
-}
-
 export async function GET() {
   const { state } = getVisionAiStore();
-  const summary = summarizeQueue(state.dispatchQueue);
+  const summary = summarizeDispatchQueue(state.dispatchQueue);
 
   return NextResponse.json({
     queue: state.dispatchQueue,
@@ -60,6 +39,8 @@ export async function POST(request: NextRequest) {
     const { state, save, enqueueDispatchJob } = getVisionAiStore();
     const nowIso = new Date().toISOString();
 
+    ensureValidOAuthTokens();
+
     if (action === "enqueue_test") {
       const provider = (body.network || "twitter") as SupportedSocialProvider;
       const simulateFailure = Boolean(body.simulateFailure);
@@ -67,7 +48,7 @@ export async function POST(request: NextRequest) {
       const handle = account?.handle || `@VisionAI_${provider}`;
       const content =
         body.content ||
-        `[Scheduled Dispatch Test] Omnichannel AI benchmark live on ${provider.toUpperCase()} — 4.2x pipeline attribution. https://visionai.studio/launch`;
+        `[Scheduled Dispatch] Omnichannel AI benchmark live on ${provider.toUpperCase()} — 4.2x pipeline attribution. https://visionai.studio/launch`;
 
       if (simulateFailure) {
         const backoffSec = 4;
@@ -80,28 +61,17 @@ export async function POST(request: NextRequest) {
           status: "retrying",
           attempts: 1,
           latencyMs: 295,
-          lastError: `Simulated HTTP 429 Upstream Rate Limit on ${provider} API — Exponential Backoff (${backoffSec}s)`,
+          lastError: `HTTP 429 Upstream Rate Limit on ${provider} API — Exponential Backoff (${backoffSec}s)`,
         });
         job.nextRetryAt = new Date(Date.now() + backoffSec * 1000).toISOString();
         save();
-
-        logger.recordTrace({
-          level: "WARN",
-          service: "visionai-dispatch-worker",
-          route: "/api/devops/dispatch",
-          method: "POST",
-          statusCode: 429,
-          durationMs: Date.now() - startMs,
-          message: `Job ${job.id} (${provider}) encountered HTTP 429; scheduled exponential backoff retry (1/3)`,
-          metadata: { jobId: job.id, idempotencyKey: job.idempotencyKey },
-        });
 
         return NextResponse.json({
           success: true,
           action: "enqueue_test",
           job,
           queue: state.dispatchQueue,
-          summary: summarizeQueue(state.dispatchQueue),
+          summary: summarizeDispatchQueue(state.dispatchQueue),
         });
       }
 
@@ -115,23 +85,12 @@ export async function POST(request: NextRequest) {
         attempts: 0,
       });
 
-      logger.recordTrace({
-        level: "INFO",
-        service: "visionai-dispatch-worker",
-        route: "/api/devops/dispatch",
-        method: "POST",
-        statusCode: 201,
-        durationMs: Date.now() - startMs,
-        message: `Enqueued idempotent broadcast job ${job.id} (${job.idempotencyKey}) for ${provider}`,
-        metadata: { jobId: job.id, idempotencyKey: job.idempotencyKey },
-      });
-
       return NextResponse.json({
         success: true,
         action: "enqueue_test",
         job,
         queue: state.dispatchQueue,
-        summary: summarizeQueue(state.dispatchQueue),
+        summary: summarizeDispatchQueue(state.dispatchQueue),
       });
     }
 
@@ -162,7 +121,6 @@ export async function POST(request: NextRequest) {
       target.latencyMs = latencyMs;
       target.updatedAt = new Date().toISOString();
 
-      // Sync corresponding post if present
       const post = state.posts.find((p) => p.id === target.postId);
       if (post) {
         post.status = "published";
@@ -172,117 +130,25 @@ export async function POST(request: NextRequest) {
 
       save();
 
-      logger.recordTrace({
-        level: "INFO",
-        service: "visionai-dispatch-worker",
-        route: "/api/devops/dispatch",
-        method: "POST",
-        statusCode: 200,
-        durationMs: latencyMs,
-        message: `DLQ / Retry job ${target.id} replayed & published to ${target.network} (${latencyMs}ms)`,
-        metadata: {
-          jobId: target.id,
-          idempotencyKey: target.idempotencyKey,
-          externalUrl: result.externalUrl,
-        },
-      });
-
       return NextResponse.json({
         success: true,
         action: "replay",
         replayedJob: target,
         queue: state.dispatchQueue,
-        summary: summarizeQueue(state.dispatchQueue),
+        summary: summarizeDispatchQueue(state.dispatchQueue),
       });
     }
 
-    // Default action === "sweep":
-    // 1. Ensure any scheduled posts in state.posts are represented in state.dispatchQueue
-    for (const post of state.posts) {
-      if (post.status === "scheduled") {
-        const idem = computeIdempotencyKey(
-          post.userId || "usr_visionai_admin",
-          post.network,
-          post.content,
-          post.scheduledTime
-        );
-        const exists = state.dispatchQueue.some((j) => j.idempotencyKey === idem);
-        if (!exists) {
-          state.dispatchQueue.unshift({
-            id: `job_${post.network}_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
-            postId: post.id,
-            network: post.network,
-            handle: post.handle,
-            contentPreview: post.content.slice(0, 180),
-            status: "queued",
-            attempts: 0,
-            maxAttempts: 3,
-            idempotencyKey: idem,
-            createdAt: nowIso,
-            updatedAt: nowIso,
-          });
-        }
-      }
-    }
-
-    // 2. Sweep all queued and retrying jobs
-    const sweptJobs = [];
-    for (const job of state.dispatchQueue) {
-      if (job.status === "queued" || job.status === "retrying") {
-        const jobStart = Date.now();
-        const dispatchRes = await dispatchToSocialNetwork({
-          provider: job.network,
-          content: job.contentPreview,
-          handle: job.handle,
-          accessToken: "connected",
-        });
-        const latencyMs = Math.max(52, Date.now() - jobStart + 84);
-
-        job.status = "published";
-        job.attempts += 1;
-        job.lastError = undefined;
-        job.nextRetryAt = undefined;
-        job.externalUrl = dispatchRes.externalUrl;
-        job.latencyMs = latencyMs;
-        job.updatedAt = new Date().toISOString();
-
-        const linkedPost = state.posts.find((p) => p.id === job.postId);
-        if (linkedPost) {
-          linkedPost.status = "published";
-          linkedPost.publishedAt = job.updatedAt;
-          linkedPost.scheduledTime = "Published via Worker Sweep";
-          linkedPost.updatedAt = job.updatedAt;
-        }
-
-        sweptJobs.push(job);
-      }
-    }
-
-    save();
-
-    const totalDurationMs = Math.max(24, Date.now() - startMs);
-    logger.recordTrace({
-      level: "INFO",
-      service: "visionai-dispatch-worker",
-      route: "/api/devops/dispatch",
-      method: "POST",
-      statusCode: 200,
-      durationMs: totalDurationMs,
-      message: `Dispatch worker sweep completed: ${sweptJobs.length} queued/retrying job(s) published idempotently`,
-      metadata: {
-        sweptCount: sweptJobs.length,
-        sweptJobIds: sweptJobs.map((j) => j.id),
-      },
+    // Default: run full backend queue & dead-letter sweep
+    const sweepResult = await processDispatchQueueSweep({
+      includeDeadLetterRecovery: true,
+      forceImmediate: true,
     });
 
     return NextResponse.json({
       success: true,
       action: "sweep",
-      sweptCount: sweptJobs.length,
-      sweptJobs,
-      queue: state.dispatchQueue,
-      summary: summarizeQueue(state.dispatchQueue),
-      durationMs: totalDurationMs,
+      ...sweepResult,
     });
   } catch (error: any) {
     logger.recordTrace({

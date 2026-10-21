@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getVisionAiStore, prisma, StoredPost } from '@/lib/prisma';
+import {
+  enqueuePostForBackendDispatch,
+  runBackgroundWorkerTick,
+} from '@/lib/devops-engine';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
 
 const DEFAULT_HANDLES: Record<string, string> = {
   twitter: '@VisionAI_HQ',
@@ -11,6 +17,8 @@ const DEFAULT_HANDLES: Record<string, string> = {
 
 export async function GET(request: NextRequest) {
   try {
+    await runBackgroundWorkerTick();
+
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const network = searchParams.get('network');
@@ -36,6 +44,15 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const startMs = Date.now();
+  const rate = checkRateLimit(request, 'posts_write', {
+    limit: 60,
+    windowMs: 60_000,
+  });
+  if (!rate.allowed && rate.response) {
+    return rate.response;
+  }
+
   try {
     const body = await request.json();
     const {
@@ -86,8 +103,31 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Automatically register and process in the backend idempotent dispatch queue
+    await enqueuePostForBackendDispatch(newPost, status === 'published');
+
+    logger.recordTrace({
+      level: 'INFO',
+      service: 'visionai-posts-api',
+      route: '/api/posts',
+      method: 'POST',
+      statusCode: 201,
+      durationMs: Math.max(10, Date.now() - startMs),
+      message: `Created & queued ${status} post ${newPost.id} on ${primaryNetwork}`,
+      metadata: { postId: newPost.id, network: primaryNetwork, status },
+    });
+
     return NextResponse.json({ post: newPost }, { status: 201 });
   } catch (error: any) {
+    logger.recordTrace({
+      level: 'ERROR',
+      service: 'visionai-posts-api',
+      route: '/api/posts',
+      method: 'POST',
+      statusCode: 500,
+      durationMs: Date.now() - startMs,
+      message: error?.message || 'Failed to create post',
+    });
     return NextResponse.json(
       { error: error?.message || 'Failed to create post' },
       { status: 500 }
@@ -96,6 +136,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const startMs = Date.now();
   try {
     const body = await request.json();
     const { id, action, ...updates } = body;
@@ -117,6 +158,7 @@ export async function PATCH(request: NextRequest) {
           reach: '3.8K',
         },
       });
+      await enqueuePostForBackendDispatch(updated, true);
       return NextResponse.json({ post: updated });
     }
 
@@ -129,6 +171,7 @@ export async function PATCH(request: NextRequest) {
           ...(updates.network ? { network: updates.network } : {}),
         },
       });
+      await enqueuePostForBackendDispatch(updated, false);
       return NextResponse.json({ post: updated });
     }
 
@@ -142,6 +185,15 @@ export async function PATCH(request: NextRequest) {
           replyText: updates.replyText || 'Thank you for reaching out!',
         };
         save();
+        logger.recordTrace({
+          level: 'INFO',
+          service: 'visionai-inbox-worker',
+          route: '/api/posts',
+          method: 'PATCH',
+          statusCode: 200,
+          durationMs: Math.max(8, Date.now() - startMs),
+          message: `Dispatched thread reply for mention ${id}`,
+        });
         return NextResponse.json({ mention: state.mentions[mentionIdx] });
       }
       return NextResponse.json({ error: 'Mention not found' }, { status: 404 });
@@ -169,6 +221,12 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Post ID is required' }, { status: 400 });
     }
     await prisma.post.delete({ where: { id } });
+
+    // Remove any pending dispatch queue job associated with this post in the backend
+    const { state, save } = getVisionAiStore();
+    state.dispatchQueue = state.dispatchQueue.filter((j) => j.postId !== id);
+    save();
+
     return NextResponse.json({ success: true, id });
   } catch (error: any) {
     return NextResponse.json(

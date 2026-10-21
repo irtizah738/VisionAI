@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getVisionAiStore } from '@/lib/prisma';
 import { getRateLimitSnapshot } from '@/lib/rate-limit';
+import { runBackgroundWorkerTick } from '@/lib/devops-engine';
 
 export async function GET() {
   const startTime = Date.now();
@@ -20,6 +21,8 @@ export async function GET() {
   };
 
   try {
+    await runBackgroundWorkerTick();
+
     const dbStart = Date.now();
     const { state } = getVisionAiStore();
     const queuedJobs = state.dispatchQueue.filter((j) => j.status === 'queued' || j.status === 'retrying').length;

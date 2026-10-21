@@ -46,6 +46,8 @@ export interface StoredSocialAccount {
   followers: string;
   status: 'connected' | 'disconnected';
   lastSynced: string;
+  accessToken?: string;
+  refreshToken?: string;
   tokenExpiresAt?: string;
   refreshTokenAvailable?: boolean;
   tokenStatus?: 'valid' | 'expiring_soon' | 'expired';
@@ -139,6 +141,7 @@ export interface StoredDispatchJob {
   status: 'queued' | 'processing' | 'published' | 'retrying' | 'dead_letter';
   attempts: number;
   maxAttempts: number;
+  scheduledAt?: string;
   nextRetryAt?: string;
   idempotencyKey: string;
   lastError?: string;
@@ -461,6 +464,7 @@ export function getVisionAiStore() {
     handle: string;
     content: string;
     scheduledTime?: string;
+    scheduledAt?: string;
     status?: StoredDispatchJob['status'];
     attempts?: number;
     externalUrl?: string;
@@ -479,6 +483,7 @@ export function getVisionAiStore() {
     if (existing) {
       existing.status = params.status || existing.status;
       existing.attempts = params.attempts ?? existing.attempts;
+      existing.scheduledAt = params.scheduledAt ?? existing.scheduledAt;
       existing.externalUrl = params.externalUrl ?? existing.externalUrl;
       existing.latencyMs = params.latencyMs ?? existing.latencyMs;
       existing.lastError = params.lastError ?? existing.lastError;
@@ -496,6 +501,7 @@ export function getVisionAiStore() {
       status: params.status || 'queued',
       attempts: params.attempts ?? 0,
       maxAttempts: 3,
+      scheduledAt: params.scheduledAt,
       idempotencyKey: idemKey,
       externalUrl: params.externalUrl,
       latencyMs: params.latencyMs,

@@ -31,7 +31,6 @@ import {
   LogOut,
   Cloud,
   LogIn,
-  Server,
 } from "lucide-react";
 import { useFirebase } from "@/components/firebase/firebase-provider";
 import { useToast } from "@/hooks/use-toast";
@@ -97,7 +96,6 @@ export const navItems = [
   // Organization & Account
   { type: "separator", label: "Workspace & Channels" },
   { href: "/project-management", icon: KanbanSquare, label: "Project Kanban Planner", category: "Workspace & Channels", accent: "indigo" },
-  { href: "/monitoring", icon: Server, label: "Backend & DevOps", category: "Workspace & Channels", accent: "emerald" },
   { href: "/settings", icon: SettingsIcon, label: "Settings & OAuth", category: "Workspace & Channels", accent: "cyan" },
 ];
 

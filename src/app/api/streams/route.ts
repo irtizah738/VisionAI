@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getVisionAiStore, prisma } from '@/lib/prisma';
+import { runBackgroundWorkerTick } from '@/lib/devops-engine';
 
 export async function GET() {
   try {
+    // Automatically run backend queue & OAuth maintenance tick on stream sync
+    await runBackgroundWorkerTick();
+
     const { state } = getVisionAiStore();
     const posts = await prisma.post.findMany();
     const scheduledPosts = posts.filter((p: any) => p.status !== 'published');

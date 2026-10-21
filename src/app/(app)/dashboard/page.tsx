@@ -1203,9 +1203,6 @@ export default function VisionAIDashboard() {
       <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-2xs">
         <div className="p-5 md:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="space-y-1 max-w-2xl">
-            <div className="text-xs font-mono text-indigo-600 dark:text-indigo-400 font-semibold">
-              Autonomous Creative &amp; 5-Network Dispatch Cockpit · 4.4x Avg Paid Social ROAS
-            </div>
             <h1 className="text-xl md:text-2xl font-display font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
               Command Center
             </h1>

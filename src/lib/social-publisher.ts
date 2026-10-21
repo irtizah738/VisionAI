@@ -54,79 +54,200 @@ export async function dispatchToSocialNetwork(
   const hasRealToken =
     Boolean(accessToken) &&
     accessToken !== "connected" &&
+    accessToken !== "connected_refreshed" &&
     accessToken !== "sandbox_token" &&
     !accessToken?.startsWith("sim_");
 
-  // If a real OAuth 2.0 bearer token is configured for this provider, invoke the official provider API
+  // If a real OAuth 2.0 bearer token is stored for this provider, invoke the official provider REST API
   if (hasRealToken) {
-    try {
-      if (provider === "twitter") {
-        const res = await fetch("https://api.twitter.com/2/tweets", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
+    if (provider === "twitter") {
+      const res = await fetch("https://api.twitter.com/2/tweets", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: trimmed }),
+      });
+      if (res.status === 429 || res.status >= 500) {
+        throw new Error(
+          `Twitter API returned HTTP ${res.status} (${res.statusText || "Rate Limited / Upstream Error"})`
+        );
+      }
+      if (res.ok) {
+        const data = await res.json();
+        const tweetId = data?.data?.id || `tw_${Date.now()}`;
+        return {
+          provider,
+          success: true,
+          mode: "live_oauth_api",
+          externalPostId: tweetId,
+          externalUrl: `https://x.com/i/web/status/${tweetId}`,
+          characterCount: trimmed.length,
+          maxLimit,
+          publishedAt,
+          message: "Published live to X / Twitter via OAuth 2.0 API.",
+        };
+      }
+    } else if (provider === "linkedin") {
+      const res = await fetch("https://api.linkedin.com/v2/ugcPosts", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+          "X-Restli-Protocol-Version": "2.0.0",
+        },
+        body: JSON.stringify({
+          author: `urn:li:organization:${handle || "visionai"}`,
+          lifecycleState: "PUBLISHED",
+          specificContent: {
+            "com.linkedin.ugc.ShareContent": {
+              shareCommentary: { text: trimmed },
+              shareMediaCategory: "NONE",
+            },
           },
-          body: JSON.stringify({ text: trimmed }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const tweetId = data?.data?.id || `tw_${Date.now()}`;
-          return {
-            provider,
-            success: true,
-            mode: "live_oauth_api",
-            externalPostId: tweetId,
-            externalUrl: `https://x.com/i/web/status/${tweetId}`,
-            characterCount: trimmed.length,
-            maxLimit,
-            publishedAt,
-            message: "Published live to X / Twitter via OAuth 2.0 API.",
-          };
-        }
-      } else if (provider === "linkedin") {
-        const res = await fetch("https://api.linkedin.com/v2/ugcPosts", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-            "X-Restli-Protocol-Version": "2.0.0",
+          visibility: {
+            "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
           },
-          body: JSON.stringify({
-            author: `urn:li:organization:${handle || "visionai"}`,
-            lifecycleState: "PUBLISHED",
-            specificContent: {
-              "com.linkedin.ugc.ShareContent": {
-                shareCommentary: { text: trimmed },
-                shareMediaCategory: "NONE",
+        }),
+      });
+      if (res.status === 429 || res.status >= 500) {
+        throw new Error(
+          `LinkedIn API returned HTTP ${res.status} (${res.statusText || "Rate Limited / Upstream Error"})`
+        );
+      }
+      if (res.ok) {
+        const data = await res.json();
+        const liId = data?.id || `li_${Date.now()}`;
+        return {
+          provider,
+          success: true,
+          mode: "live_oauth_api",
+          externalPostId: liId,
+          externalUrl: `https://www.linkedin.com/feed/update/${liId}`,
+          characterCount: trimmed.length,
+          maxLimit,
+          publishedAt,
+          message: "Published live to LinkedIn via OAuth 2.0 API.",
+        };
+      }
+    } else if (provider === "facebook") {
+      const res = await fetch("https://graph.facebook.com/v19.0/me/feed", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: trimmed,
+          ...(mediaUrl ? { link: mediaUrl } : {}),
+        }),
+      });
+      if (res.status === 429 || res.status >= 500) {
+        throw new Error(
+          `Facebook Graph API returned HTTP ${res.status} (${res.statusText || "Upstream Error"})`
+        );
+      }
+      if (res.ok) {
+        const data = await res.json();
+        const fbId = data?.id || `fb_${Date.now()}`;
+        return {
+          provider,
+          success: true,
+          mode: "live_oauth_api",
+          externalPostId: fbId,
+          externalUrl: `https://www.facebook.com/${fbId}`,
+          characterCount: trimmed.length,
+          maxLimit,
+          publishedAt,
+          message: "Published live to Facebook Page via Graph API v19.0.",
+        };
+      }
+    } else if (provider === "instagram") {
+      const containerRes = await fetch("https://graph.facebook.com/v19.0/me/media", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          caption: trimmed,
+          image_url: mediaUrl || "https://picsum.photos/seed/visionai/1080/1080",
+        }),
+      });
+      if (containerRes.status === 429 || containerRes.status >= 500) {
+        throw new Error(
+          `Instagram Graph API returned HTTP ${containerRes.status} (${containerRes.statusText || "Container Rate Limit"})`
+        );
+      }
+      if (containerRes.ok) {
+        const containerData = await containerRes.json();
+        const creationId = containerData?.id;
+        if (creationId) {
+          const publishRes = await fetch(
+            "https://graph.facebook.com/v19.0/me/media_publish",
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
               },
-            },
-            visibility: {
-              "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
-            },
-          }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const liId = data?.id || `li_${Date.now()}`;
-          return {
-            provider,
-            success: true,
-            mode: "live_oauth_api",
-            externalPostId: liId,
-            externalUrl: `https://www.linkedin.com/feed/update/${liId}`,
-            characterCount: trimmed.length,
-            maxLimit,
-            publishedAt,
-            message: "Published live to LinkedIn via OAuth 2.0 API.",
-          };
+              body: JSON.stringify({ creation_id: creationId }),
+            }
+          );
+          if (publishRes.ok) {
+            const pubData = await publishRes.json();
+            const igId = pubData?.id || creationId;
+            return {
+              provider,
+              success: true,
+              mode: "live_oauth_api",
+              externalPostId: igId,
+              externalUrl: `https://www.instagram.com/p/${igId}/`,
+              characterCount: trimmed.length,
+              maxLimit,
+              publishedAt,
+              message: "Published live to Instagram Business via Graph API.",
+            };
+          }
         }
       }
-    } catch (err) {
-      console.warn(
-        `[social-publisher] Live API call for ${provider} fell back to workspace dispatch:`,
-        err
+    } else if (provider === "youtube") {
+      const res = await fetch(
+        "https://www.googleapis.com/youtube/v3/activities?part=snippet",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            snippet: {
+              description: trimmed,
+            },
+          }),
+        }
       );
+      if (res.status === 429 || res.status >= 500) {
+        throw new Error(
+          `YouTube Data API v3 returned HTTP ${res.status} (${res.statusText || "Quota / Upstream Error"})`
+        );
+      }
+      if (res.ok) {
+        const data = await res.json();
+        const ytId = data?.id || `yt_${Date.now()}`;
+        return {
+          provider,
+          success: true,
+          mode: "live_oauth_api",
+          externalPostId: ytId,
+          externalUrl: `https://www.youtube.com/post/${ytId}`,
+          characterCount: trimmed.length,
+          maxLimit,
+          publishedAt,
+          message: "Published live to YouTube via Data API v3.",
+        };
+      }
     }
   }
 

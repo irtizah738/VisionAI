@@ -8,16 +8,30 @@ function verifyHubSpotSignature(bodyText: string, headerSig: string | null): {
   verified: boolean;
   mode: 'hmac-sha256' | 'sandbox-signed';
 } {
-  const secret = process.env.HUBSPOT_WEBHOOK_SECRET || process.env.HUBSPOT_CLIENT_SECRET || 'visionai_hubspot_signing_secret';
+  const secret =
+    process.env.HUBSPOT_WEBHOOK_SECRET ||
+    process.env.HUBSPOT_CLIENT_SECRET ||
+    'visionai_hubspot_signing_secret';
+
+  if (!headerSig) {
+    return { verified: true, mode: 'sandbox-signed' };
+  }
+
+  const normalizedSig = headerSig.replace(/^sha256=/i, '').trim();
   const expectedHmac = crypto
     .createHmac('sha256', secret)
     .update(bodyText)
     .digest('hex');
 
-  if (headerSig && (headerSig === expectedHmac || headerSig.startsWith('sha256='))) {
-    return { verified: true, mode: 'hmac-sha256' };
+  if (normalizedSig.length === expectedHmac.length && /^[a-fA-F0-9]+$/.test(normalizedSig)) {
+    const a = Buffer.from(normalizedSig, 'hex');
+    const b = Buffer.from(expectedHmac, 'hex');
+    if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
+      return { verified: true, mode: 'hmac-sha256' };
+    }
   }
-  return { verified: true, mode: 'sandbox-signed' };
+
+  return { verified: false, mode: 'hmac-sha256' };
 }
 
 export async function POST(request: NextRequest) {
@@ -51,6 +65,34 @@ export async function POST(request: NextRequest) {
     const store = getVisionAiStore();
     const nowIso = new Date().toISOString();
     const processedEvents: any[] = [];
+
+    if (!sigCheck.verified) {
+      const latencyMs = Math.max(8, Date.now() - startMs);
+      const primaryEvt = events[0] || {};
+      const rejectedEntry = store.recordWebhookEvent({
+        provider: 'hubspot',
+        eventType: primaryEvt.subscriptionType || 'contact.creation',
+        signatureVerified: false,
+        signatureMode: sigCheck.mode,
+        payloadSummary: `Rejected forged HubSpot signature on ${primaryEvt.subscriptionType || 'webhook'}`,
+        status: 'rejected',
+        latencyMs,
+      });
+      logger.recordTrace({
+        level: 'ERROR',
+        service: 'visionai-webhook-ingestor',
+        route: '/api/webhooks/hubspot',
+        method: 'POST',
+        statusCode: 401,
+        durationMs: latencyMs,
+        message: `Rejected HubSpot webhook — HMAC-SHA256 signature mismatch`,
+        metadata: { webhookId: rejectedEntry.id },
+      });
+      return NextResponse.json(
+        { error: 'Invalid HubSpot webhook HMAC-SHA256 signature', signatureVerified: false },
+        { status: 401 }
+      );
+    }
 
     for (const evt of events) {
       const {

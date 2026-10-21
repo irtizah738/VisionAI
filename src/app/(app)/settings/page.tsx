@@ -47,9 +47,7 @@ import {
   ExternalLink,
   Copy,
   Wand2,
-  Server,
 } from "lucide-react";
-import { BackendDevOpsCenter } from "@/components/devops/backend-devops-center";
 
 interface SocialAccountItem {
   id: string;
@@ -576,7 +574,7 @@ export default function SettingsPage() {
       />
 
       <Tabs defaultValue="brand-voice" className="space-y-6">
-        <TabsList className="grid w-full max-w-5xl grid-cols-6">
+        <TabsList className="grid w-full max-w-4xl grid-cols-5">
           <TabsTrigger value="brand-voice" className="gap-1.5 text-xs">
             <Wand2 className="h-3.5 w-3.5" />
             Brand Voice Memory
@@ -588,10 +586,6 @@ export default function SettingsPage() {
           <TabsTrigger value="firebase" className="gap-1.5 text-xs">
             <Cloud className="h-3.5 w-3.5" />
             Firebase Cloud
-          </TabsTrigger>
-          <TabsTrigger value="devops" className="gap-1.5 text-xs">
-            <Server className="h-3.5 w-3.5" />
-            Backend &amp; DevOps
           </TabsTrigger>
           <TabsTrigger value="profile" className="gap-1.5 text-xs">
             <User className="h-3.5 w-3.5" />
@@ -1026,11 +1020,6 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-
-        {/* TAB 3.5: BACKEND, QUEUE & DEVOPS CONTROL PLANE */}
-        <TabsContent value="devops" className="space-y-6">
-          <BackendDevOpsCenter />
         </TabsContent>
 
         {/* TAB 4: PROFILE */}
