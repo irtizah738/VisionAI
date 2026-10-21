@@ -323,9 +323,6 @@ export function LandingFooter() {
                   <div className="font-bold text-slate-900 dark:text-white">Strictly Necessary</div>
                   <div className="text-[11px] text-slate-500">Zero-trust auth &amp; CSRF security</div>
                 </div>
-                <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase">
-                  Always On
-                </span>
               </div>
               <label className="p-3.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#060913] flex items-center justify-between cursor-pointer">
                 <div>
