@@ -6,13 +6,21 @@ import { cookies } from "next/headers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "VisionAI - Omnichannel Marketing & Growth Workspace",
+  title: "VisionAI - AI-Powered Marketing Intelligence & Optimization",
   description:
-    "Plan, preview, automate, and analyze omnichannel marketing campaigns from a unified workspace.",
+    "AI-powered marketing intelligence and campaign optimization platform.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "32x32" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
   openGraph: {
-    title: "VisionAI - Omnichannel Marketing & Growth Workspace",
+    title: "VisionAI - AI-Powered Marketing Intelligence & Optimization",
     description:
-      "Plan, preview, automate, and analyze omnichannel marketing campaigns from a unified workspace.",
+      "AI-powered marketing intelligence and campaign optimization platform.",
   },
 };
 
