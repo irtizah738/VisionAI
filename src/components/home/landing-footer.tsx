@@ -90,7 +90,11 @@ export function LandingFooter() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2.5">
+              <form
+                onSubmit={handleNewsletterSubmit}
+                suppressHydrationWarning
+                className="flex flex-col sm:flex-row gap-2.5"
+              >
                 <div className="relative flex-1">
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <Input
@@ -374,7 +378,7 @@ export function LandingFooter() {
         {/* Bottom Legal, Social & Back-to-Top Bar */}
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-4">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span>&copy; {new Date().getFullYear()} VisionAI Inc. All rights reserved.</span>
+            <span suppressHydrationWarning>&copy; 2026 VisionAI Inc. All rights reserved.</span>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
@@ -398,6 +402,7 @@ export function LandingFooter() {
             </Link>
             <button
               type="button"
+              suppressHydrationWarning
               onClick={() => setShowCookieModal((prev) => !prev)}
               className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
             >
@@ -405,6 +410,7 @@ export function LandingFooter() {
             </button>
             <button
               type="button"
+              suppressHydrationWarning
               onClick={scrollToTop}
               aria-label="Scroll back to top"
               className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer pl-2 border-l border-slate-200 dark:border-white/10"

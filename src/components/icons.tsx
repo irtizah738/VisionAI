@@ -16,6 +16,8 @@ export const VisionAILogo = ({ className = 'h-7 w-7', ...props }: VisionAILogoPr
       alt="VisionAI"
       width={64}
       height={64}
+      loading="eager"
+      referrerPolicy="no-referrer"
       className="h-full w-full object-contain scale-110"
     />
   </span>

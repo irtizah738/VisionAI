@@ -46,12 +46,13 @@ export function AdWasteCalculator() {
                   1. Monthly Paid Social &amp; Ad Spend
                 </label>
                 <span className="text-xl font-mono font-extrabold text-indigo-600 dark:text-indigo-400 tabular-nums">
-                  ${monthlySpend.toLocaleString()}/mo
+                  ${monthlySpend.toLocaleString("en-US")}/mo
                 </span>
               </div>
               <input
                 id="spend-slider"
                 type="range"
+                suppressHydrationWarning
                 min={5000}
                 max={200000}
                 step={5000}
@@ -80,6 +81,7 @@ export function AdWasteCalculator() {
               <input
                 id="creatives-slider"
                 type="range"
+                suppressHydrationWarning
                 min={4}
                 max={80}
                 step={4}
@@ -109,6 +111,7 @@ export function AdWasteCalculator() {
                   <button
                     key={item.id}
                     type="button"
+                    suppressHydrationWarning
                     onClick={() => setTeamModel(item.id as "agency" | "inhouse" | "solo")}
                     className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold border transition-all cursor-pointer ${
                       teamModel === item.id
@@ -145,11 +148,11 @@ export function AdWasteCalculator() {
                 Projected Monthly Pipeline &amp; Savings Lift
               </div>
               <div className="text-4xl sm:text-6xl font-display font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-indigo-200 to-fuchsia-300 tabular-nums tracking-tight">
-                +${projectedRevenueLift.toLocaleString()}
+                +${projectedRevenueLift.toLocaleString("en-US")}
                 <span className="text-lg text-slate-400 font-sans font-normal">/mo</span>
               </div>
               <div className="text-sm text-emerald-400 font-semibold pt-1 tabular-nums">
-                +${(projectedRevenueLift * 12).toLocaleString()} annualized impact
+                +${(projectedRevenueLift * 12).toLocaleString("en-US")} annualized impact
               </div>
             </div>
 
@@ -158,7 +161,7 @@ export function AdWasteCalculator() {
               <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/10">
                 <div className="text-xs text-slate-300 font-medium">Ad Waste Recovered</div>
                 <div className="text-xl font-mono font-bold text-indigo-300 tabular-nums mt-1">
-                  ${wastedSpendRecovered.toLocaleString()}/mo
+                  ${wastedSpendRecovered.toLocaleString("en-US")}/mo
                 </div>
                 <div className="text-xs text-slate-400 mt-0.5">Zero fold-cutoffs</div>
               </div>
@@ -166,7 +169,7 @@ export function AdWasteCalculator() {
               <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/10">
                 <div className="text-xs text-slate-300 font-medium">Retainer Saved</div>
                 <div className="text-xl font-mono font-bold text-fuchsia-300 tabular-nums mt-1">
-                  ${productionSavings.toLocaleString()}/mo
+                  ${productionSavings.toLocaleString("en-US")}/mo
                 </div>
                 <div className="text-xs text-slate-400 mt-0.5">In-house autonomy</div>
               </div>
@@ -184,7 +187,7 @@ export function AdWasteCalculator() {
             <div className="pt-2 space-y-3">
               <Link href="/login" className="block">
                 <Button className="w-full h-13 bg-gradient-to-r from-[#1D39C4] via-[#6D28D9] to-[#A824B4] hover:opacity-95 text-white font-bold text-sm sm:text-base rounded-2xl shadow-xl shadow-indigo-500/25 gap-2 cursor-pointer border-0">
-                  <span>Unlock +${projectedRevenueLift.toLocaleString()}/Mo — Start 14-Day Free Trial</span>
+                  <span>Unlock +${projectedRevenueLift.toLocaleString("en-US")}/Mo — Start 14-Day Free Trial</span>
                   <ArrowRight className="h-5 w-5" />
                 </Button>
               </Link>

@@ -201,7 +201,11 @@ export function LeadCaptureSection() {
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form
+                  onSubmit={handleSubmit}
+                  suppressHydrationWarning
+                  className="space-y-4"
+                >
                   <div>
                     <h3 className="text-xl font-display font-bold text-white tracking-tight">
                       Claim Your Free 3-Ad Teardown &amp; Sandbox

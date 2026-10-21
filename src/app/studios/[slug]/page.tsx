@@ -10,7 +10,6 @@ import {
   BarChart3,
   Sparkles,
   ShieldCheck,
-  ArrowLeft,
   ArrowRight,
   CheckCircle2,
   Cpu,
@@ -574,7 +573,6 @@ export default function StudioKnowledgePage() {
   const params = useParams();
   const rawSlug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug || "command-center";
   const doc = STUDIO_KNOWLEDGE_DOCS[rawSlug] || STUDIO_KNOWLEDGE_DOCS["command-center"];
-  const Icon = doc.icon;
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -595,59 +593,9 @@ export default function StudioKnowledgePage() {
         <section className="relative overflow-hidden pt-12 pb-16 px-6 lg:px-12 max-w-7xl mx-auto">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[760px] h-[340px] bg-gradient-to-r from-[#1D39C4]/15 via-[#6D28D9]/15 to-[#A824B4]/15 blur-[130px] rounded-full pointer-events-none -z-10" />
 
-          {/* Top Breadcrumb & Auth Status */}
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-8 border-b border-slate-200/80 dark:border-white/10">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to VisionAI Home
-            </Link>
-
-            <div className="inline-flex items-center gap-2 text-xs font-mono">
-              {isLoggedIn ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-semibold">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  Workspace Authenticated · Direct Studio Access Enabled
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 font-semibold">
-                  <Lock className="h-3.5 w-3.5" />
-                  Public Knowledge Specification · Sign In Required to Launch Studio
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Studio Switcher Pills */}
-          <div className="pt-6 flex flex-wrap items-center gap-2">
-            {Object.values(STUDIO_KNOWLEDGE_DOCS).map((item) => {
-              const active = item.slug === doc.slug;
-              return (
-                <Link
-                  key={item.slug}
-                  href={`/studios/${item.slug}`}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all ${
-                    active
-                      ? "bg-gradient-to-r from-[#1D39C4] via-[#6D28D9] to-[#A824B4] text-white font-bold shadow-sm"
-                      : "bg-white dark:bg-[#0B0F1E] text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-white/10 hover:border-indigo-500/40"
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              );
-            })}
-          </div>
-
           {/* Main Studio Headline & Explicit Overview */}
-          <div className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-8 space-y-5">
-              <div className="inline-flex items-center gap-2 text-xs sm:text-[13px] font-mono uppercase tracking-[0.12em] text-indigo-600 dark:text-indigo-400 font-bold">
-                <Icon className="h-4 w-4" />
-                <span>{doc.badge}</span>
-              </div>
-
               <h1 className="text-[clamp(2.25rem,4.5vw,3.75rem)] font-display font-extrabold tracking-[-0.033em] text-slate-900 dark:text-white leading-[1.06]">
                 {doc.headline}{" "}
                 <span className="font-editorial italic font-semibold bg-gradient-to-r from-[#1D39C4] via-[#6D28D9] to-[#A824B4] dark:from-blue-400 dark:via-indigo-300 dark:to-fuchsia-400 bg-clip-text text-transparent pr-1">
@@ -736,9 +684,6 @@ export default function StudioKnowledgePage() {
                 className="p-7 rounded-3xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#0B0F1E] shadow-sm flex flex-col justify-between space-y-5"
               >
                 <div className="space-y-3">
-                  <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-mono text-[11px] font-bold">
-                    {block.codeTag}
-                  </div>
                   <h3 className="text-xl font-display font-extrabold tracking-[-0.024em] text-slate-900 dark:text-white">
                     {block.title}
                   </h3>

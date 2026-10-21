@@ -33,8 +33,8 @@ export function PricingSection() {
       name: "Growth Studio",
       badge: "Replaces $4,500/mo Freelancers",
       description: "For founders and fast-moving marketing teams scaling high-converting social ads.",
-      monthlyPrice: 199,
-      annualPrice: 159,
+      monthlyPrice: 99,
+      annualPrice: 79,
       features: [
         "5 Connected Social Channels (IG, TikTok, LinkedIn, X, YT)",
         "Unlimited Fold-Aware Creative Canvas Exports (9:16, 1:1, 16:9)",
@@ -51,8 +51,8 @@ export function PricingSection() {
       name: "Scale Agency & Brand",
       badge: "Replaces $12,000/mo Agency Retainer",
       description: "For high-spend brands and agencies dominating multiple verticals simultaneously.",
-      monthlyPrice: 499,
-      annualPrice: 399,
+      monthlyPrice: 399,
+      annualPrice: 319,
       features: [
         "Unlimited Connected Social Channels & Brand Workspaces",
         "Real-Time Competitor Ambush Radar & Instant Battlecards",
@@ -106,6 +106,7 @@ export function PricingSection() {
         <div className="mt-8 inline-flex items-center p-1.5 rounded-2xl bg-slate-200/80 dark:bg-[#0B0F1E] border border-slate-300/60 dark:border-white/10">
           <button
             type="button"
+            suppressHydrationWarning
             onClick={() => setBillingCycle("monthly")}
             className={`px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all cursor-pointer ${
               billingCycle === "monthly"
@@ -117,6 +118,7 @@ export function PricingSection() {
           </button>
           <button
             type="button"
+            suppressHydrationWarning
             onClick={() => setBillingCycle("annual")}
             className={`px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all cursor-pointer flex items-center gap-2 ${
               billingCycle === "annual"
@@ -154,13 +156,6 @@ export function PricingSection() {
 
               <div className="space-y-5">
                 <div>
-                  <div
-                    className={`text-xs font-mono font-semibold mb-1.5 ${
-                      plan.popular ? "text-indigo-300" : "text-indigo-600 dark:text-indigo-400"
-                    }`}
-                  >
-                    {plan.badge}
-                  </div>
                   <h3 className="text-2xl font-display font-extrabold tracking-[-0.025em]">
                     {plan.name}
                   </h3>
@@ -190,7 +185,7 @@ export function PricingSection() {
                           plan.popular ? "text-indigo-200" : "text-slate-500 dark:text-slate-400"
                         }`}
                       >
-                        /month
+                        /mo.
                       </span>
                     </div>
                   )}
@@ -202,7 +197,7 @@ export function PricingSection() {
                     {plan.custom
                       ? "Tailored enterprise agreement"
                       : billingCycle === "annual"
-                      ? `Billed annually ($${(price! * 12).toLocaleString()}/yr)`
+                      ? `Billed annually ($${(price! * 12).toLocaleString("en-US")}/yr)`
                       : "Billed monthly · Cancel in 1 click"}
                   </div>
                 </div>
@@ -291,6 +286,7 @@ export function PricingSection() {
               >
                 <button
                   type="button"
+                  suppressHydrationWarning
                   onClick={() => setOpenFaq(isOpen ? null : i)}
                   className="w-full px-6 py-4 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors"
                 >

@@ -91,6 +91,7 @@ export function InteractiveStudioShowcase() {
           <div className="mt-7 inline-flex p-1.5 rounded-2xl bg-slate-200/80 dark:bg-slate-900 border border-slate-300/60 dark:border-white/10">
             <button
               type="button"
+              suppressHydrationWarning
               onClick={() => setWorkflowView("visionai")}
               className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center gap-2 ${
                 workflowView === "visionai"
@@ -103,6 +104,7 @@ export function InteractiveStudioShowcase() {
             </button>
             <button
               type="button"
+              suppressHydrationWarning
               onClick={() => setWorkflowView("agency")}
               className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center gap-2 ${
                 workflowView === "agency"
@@ -247,6 +249,7 @@ export function InteractiveStudioShowcase() {
                   <button
                     key={ev.id}
                     type="button"
+                    suppressHydrationWarning
                     onClick={() => setSelectedEvent(ev)}
                     className={`w-full text-left p-4 rounded-2xl border transition-all cursor-pointer ${
                       active

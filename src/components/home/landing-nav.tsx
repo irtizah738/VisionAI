@@ -19,8 +19,9 @@ export function LandingNav() {
             alt="VisionAI"
             width={64}
             height={64}
+            loading="eager"
+            referrerPolicy="no-referrer"
             className="h-full w-full object-contain scale-110"
-            priority
           />
         </span>
         <span className="font-display font-extrabold text-xl tracking-tight bg-gradient-to-r from-[#1D39C4] via-[#6D28D9] to-[#A824B4] dark:from-blue-400 dark:via-indigo-300 dark:to-fuchsia-400 bg-clip-text text-transparent">
@@ -74,6 +75,7 @@ export function LandingNav() {
         </Link>
         <button
           type="button"
+          suppressHydrationWarning
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="md:hidden text-slate-700 dark:text-slate-200 p-1.5 rounded-lg border border-slate-200 dark:border-slate-800"
           aria-label="Toggle navigation menu"

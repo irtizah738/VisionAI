@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LandingNav } from "@/components/home/landing-nav";
-import { HeroInteractiveCanvas } from "@/components/home/hero-interactive-canvas";
 import { AdWasteCalculator } from "@/components/home/ad-waste-calculator";
 import { InteractiveStudioShowcase } from "@/components/home/interactive-studio-showcase";
 import { BentoCapabilities } from "@/components/home/bento-capabilities";
@@ -38,13 +37,6 @@ export default function HomePage() {
 
           {/* Centered Editorial Hero Proposition */}
           <div className="text-center max-w-4xl mx-auto space-y-6">
-            {/* Unboxed Editorial Kicker */}
-            <div className="inline-flex flex-wrap items-center justify-center gap-2.5 text-xs sm:text-[13px] font-mono text-indigo-600 dark:text-indigo-400">
-              <span className="text-slate-600 dark:text-slate-300 font-sans font-medium tracking-normal">
-                Replaces $9,500/mo Agency Retainers
-              </span>
-            </div>
-
             {/* Expressive Display Headline with Royal Cobalt -> Violet -> Orchid Gradient */}
             <h1 className="text-[clamp(2.5rem,5.4vw,4.5rem)] font-display font-extrabold tracking-[-0.035em] text-slate-900 dark:text-white leading-[1.04]">
               73% of your ad budget{" "}
@@ -101,60 +93,6 @@ export default function HomePage() {
                 <span className="tabular-nums font-semibold text-slate-800 dark:text-white">4.9/5</span>{" "}
                 from 1,420+ Growth Teams
               </span>
-            </div>
-          </div>
-
-          {/* Centerpiece Interactive 3-Column Neural Campaign Synthesizer */}
-          <HeroInteractiveCanvas />
-
-          {/* 4-Column Quantified Benchmark Strip */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-6xl mx-auto text-left">
-            <div className="p-6 rounded-2xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#0B0F1E] shadow-sm">
-              <div className="text-3xl sm:text-4xl font-display font-extrabold tracking-tight bg-gradient-to-r from-[#1D39C4] to-[#6D28D9] dark:from-blue-400 dark:to-indigo-300 bg-clip-text text-transparent tabular-nums">
-                4.4x
-              </div>
-              <div className="text-sm font-bold text-slate-900 dark:text-white mt-1.5">
-                Avg Paid Social ROAS
-              </div>
-              <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Fold-safe optical geometry
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#0B0F1E] shadow-sm">
-              <div className="text-3xl sm:text-4xl font-display font-extrabold tracking-tight bg-gradient-to-r from-[#6D28D9] to-[#A824B4] dark:from-indigo-300 dark:to-fuchsia-400 bg-clip-text text-transparent tabular-nums">
-                14d → 4m
-              </div>
-              <div className="text-sm font-bold text-slate-900 dark:text-white mt-1.5">
-                Production Turnaround
-              </div>
-              <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                From brief to 5-network drop
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#0B0F1E] shadow-sm">
-              <div className="text-3xl sm:text-4xl font-display font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400 tabular-nums">
-                -38.4%
-              </div>
-              <div className="text-sm font-bold text-slate-900 dark:text-white mt-1.5">
-                Blended CAC Reduction
-              </div>
-              <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Zero cropped mobile hooks
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#0B0F1E] shadow-sm">
-              <div className="text-3xl sm:text-4xl font-display font-extrabold tracking-tight text-slate-900 dark:text-white tabular-nums">
-                $48.2M+
-              </div>
-              <div className="text-sm font-bold text-slate-900 dark:text-white mt-1.5">
-                Attributed Client Pipeline
-              </div>
-              <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Verified across 1,400+ brands
-              </div>
             </div>
           </div>
         </section>
