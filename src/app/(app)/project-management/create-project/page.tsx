@@ -19,7 +19,7 @@ export default function CreateProjectPage() {
             New Project Setup
           </CardTitle>
           <CardDescription>
-            Outline your new project's details.
+            Outline your new project&apos;s details.
           </CardDescription>
         </CardHeader>
         <CardContent>

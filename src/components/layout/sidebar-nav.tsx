@@ -167,8 +167,8 @@ export function SidebarNav() {
     >
       <SidebarHeader className="h-14 px-3.5 border-b border-slate-200/80 dark:border-slate-800/80 flex flex-row items-center justify-between">
         <Link href="/dashboard" className="flex items-center gap-2.5 min-w-0">
-          <div className="p-1.5 rounded-lg bg-indigo-600 text-white shadow-xs shrink-0">
-            <VisionAILogo className="h-4 w-4 text-white" />
+          <div className="flex items-center justify-center shrink-0">
+            <VisionAILogo className="h-7 w-7" />
           </div>
           {!isCollapsed && (
             <span className="text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight whitespace-nowrap truncate">
@@ -365,23 +365,32 @@ export function SidebarNav() {
             </DropdownMenuSub>
 
             <DropdownMenuSeparator className="bg-slate-200 dark:bg-slate-800" />
-            {user ? (
-              <DropdownMenuItem
-                onClick={signOutFirebase}
-                className="text-xs text-red-600 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-950/30 cursor-pointer"
-              >
-                <LogOut className="mr-2 h-3.5 w-3.5" />
-                Sign Out
-              </DropdownMenuItem>
-            ) : (
+            {!user && (
               <DropdownMenuItem
                 onClick={handleGoogleSignIn}
                 className="text-xs text-indigo-600 dark:text-indigo-400 focus:bg-indigo-50 dark:focus:bg-indigo-950/30 cursor-pointer"
               >
                 <LogIn className="mr-2 h-3.5 w-3.5" />
-                Sign In with Google
+                Connect Google Cloud Sync
               </DropdownMenuItem>
             )}
+            <DropdownMenuItem
+              onClick={async () => {
+                if (typeof window !== "undefined") {
+                  window.localStorage.removeItem("visionai_workspace_authenticated");
+                  window.localStorage.removeItem("visionai_workspace_user_email");
+                  document.cookie = "visionai_auth=; path=/; max-age=0; SameSite=Lax";
+                }
+                if (user) {
+                  await signOutFirebase();
+                }
+                router.push("/login");
+              }}
+              className="text-xs text-red-600 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-950/30 cursor-pointer"
+            >
+              <LogOut className="mr-2 h-3.5 w-3.5" />
+              Sign Out of Workspace
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarFooter>

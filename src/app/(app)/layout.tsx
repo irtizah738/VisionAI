@@ -222,6 +222,66 @@ function AppHeaderBar() {
   );
 }
 
+function WorkspaceAuthGuard({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [authChecked, setAuthChecked] = useState(false);
+  const [authorized, setAuthorized] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      if (typeof window === "undefined") return;
+      const stored = window.localStorage.getItem("visionai_workspace_authenticated") === "true";
+      const hasCookie = document.cookie
+        .split(";")
+        .some((c) => c.trim().startsWith("visionai_auth=1"));
+      if (stored || hasCookie) {
+        setAuthorized(true);
+        setAuthChecked(true);
+      } else {
+        setAuthorized(false);
+        setAuthChecked(true);
+        const search = window.location.search || "";
+        const target = `${pathname || "/dashboard"}${search}`;
+        router.replace(`/login?callbackUrl=${encodeURIComponent(target)}`);
+      }
+    };
+    checkAuth();
+  }, [pathname, router]);
+
+  if (!authChecked || !authorized) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6 text-center">
+        <div className="max-w-md w-full p-8 rounded-3xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#0B0F1E] shadow-xl space-y-4">
+          <div className="flex justify-center">
+            <VisionAILogo className="h-11 w-11" />
+          </div>
+          <div className="text-[11px] font-mono uppercase tracking-widest text-indigo-600 dark:text-indigo-400 font-bold">
+            Zero-Trust Workspace Gate
+          </div>
+          <h2 className="text-xl font-display font-extrabold text-slate-900 dark:text-white">
+            Authentication Required
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            VisionAI production studios are protected workspaces. Redirecting you to the Sign In screen...
+          </p>
+          <div className="pt-2">
+            <Link
+              href={`/login?callbackUrl=${encodeURIComponent(pathname || "/dashboard")}`}
+              className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#1D39C4] via-[#6D28D9] to-[#A824B4] text-white text-xs font-bold shadow-md"
+            >
+              <span>Sign In to Enter Workspace</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+
 export default function AppLayout({
   children,
 }: {
@@ -230,23 +290,25 @@ export default function AppLayout({
   return (
     <SessionProvider>
       <FirebaseProvider>
-        <SidebarProvider>
-          <SkipToContent />
-          <SidebarNav />
-          <SidebarInset className="relative bg-background min-h-screen">
-            <AppHeaderBar />
+        <WorkspaceAuthGuard>
+          <SidebarProvider>
+            <SkipToContent />
+            <SidebarNav />
+            <SidebarInset className="relative bg-background min-h-screen">
+              <AppHeaderBar />
 
-            <main
-              id="main-content"
-              className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto max-w-7xl mx-auto w-full"
-              tabIndex={-1}
-              role="main"
-            >
-              {children}
-            </main>
-          </SidebarInset>
-        </SidebarProvider>
-        <Announcer message="" />
+              <main
+                id="main-content"
+                className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto max-w-7xl mx-auto w-full"
+                tabIndex={-1}
+                role="main"
+              >
+                {children}
+              </main>
+            </SidebarInset>
+          </SidebarProvider>
+          <Announcer message="" />
+        </WorkspaceAuthGuard>
       </FirebaseProvider>
     </SessionProvider>
   );

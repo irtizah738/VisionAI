@@ -8,6 +8,8 @@ const publicPaths = [
   '/auth',
   '/api/auth',
   '/',
+  '/studios',
+  '/trust',
   '/about',
   '/contact',
 ];

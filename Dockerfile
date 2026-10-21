@@ -21,8 +21,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Disable Next.js telemetry
+# Disable Next.js telemetry and enable standalone output for Docker
 ENV NEXT_TELEMETRY_DISABLED 1
+ENV DOCKER_BUILD true
 
 # Build the application
 RUN yarn build

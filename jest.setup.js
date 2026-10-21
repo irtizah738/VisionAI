@@ -1,7 +1,18 @@
 // Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
-import 'whatwg-fetch';
 import { TextEncoder, TextDecoder } from 'util';
+
+// Bind Web Standards to Jest environment
+global.Response = globalThis.Response;
+global.Request = globalThis.Request;
+global.Headers = globalThis.Headers;
+global.fetch = globalThis.fetch;
+if (typeof window !== 'undefined') {
+  window.Response = globalThis.Response;
+  window.Request = globalThis.Request;
+  window.Headers = globalThis.Headers;
+  window.fetch = globalThis.fetch;
+}
 
 // Mock Next.js router
 jest.mock('next/router', () => ({
@@ -33,9 +44,16 @@ jest.mock('next-auth/react', () => ({
     data: null,
     status: 'unauthenticated',
   })),
+  SessionProvider: ({ children }) => children,
   signIn: jest.fn(),
   signOut: jest.fn(),
   getSession: jest.fn(),
+}));
+
+// Mock next-themes
+jest.mock('next-themes', () => ({
+  ThemeProvider: ({ children }) => children,
+  useTheme: () => ({ theme: 'dark', setTheme: jest.fn() }),
 }));
 
 // Mock environment variables
@@ -50,25 +68,26 @@ process.env = {
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
-// Mock Intersection Observer
-global.IntersectionObserver = class IntersectionObserver {
-  constructor() {}
-  observe() { return null; }
-  unobserve() { return null; }
-  disconnect() { return null; }
-};
+// Mock browser globals when in jsdom
+if (typeof window !== 'undefined') {
+  global.IntersectionObserver = class IntersectionObserver {
+    constructor() {}
+    observe() { return null; }
+    unobserve() { return null; }
+    disconnect() { return null; }
+  };
 
-// Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: jest.fn().mockImplementation(query => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
-}); 
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: jest.fn().mockImplementation(query => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  });
+} 

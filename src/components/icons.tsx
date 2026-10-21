@@ -1,20 +1,22 @@
-import type { LucideProps } from 'lucide-react';
+import React from 'react';
+import Image from 'next/image';
 
-export const VisionAILogo = ({ className, ...props }: LucideProps) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
+interface VisionAILogoProps {
+  className?: string;
+  [key: string]: any;
+}
+
+export const VisionAILogo = ({ className = 'h-7 w-7', ...props }: VisionAILogoProps) => (
+  <span
+    className={`inline-flex items-center justify-center rounded-full bg-white overflow-hidden shrink-0 aspect-square shadow-xs ring-1 ring-indigo-500/15 dark:ring-purple-500/30 ${className}`}
     {...props}
   >
-    <path d="M12 2L2 7l10 5 10-5-10-5z" />
-    <path d="M2 17l10 5 10-5" />
-    <path d="M2 12l10 5 10-5" />
-    <circle cx="12" cy="12" r="3" stroke="hsl(var(--accent))" strokeWidth="1.5" fill="hsl(var(--accent / 0.2))" />
-  </svg>
+    <Image
+      src="/assets/aistudio/Vision_AI_Sora_logo_61952a5b.webp"
+      alt="VisionAI"
+      width={64}
+      height={64}
+      className="h-full w-full object-contain scale-110"
+    />
+  </span>
 );

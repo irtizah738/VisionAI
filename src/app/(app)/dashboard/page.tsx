@@ -1199,15 +1199,18 @@ export default function VisionAIDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Executive Command Center Header & Tabular KPI Strip */}
+      {/* Executive Command Center Header & 4-Minute Autonomous Pipeline Launchpad */}
       <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-2xs">
         <div className="p-5 md:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="space-y-1 max-w-2xl">
-            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+            <div className="text-xs font-mono text-indigo-600 dark:text-indigo-400 font-semibold">
+              Autonomous Creative &amp; 5-Network Dispatch Cockpit · 4.4x Avg Paid Social ROAS
+            </div>
+            <h1 className="text-xl md:text-2xl font-display font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
               Command Center
             </h1>
             <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-              Manage cross-network publishing queues, live social inbox threads, and omnichannel post previews from a single workspace.
+              Execute the 4-minute autonomous workflow: synthesize fold-safe social ads, ambush rival campaigns, and dispatch across 5 networks with live revenue attribution.
             </p>
           </div>
           <div className="flex items-center gap-2.5 flex-wrap shrink-0">
@@ -1215,30 +1218,103 @@ export default function VisionAIDashboard() {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => router.push("/automation")}
-              className="h-9 px-3.5 text-xs font-medium whitespace-nowrap cursor-pointer"
+              onClick={() => router.push("/creative-canvas")}
+              className="h-9 px-3.5 text-xs font-semibold whitespace-nowrap cursor-pointer gap-1.5"
             >
-              Drip Automation
+              <Palette className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+              Fold-Aware Canvas
             </Button>
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={() => router.push("/competitor-intel")}
-              className="h-9 px-3.5 text-xs font-medium whitespace-nowrap cursor-pointer"
+              className="h-9 px-3.5 text-xs font-semibold whitespace-nowrap cursor-pointer gap-1.5"
             >
+              <Radar className="h-3.5 w-3.5 text-fuchsia-600 dark:text-fuchsia-400" />
               Competitor Radar
             </Button>
             <Button
               type="button"
               size="sm"
               onClick={() => setActiveTab("composer")}
-              className="h-9 px-4 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white whitespace-nowrap cursor-pointer"
+              className="h-9 px-4 text-xs font-semibold bg-gradient-to-r from-[#1D39C4] via-[#6D28D9] to-[#A824B4] hover:opacity-95 text-white whitespace-nowrap cursor-pointer border-0"
             >
               <Plus className="h-3.5 w-3.5 mr-1.5" />
-              Compose Post
+              Compose &amp; Dispatch
             </Button>
           </div>
+        </div>
+
+        {/* 4-Minute Autonomous Pipeline Quick-Launch Strip (Matches Landing Page Promise) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 px-5 pb-5">
+          <button
+            type="button"
+            onClick={() => router.push("/settings?tab=brand-voice")}
+            className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 hover:border-indigo-500/50 text-left transition-all cursor-pointer group"
+          >
+            <div className="flex items-center justify-between text-[11px] font-mono text-indigo-600 dark:text-indigo-400 font-bold">
+              <span>Minute 01 · Brand DNA</span>
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+            </div>
+            <div className="text-xs font-bold text-slate-900 dark:text-white mt-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+              {brandVoiceInfo.brandName} Guardrails
+            </div>
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+              Anti-cliché tone &amp; banned buzzwords locked
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => router.push("/creative-canvas")}
+            className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 hover:border-indigo-500/50 text-left transition-all cursor-pointer group"
+          >
+            <div className="flex items-center justify-between text-[11px] font-mono text-indigo-600 dark:text-indigo-400 font-bold">
+              <span>Minute 02 · 3 Hook Angles</span>
+              <span className="text-emerald-600 dark:text-emerald-400">96/100 Score</span>
+            </div>
+            <div className="text-xs font-bold text-slate-900 dark:text-white mt-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+              Contrarian · Receipt · Wedge
+            </div>
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+              Synthesize thumb-stopping hooks in 1 click
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => router.push("/creative-canvas")}
+            className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 hover:border-indigo-500/50 text-left transition-all cursor-pointer group"
+          >
+            <div className="flex items-center justify-between text-[11px] font-mono text-indigo-600 dark:text-indigo-400 font-bold">
+              <span>Minute 03 · Safe-Zone Studio</span>
+              <span className="text-emerald-600 dark:text-emerald-400">0% Cutoffs</span>
+            </div>
+            <div className="text-xs font-bold text-slate-900 dark:text-white mt-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+              9:16 · 1:1 · 16:9 Multi-Ratio
+            </div>
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+              TikTok, Reels &amp; Shorts UI obstruction masks
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => router.push("/competitor-intel")}
+            className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 hover:border-indigo-500/50 text-left transition-all cursor-pointer group"
+          >
+            <div className="flex items-center justify-between text-[11px] font-mono text-fuchsia-600 dark:text-fuchsia-400 font-bold">
+              <span>Minute 04 · Ambush &amp; Dispatch</span>
+              <span className="text-emerald-600 dark:text-emerald-400">+44% Win Rate</span>
+            </div>
+            <div className="text-xs font-bold text-slate-900 dark:text-white mt-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+              3 Live Rival Signals Detected
+            </div>
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+              Deploy counter-battlecards across 5 networks
+            </div>
+          </button>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 border-t border-slate-200/80 dark:border-slate-800 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/80 dark:divide-slate-800 bg-slate-50/60 dark:bg-slate-950/40">

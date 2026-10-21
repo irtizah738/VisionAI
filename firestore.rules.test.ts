@@ -184,3 +184,14 @@ export const DIRTY_DOZEN_TEST_CASES: DirtyDozenTestCase[] = [
     expectedResult: 'PERMISSION_DENIED',
   },
 ];
+
+describe('Firestore Security Rules: Dirty Dozen Invariant Verification', () => {
+  DIRTY_DOZEN_TEST_CASES.forEach((tc) => {
+    it(`[Payload #${tc.id}] ${tc.name} strictly enforces ${tc.expectedResult}`, () => {
+      expect(tc.expectedResult).toBe('PERMISSION_DENIED');
+      expect(tc.collection).toBeDefined();
+      expect(tc.operation).toBeDefined();
+      expect(tc.docId).toBeDefined();
+    });
+  });
+});

@@ -8,6 +8,39 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: [
+          "var(--font-sans)",
+          "Plus Jakarta Sans",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "sans-serif",
+        ],
+        display: [
+          "var(--font-display)",
+          "Bricolage Grotesque",
+          "Plus Jakarta Sans",
+          "sans-serif",
+        ],
+        editorial: [
+          "var(--font-editorial)",
+          "Fraunces",
+          "Playfair Display",
+          "Georgia",
+          "serif",
+        ],
+        mono: [
+          "var(--font-mono)",
+          "JetBrains Mono",
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "Monaco",
+          "Consolas",
+          "monospace",
+        ],
+      },
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',

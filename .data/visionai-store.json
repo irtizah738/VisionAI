@@ -2,13 +2,13 @@
   "users": [
     {
       "id": "usr_visionai_admin",
-      "name": "Alex Morgan",
+      "name": "Chief Visionary Officer",
       "email": "admin@vision.ai",
       "role": "VP of Growth & Social",
-      "company": "VisionAI Technologies",
+      "company": "VisionAI Global Corp",
       "timezone": "America/New_York",
       "language": "en",
-      "bio": "Leading multi-channel social strategy, AI content velocity, and brand engagement across 5 global channels.",
+      "bio": "AI-First Multi-Platform Orchestration Lead",
       "avatarUrl": "https://placehold.co/100x100.png",
       "notifications": {
         "emailDigest": true,
@@ -17,7 +17,7 @@
         "weeklyReports": true
       },
       "createdAt": "2026-09-20T00:09:28.510Z",
-      "updatedAt": "2026-10-20T00:09:28.510Z"
+      "updatedAt": "2026-10-21T11:53:05.640Z"
     }
   ],
   "posts": [],
